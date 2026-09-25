@@ -104,6 +104,15 @@ After a scan, the Overview tab shows **Current Processor Markup vs. Appendix G W
 
 The markup analysis is on-screen only; the emailed/downloaded proposal PDF is unchanged.
 
+## Equipment tab
+
+The Equipment tab has two views, switched at the top of the tab:
+
+- **WPI Assist** (the default): the rep equipment field kit, with equipment flyers, installation guides, troubleshooting, and device comparisons. It is the [repequipment](https://github.com/Blakew316/repequipment) app, embedded from its live site, wpirepassist.com. It works exactly as it does there, and changes to that repository show up here as soon as that site deploys. It loads the first time the view opens, and **Open WPI Assist in a new window** opens it on its own.
+- **Pricing & Proposal**: the equipment pricing calculator. The equipment chosen here feeds the Proposal tab and the PDF.
+
+The tab remembers which view was open last.
+
 ## Deploying on Netlify
 
 The **enchanting-sprinkles-fa7ad4** project (wpicostcomp.com) deploys from this repository's `main` branch. Every push or merge to `main` publishes the site. `netlify.toml` sets the publish directory (`public`) and the functions directory. Changes on other branches don't go live until they're merged into `main`.
