@@ -165,14 +165,18 @@ test('Worldpay Integrated: a total fees value that disagrees with its sections l
   assert.equal(r.total_fees, 1200);
 });
 
-test('Shift4 is recognised by its fee summary when the logo is unreadable', () => {
+test('Shift4 is recognised by its fee summary when the logo is unreadable, and a misread add-on fee is corrected', () => {
   const r = Core.parseStatement([page([
     [[40, 'SHIFT"'], [300, 'MERCHANT STATEMENT FOR 05/2026']], [[300, 'DBA NAME: SAMPLE MARKET']],
     [[40, 'SAMPLE MARKET']], [[40, '3 CEDAR RD']], [[40, 'SPRINGFIELD, AZ 85000-1234']],
     [[40, 'TOTAL PROCESSING SERVICE FEES APPLIED FOR THE REPORTING PERIOD'], [500, '$1,100.00']],
-    [[40, 'ADDITIONAL SERVICES FEE TOTAL?'], [500, '25.00']],
+    [[40, 'ADDITIONAL SERVICES FEE TOTAL?'], [500, '525.00']],   // "$25.00" misread
     [[40, '0099000000 VISA'], [200, '$30,000.00'], [280, '300'], [340, '$0.00'], [420, '$30,000.00'], [500, '300']],
     [[40, 'ACTIVITY TOTAL00'], [200, '$40,000.00'], [280, '400'], [340, '($100.00)'], [420, '$39,900.00'], [500, '401']],
+  ]), page([
+    [[40, 'ADDITIONAL SERVICES DETAIL SAMPLE MARKET'], [400, 'USD']],
+    [[40, '0099000001'], [120, 'GIFT CARD SERVICE'], [260, '1'], [300, '$25.00'], [360, '$25.00'], [420, '$0.00'], [480, '$25.00']],
+    [[40, 'ADDITIONAL SER'], [120, 'TOTAL'], [300, '$25.00'], [360, '$0.00'], [480, '$25.00']],
   ])], {});
   assert.equal(r.family, 'shift4');
   assert.equal(r.volume, 40000);

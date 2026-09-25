@@ -402,6 +402,11 @@
     if (fam === 'shift4') {
       const a = valueAfterLabel(doc, /TOTAL PROCESSING SERVICE FEES APPLIED/i)[0];
       const b = valueAfterLabel(doc, /ADDITIONAL SERVICES FEE TOTAL/i)[0];
+      // The detail section repeats that total; trust it when they differ (OCR reads "$25.00" as "525.00")
+      const d = doc.all.findIndex(l => /ADDITIONAL SERVICES DETAIL/i.test(l.text));
+      const detRow = d >= 0 ? doc.all.slice(d + 1, d + 20).find(l => /^ADDITIONAL SER.*TOTAL|^TOTAL\b/i.test(l.text)) : null;
+      const detTotal = detRow ? tokens(detRow.text).filter(t => t.k === 'money').pop() : null;
+      if (b && detTotal && Math.abs(detTotal.v - b.value) > 0.005) { b.value = Math.abs(detTotal.v); b.src += ' → ' + detRow.text; }
       if (a) add(100, { value: a.value + (b ? b.value : 0), line: a.line, src: a.src + (b ? ' + ' + b.src : '') }, 'Processing + additional services fees');
     }
     [
