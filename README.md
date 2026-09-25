@@ -4,7 +4,7 @@ The cost comparison tool deployed at wpicostcomp.com. Site files live in `public
 
 ## Scan Statement
 
-Agents click **Scan Statement** in the header and choose how the statement arrived:
+Agents click **Scan Statement** in the header and choose how the statement arrived. The statement can be the merchant's processing statement or bank statement (see [Bank statements](#bank-statements)):
 
 - **PDF Statement**: the PDF the merchant downloaded or emailed (text or scanned).
 - **Statement Photos**: phone photos of the paper statement, one per page. Select all the pages at once. A page tray shows thumbnails so the agent can put the summary page first, remove a bad shot, or add a missed page before reading.
@@ -42,6 +42,46 @@ The on-device misses are a 75-dpi fax the reader can't make out (the agent is to
 
 For the most reliable photo reads, turn on the AI reader (see below).
 
+## Bank statements
+
+The same Scan Statement buttons also read a merchant's **bank statement**, as a downloaded PDF, a scan, or photos. There's no separate option: the reader recognizes a bank statement on its own and marks the review **Bank statement**.
+
+From a bank statement it fills in:
+
+- **Monthly Card Volume**: deposits from card processors, such as Square, Toast, Clover and Fiserv "Bankcard" deposits, Stripe, PayPal, Heartland, Worldpay, TSYS, Elavon, and Amex settlements. Cash and check deposits, transfers, Zelle, loan proceeds, refunds, and chargeback reversals don't count as card sales.
+- **Total Monthly Fees**: processing fees plus POS software and equipment. The review lists each cost category per month, with who it was paid to. Checked rows add up to Total Monthly Fees:
+
+  | Row | Counts | Checked by default |
+  | --- | --- | --- |
+  | Processing fees | The processor's fee debits (discount, monthly, PCI, statement fees) | Yes |
+  | POS software & equipment | POS subscriptions, app market, gateways, and terminal leases or rentals. Payroll, bookkeeping, website, and other general software doesn't count. | Yes |
+  | Bank fees | Service charges, NSF and overdraft fees, returned-item and wire fees, less any the bank refunded | No |
+  | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans), SBA loans, and daily or weekly debits to an unnamed "… Funding" payee | No |
+
+- **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate waits for that number.
+
+The review also points out:
+
+- **Deposits net of fees.** Square, Stripe, and many Clover accounts take their fees out of each payout, so no fee debits appear. The review says so, and the processing statement is needed for exact fees.
+- **Possible cash advances.** Repeating identical debits to an unknown payee are flagged.
+- **Returned payments.** A payment that was returned unpaid isn't counted as a cost. If it was a lender's payment, the review says so.
+- **Settlements under the merchant's own name.** Some processors send deposits under the business's own name; these are counted as card deposits and flagged for the agent to confirm.
+
+When several monthly statements are uploaded together, the figures are averaged per month. The AI reader follows the same rules.
+
+**Bank statement accuracy.** Measured on 36 real bank statements (29 text PDFs, 7 scanned), against an answer key built by two independent readers and reconciled where they disagreed:
+
+| Field | Text PDFs (29) | Scanned, read on-device (7) |
+| --- | --- | --- |
+| Recognized as a bank statement | 29 of 29 | 7 of 7 |
+| Card-processor deposits | 29 of 29 | 7 of 7 |
+| Processing fees | 28 of 29 | 7 of 7 |
+| POS software & equipment | 28 of 29 | 7 of 7 |
+| Bank fees | 29 of 29 | 5 of 7 |
+| Cash advance / loan payments | 28 of 29 | 6 of 7 |
+
+The text-PDF misses are judgment calls: an equipment lease from an unnamed lessor, and two debits returned unpaid that the key counted anyway. The scanned misses are a $3 fee printed too faintly to read, NSF fees counted after the bank's refunds (matching the statement's own service-charge total), and "Payroll Bridge" debits that the key itself marked as uncertain. Six synthetic statements in other bank layouts (Chase, Bank of America, Wells Fargo, Truist, credit union, and community bank styles), with every transaction labeled, are all read correctly, both as text and through OCR.
+
 ## Markup vs. Appendix G
 
 After a scan, the Overview tab shows **Current Processor Markup vs. Appendix G Wholesale Cost**:
@@ -73,7 +113,7 @@ If you ever deploy by drag-and-drop instead, drag the `public` folder, not the r
 
 ```bash
 npm install
-npm test        # parser, OCR line building, Appendix G matching, markup math, and the function (against a mock API)
+npm test        # parser, bank statements, OCR line building, Appendix G matching, markup math, and the function (against a mock API)
 ```
 
 Serve `public/` with any static server for the on-device reader, or use `netlify dev` to run the function locally.

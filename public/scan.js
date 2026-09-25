@@ -339,6 +339,10 @@
   // ───────────── Scan orchestration ─────────────
   function assess(r) {
     const missing = [];
+    if (r.document_type === 'bank_statement') {
+      if (!(r.volume > 0)) missing.push('volume');
+      return { missing, plausible: true, needsAi: missing.length > 0 || (!r.merchant_name && !r.address) };
+    }
     if (!(r.volume > 0)) missing.push('volume');
     if (!(r.total_fees > 0)) missing.push('fees');
     if (!(r.transactions > 0)) missing.push('transactions');
@@ -364,7 +368,8 @@
     return Object.assign({}, r, {
       interchange_lines: (r.interchange_lines || []).map(l => ({ name: l.name, brand: l.brand, type: l.type, volume: l.volume, count: l.count, fee: l.fee, rate: l.rate_pct, item: l.per_item, pc: null })),
       warnings: (r.notes || []).slice(),
-      evidence: {}
+      evidence: {},
+      bank: r.document_type === 'bank_statement' && r.bank ? Object.assign({}, r.bank, { months: Math.max(1, r.bank.months_covered || 1) }) : null
     });
   }
 
@@ -545,6 +550,20 @@
       '<div class="table-container" style="margin-top:0.4rem"><table><thead><tr><th>Card</th><th style="text-align:right">Volume</th><th style="text-align:right">Txns</th></tr></thead><tbody>' +
       mix.map(x => '<tr><td>' + esc((BRAND[x.brand] || x.brand) + (x.type && x.type !== 'unknown' && x.brand !== 'pin_debit' && x.brand !== 'ebt' ? ' ' + x.type : '')) + '</td><td class="num">' + money(x.volume) + '</td><td class="num">' + (x.count != null ? Number(x.count).toLocaleString('en-US') : '—') + '</td></tr>').join('') +
       '</tbody></table></div></details>' : '';
+    // Bank statement: card deposits and each cost category, per month; checked categories make up the fees
+    const bank = r.document_type === 'bank_statement' && r.bank ? r.bank : null;
+    const BANK_ROWS = [
+      ['processing_fees', 'Processing fees', true], ['software_fees', 'POS software & equipment', true],
+      ['misc_fees', 'Bank fees', false], ['mca_payments', 'Cash advance / loan payments', false]
+    ];
+    const perMonth = v => (bank ? (v || 0) / (bank.months || 1) : 0);
+    const who = g => (g && g.sources && g.sources.length ? g.sources.slice(0, 3).map(x => esc(x.name)).join(', ') + (g.sources.length > 3 ? ' +' + (g.sources.length - 3) : '') : '');
+    const bankHtml = bank ? '<div class="scan-bank"><div class="scan-bank-title">From the bank statement' + (bank.months > 1 ? ' (monthly average of ' + bank.months + ' statements)' : ', per month') + '</div>' +
+      '<div class="table-container"><table><tbody>' +
+      '<tr><td>Card-processor deposits</td><td class="num">' + money(perMonth(bank.card_deposits.total)) + '</td><td class="scan-bank-who">' + (bank.card_deposits.count || 0) + ' deposits' + (who(bank.card_deposits) ? ' · ' + who(bank.card_deposits) : '') + '</td></tr>' +
+      BANK_ROWS.map(([k, label, on]) => { const g = bank[k] || { total: 0, count: 0 }; return '<tr><td><label><input type="checkbox" data-bank="' + k + '"' + (on ? ' checked' : '') + '> ' + label + '</label></td><td class="num">' + money(perMonth(g.total)) + '</td><td class="scan-bank-who">' + (g.count ? g.count + ' · ' : '') + who(g) + '</td></tr>'; }).join('') +
+      (bank.chargebacks && bank.chargebacks.count ? '<tr><td>Chargebacks</td><td class="num">' + money(perMonth(bank.chargebacks.total)) + '</td><td class="scan-bank-who">' + bank.chargebacks.count + '</td></tr>' : '') +
+      '</tbody></table></div><div class="scan-bank-note">Checked rows add up to Total Monthly Fees.</div></div>' : '';
     const src = r.source === 'ai' ? '<span class="scan-badge ai">Read by AI</span>'
       : r.source === 'ocr' ? '<span class="scan-badge ocr">Read from ' + (files.some(f => !isPdf(f)) ? 'photos' : 'scan') + ' on-device</span>'
       : '<span class="scan-badge">Read on-device</span>';
@@ -552,9 +571,10 @@
     const thumbs = photoFiles.length ? '<div class="scan-thumbs" aria-label="Statement photos">' + photoFiles.map((f, i) =>
       '<a href="#" data-photo="' + i + '" title="Open page ' + (i + 1) + ' to compare"><img alt="Page ' + (i + 1) + '" data-thumb="' + i + '"><span>' + (i + 1) + '</span></a>').join('') + '<span class="scan-thumbs-hint">Tap a page to compare</span></div>' : '';
     const sub = [r.processor, r.statement_period, files.length === 1 ? files[0].name : files.length + ' files'].filter(Boolean).map(esc).join(' · ');
+    const kindBadge = bank ? '<span class="scan-badge bank">Bank statement</span>' : '';
     const m = openModal(
       '<h2 id="scanTitle">Review Scanned Statement</h2>' +
-      '<div class="scan-sub">' + src + '<span>' + sub + '</span></div>' + thumbs +
+      '<div class="scan-sub">' + src + kindBadge + '<span>' + sub + '</span></div>' + thumbs +
       '<div class="scan-fields">' +
       field('scanName', 'Merchant', name, { full: true, extra: legal ? '<div class="scan-alt">Legal name: ' + esc(legal) + ' · <button type="button" data-use="' + esc(legal) + '">use this</button></div>' : '' }) +
       field('scanAddr', 'Address', r.address || '', { full: true }) +
@@ -565,7 +585,7 @@
       '<div class="scan-summary"><div class="kpi"><div class="kpi-label">Effective Rate</div><div class="kpi-value" id="scanEff">—</div></div>' +
       '<div class="kpi"><div class="kpi-label">Average Ticket</div><div class="kpi-value" id="scanAvg">—</div></div>' +
       '<div class="kpi"><div class="kpi-label">Processor Markup</div><div class="kpi-value" id="scanMarkup">—</div><div class="kpi-sub" id="scanMarkupSub">vs. Appendix G cost</div></div></div>' +
-      mixHtml +
+      bankHtml + mixHtml +
       (warnings.length ? '<div class="scan-warn"><ul>' + warnings.map(w => '<li>' + esc(w) + '</li>').join('') + '</ul></div>' : '') +
       '<div class="scan-actions">' + (opts.canRecheck ? '<button type="button" data-act="ai">Double-check with AI</button>' : '') +
       '<span class="spacer"></span><button type="button" data-act="cancel">Cancel</button><button type="button" class="primary" data-act="apply">Apply &amp; Generate Analysis</button></div>'
@@ -584,11 +604,16 @@
       const V = num(inputs.vol.value), T = num(inputs.txn.value), F = num(inputs.fees.value);
       $('#scanEff', m).textContent = V > 0 && F != null ? pct(F / V * 100) : '—';
       $('#scanAvg', m).textContent = V > 0 && T > 0 ? money(V / T) : '—';
-      const mk = state.table && V > 0 && F != null ? ScanCore.computeMarkup({ table: state.table, volume: V, transactions: T || 0, fees: F, cardMix: r.card_mix, lines: r.interchange_lines, assumptions: assumptions() }) : null;
+      // per-transaction interchange is part of the wholesale cost, so the markup waits for a transaction count
+      const mk = state.table && V > 0 && F != null && T > 0 ? ScanCore.computeMarkup({ table: state.table, volume: V, transactions: T, fees: F, cardMix: r.card_mix, lines: r.interchange_lines, assumptions: assumptions() }) : null;
       $('#scanMarkup', m).textContent = mk ? money(mk.markup) + '/mo' : '—';
-      $('#scanMarkupSub', m).textContent = mk ? pct(mk.markupPct) + ' of volume · ' + (mk.mode === 'itemized' ? 'itemized' : 'estimated') : 'vs. Appendix G cost';
+      $('#scanMarkupSub', m).textContent = mk ? pct(mk.markupPct) + ' of volume · ' + (mk.mode === 'itemized' ? 'itemized' : 'estimated') : V > 0 && F != null && !(T > 0) ? 'Enter # of transactions' : 'vs. Appendix G cost';
     };
     Object.values(inputs).forEach(i => i.addEventListener('input', () => { i.classList.remove('missing'); update(); }));
+    m.querySelectorAll('input[data-bank]').forEach(cb => cb.addEventListener('change', () => {
+      const sum = Array.from(m.querySelectorAll('input[data-bank]:checked')).reduce((a, c) => a + perMonth((bank[c.dataset.bank] || {}).total), 0);
+      inputs.fees.value = (Math.round(sum * 100) / 100).toFixed(2); inputs.fees.classList.remove('missing'); update();
+    }));
     loadTable().then(update).catch(update);
     update();
     m.querySelector('[data-act="cancel"]').onclick = closeModal;
@@ -755,7 +780,7 @@
     const opt = (kind, title, desc, cls) => '<button type="button" class="scan-option' + (cls ? ' ' + cls : '') + '" data-pick="' + kind + '">' + ICON[kind] +
       '<span><strong>' + title + '</strong><small>' + desc + '</small></span></button>';
     const m = openModal('<h2 id="scanTitle">Scan Statement</h2>' +
-      '<div class="scan-sub">Read the merchant\u2019s processing statement to fill in this comparison.</div>' +
+      '<div class="scan-sub">Read the merchant\u2019s processing statement or bank statement to fill in this comparison.</div>' +
       '<div class="scan-options">' +
       (tray.length ? opt('resume', 'Continue with ' + tray.length + (tray.length === 1 ? ' photo' : ' photos'), 'Pick up the photos you already added.') : '') +
       opt('pdf', 'PDF Statement', 'Upload the statement PDF the merchant downloaded or emailed.') +
