@@ -310,3 +310,164 @@ test('statement-wide patterns: PayPal loan debits, settlements under the busines
   assert.equal(r.bank.mca_payments.total, 1541.18);
   assert.equal(r.bank.misc_fees.total, 25.6);
 });
+
+test('Chase-style scan details: fees section, processor capital, check lists, OCR headings', () => {
+  const c = (d, dir) => Core.classifyBankTx(d, dir);
+  assert.deepEqual(c('Orig CO Name:360 Payments CAP Orig ID:9000000000 Desc Date:260818 CO Entry Descr:2026-08-17Sec:CCD', 'debit'), { category: 'mca_payment', source: '360 Payments Capital' });
+  assert.equal(c('Orig CO Name:360Payments Orig ID:9000000000 Desc Date:260806 CO Entry Descr:8005550100Sec:CCD', 'debit').category, 'processing_fee');
+  assert.equal(c('Orig CO Name:Sample Billing Orig ID:271000000 Desc Date: Cbi CO Entry Descr:Funding Sec:CCD', 'credit').category, 'other_deposit');   // a payer's memo, not a lender
+  assert.equal(c('Orig CO Name:Timepaymentcorp_ Orig ID:9000000000 CO Entry Descr:Web Pmts Sec:Web', 'debit').category, 'software_fee');
+  const r = Core.parseStatement([page([
+    ...header,
+    [[40, 'Beginning Balance'], R(570, '$10,000.00')], [[40, 'Deposits and Additions'], R(570, '3,000.00')], [[40, 'Ending Balance'], R(570, '$12,293.69')],
+    [[40, '[DEPOSITS AND ADDITIONS] (rinse?']], [[40, 'DATE'], [90, 'DESCRIPTION'], R(570, 'AMOUNT')],
+    [[40, '08/03'], [90, 'Orig CO Name:Bankcard Orig ID:1000000000 CO Entry Descr:Settlementsec:CCD'], R(570, '3,000.00')],
+    [[40, 'CHECKS PAID]']], [[40, 'CHECK NO.'], [90, 'DESCRIPTION'], [440, 'DATE PAID'], R(575, 'AMOUNT')],
+    [[40, '3101'], [440, '08/12'], R(575, '$93.81')],
+    [[40, '3102'], [390, '08/05'], [440, '08/05'], R(575, '395.00')],
+    [[40, '3103 A'], [440, '08/21'], R(575, '125.00')],
+    [[40, 'Deposit']],
+    [[40, 'FEES']], [[40, 'DATE'], [90, 'DESCRIPTION'], R(570, 'AMOUNT')],
+    [[40, '08/03'], [90, 'Quick Dep Mth Chg Single'], R(570, '$25.00')],
+    [[40, '08/03'], [90, 'Rtp/Same Day - High Value'], R(570, '25.00')],
+    [[40, '08/31'], [90, 'Monthly Service Fee'], R(570, '42.50')],
+  ])], {});
+  assert.equal(r.bank.card_deposits.total, 3000);
+  assert.equal(r.bank.debits_total, 706.31);
+  assert.equal(r.bank.misc_fees.total, 92.5);
+  assert.equal(r.bank.reconcile_gap, 0);
+  assert.ok(!r.warnings.some(w => /misread/.test(w)));
+});
+
+test('U.S. Bank-style grids with month-name dates and reference numbers', () => {
+  const r = Core.parseStatement([page([
+    ...header,
+    [[40, 'Beginning Balance'], R(570, '$1,000.00')], [[40, 'Customer Deposits'], [330, '2'], R(570, '21,553.00')], [[40, 'Checks Paid'], [330, '2'], R(570, '8,483.00-')], [[40, 'Ending Balance'], R(570, '$14,070.00')],
+    [[40, 'Customer Deposits']],
+    [[40, 'Number | Date | Ref Number | Amount | Number | Date | Ref Number | Amount']],
+    [[40, 'Jul 3'], [120, '8400000001'], R(260, '11,034.50'), [300, 'Jul 24'], [380, '8400000002'], R(520, '10,518.50')],
+    [[40, 'Checks Presented Conventionally']],
+    [[40, 'Check | Date | Ref Number | Amount | Check | Date | Ref Number | Amount']],
+    [[40, '0432'], [80, 'Jul'], [100, '3'], [120, '8400000003'], R(260, '6,500.00'), [300, '50059*'], [340, 'Jul'], [360, '3'], [380, '8400000004'], R(520, '1,983.00')],
+  ])], {});
+  assert.equal(r.bank.credits_total, 21553);
+  assert.equal(r.bank.debits_total, 8483);
+  assert.equal(r.bank.reconcile_gap, 0);
+});
+
+test('amounts that do not reconcile with the statement are flagged for the agent', () => {
+  const r = Core.parseStatement([page([
+    ...header,
+    [[40, 'Beginning Balance'], R(570, '$1,000.00')], [[40, 'Deposits and Additions'], R(570, '2,000.00')], [[40, 'Ending Balance'], R(570, '$3,000.00')],
+    [[40, 'DEPOSITS AND ADDITIONS']], [[40, '08/03'], [90, 'Orig CO Name:Bankcard CO Entry Descr:Settlement'], R(570, '2,550.00')],   // a misread 2,000.00
+  ])], {});
+  assert.ok(r.warnings.some(w => /add up to \$2550\.00, but the statement’s total is \$2000\.00/.test(w)), r.warnings.join(' | '));
+});
+
+test('review findings: names inside descriptors and look-alike wording are not misread', () => {
+  const c = (d, dir) => Core.classifyBankTx(d, dir).category;
+  // the account holder's own name ("INDN:CAPITAL CITY DINER") says nothing about the payee
+  assert.equal(c('HEARTLAND PAYMENT DES:TXNS/FEES ID:65000 INDN:CAPITAL CITY DINER CO ID:1234', 'debit'), 'processing_fee');
+  assert.equal(c('BANKCARD 8076 DES:MTOT DISC ID:12345 INDN:CAPITAL PLUMBING LLC', 'debit'), 'processing_fee');
+  assert.equal(c('ACH DEBIT SAMPLE SUPPLY DES:INVOICE INDN:TOAST HOUSE CAFE', 'debit'), 'other_debit');
+  assert.equal(c('SPECTRUM DES:ONE TIME PAYMENT', 'debit'), 'other_debit');
+  assert.equal(c('SUNBELT EQUIPMENT RENTAL DES:ACH', 'debit'), 'other_debit');
+  assert.equal(c('FIRST BANKCARD DES:ONLINE PMT ID:998877', 'debit'), 'other_debit');       // paying a credit card
+  assert.equal(c('US BANK DES:BANKCARD PMT', 'debit'), 'other_debit');
+  assert.equal(c('CLOVER SONOMA DES:ACH DEBIT', 'debit'), 'other_debit');                    // a dairy, not Clover POS
+  assert.equal(c('MAVERICK ROOFING SUPPLY DES:ACH', 'debit'), 'other_debit');
+  assert.equal(c('SQUARE ONE DISTRIBUTING DES:PAYMENT', 'credit'), 'other_deposit');
+  assert.equal(c('ACH RETURN BANKCARD 8076 DES:MTOT DISC', 'credit'), 'other_deposit');
+  assert.equal(c('ACH RETURN KAPITUS SERVICING DAILY PMT', 'credit'), 'other_deposit');
+  assert.equal(c('SHIFT4 PAYMENTS DES:FUNDING ID:123', 'credit'), 'card_deposit');            // a processor payout
+  assert.equal(c('GREENBOX POS DES:DEPOSIT', 'credit'), 'other_deposit');
+  assert.equal(c('SUMMIT FUNDING INC DES:MTG PMT', 'debit'), 'other_debit');                  // a mortgage
+  assert.equal(c('PARKVIEW PLAZA LLC DES:RENT', 'debit'), 'other_debit');
+  assert.equal(c('DISCOVER BANK DES:TRANSFER ID:123', 'credit'), 'other_deposit');            // the owner's savings
+  assert.equal(c('RETURN ITEM FEE', 'debit'), 'misc_fee');
+  assert.equal(c('DEPOSITED ITEM RETURN FEE', 'debit'), 'misc_fee');
+});
+
+test('review findings: credit card statements, months, netting and repeat-debit grouping', () => {
+  const card = page([
+    [[40, 'SAMPLE BUSINESS CARD']], ...header.slice(3),
+    [[40, 'Previous Balance'], R(570, '$1,000.00')], [[40, 'New Balance'], R(570, '$4,120.00')], [[40, 'Minimum Payment Due'], R(570, '$40.00')],
+    [[40, 'Payment Due Date 09/25/2026']], [[40, 'Credit Limit'], R(570, '$10,000.00')], [[40, 'Available Credit'], R(570, '$5,880.00')],
+    [[40, 'We use the Average Daily Balance (including new purchases) method']],
+    [[40, '08/03'], [90, 'SQ *SAMPLE RESTAURANT SUPPLY'], R(570, '1,200.00')],
+  ]);
+  assert.notEqual(Core.parseStatement([card], {}).document_type, 'bank_statement');
+  // one statement listing checking and savings is one month
+  const two = Core.parseStatement([page([
+    ...header.slice(0, 6), [[40, 'Statement Period: August 1 - August 31, 2026']],
+    [[40, 'BUSINESS CHECKING']], [[40, 'Beginning Balance'], R(570, '$5,000.00')], [[40, 'Deposits and Other Credits'], R(570, '10,000.00')],
+    [[40, '08/05'], [90, 'Orig CO Name:Square Inc Sq260805'], R(570, '10,000.00')], [[40, 'Ending Balance'], R(570, '$15,000.00')],
+    [[40, 'BUSINESS SAVINGS']], [[40, 'Beginning Balance'], R(570, '$20,000.00')], [[40, 'Ending Balance'], R(570, '$20,000.00')],
+  ])], {});
+  assert.equal(two.bank.months, 1);
+  assert.equal(two.volume, 10000);
+  // an unrelated refund of the same amount doesn't cancel a lender payment
+  const rows = [];
+  for (let d = 3; d <= 7; d++) rows.push([[40, '08/0' + d], [90, 'LIBERTAS FUNDING DAILY ACH'], R(570, '250.00')]);
+  const r = Core.parseStatement([page([
+    ...header, [[40, 'Beginning Balance'], R(570, '$5,000.00')], [[40, 'Ending Balance'], R(570, '$4,000.00')],
+    [[40, 'Deposits and Other Credits']], [[40, '08/20'], [90, 'SAMPLE HARDWARE REFUND'], R(570, '250.00')],
+    [[40, 'Withdrawals and Other Debits']], ...rows,
+    [[40, '08/11'], [90, 'Purchase authorized on 08/10 SAMPLE GAS STATION'], R(570, '100.00')], [[40, '08/12'], [90, 'Purchase authorized on 08/11 SAMPLE HARDWARE'], R(570, '100.00')],
+    [[40, '08/13'], [90, 'Purchase authorized on 08/12 SAMPLE FOODS'], R(570, '100.00')], [[40, '08/14'], [90, 'Purchase authorized on 08/13 SAMPLE MARKET'], R(570, '100.00')],
+    [[40, '08/15'], [90, 'PAYPAL TRANSFER ADD TO BALANCE WEB ID: PAYPALSD11'], R(570, '500.00')], [[40, '08/19'], [90, 'PAYPAL TRANSFER ADD TO BALANCE WEB ID: PAYPALSD11'], R(570, '500.00')],
+  ])], {});
+  assert.equal(r.bank.mca_payments.total, 1250);
+  assert.ok(!r.warnings.some(w => /returned unpaid|Purchase Authorized/i.test(w)), r.warnings.join(' | '));
+});
+
+test('review findings: row assembly across statements, columns and headings', () => {
+  const colPage = (headers, rows, extra) => page([...header, [[40, 'Beginning Balance'], R(570, '$1,000.00')], [[40, 'Ending Balance'], R(570, '$8,480.00')], ...(extra || []),
+    [[40, 'Date'], [90, 'Description'], R(430, headers[0]), R(500, headers[1]), R(575, 'Balance')], ...rows]);
+  const rows = [[[40, '8/3'], [90, 'BANKCARD 8076 BTOT DEP'], R(430 + 70, '8,000.00')], [[40, '8/4'], [90, 'BANKCARD 8076 MTOT DISC'], R(430, '320.00')], [[40, '8/5'], [90, 'NORTHERN LEASING SYS'], R(430, '200.00')]];
+  for (const h of [['Withdrawal Amount', 'Deposit Amount'], ['Debit Amount', 'Credit Amount'], ['Money Out', 'Money In'], ['Debits (-)', 'Credits (+)']]) {
+    const r = Core.parseStatement([colPage(h, rows)], {});
+    assert.equal(r.bank.card_deposits.total, 8000, h.join('/'));
+    assert.equal(r.bank.processing_fees.total, 320, h.join('/'));
+  }
+  // an account-summary header (labels with amounts beneath) is not the register's column map
+  const sumHead = [[[100, 'Beginning Balance'], R(330, 'Deposits/Credits'), R(450, 'Withdrawals/Debits'), R(570, 'Ending Balance')], [R(200, '1,000.00'), R(330, '8,000.00'), R(450, '320.00'), R(570, '8,680.00')]];
+  const signed = Core.parseStatement([page([...header, ...sumHead, [[40, 'DATE'], [90, 'DESCRIPTION'], R(480, 'AMOUNT'), R(560, 'BALANCE')],
+    [[40, '08/03'], [90, 'BANKCARD 8076 DES:BTOT DEP'], R(480, '8,000.00'), R(560, '9,000.00')], [[40, '08/04'], [90, 'BANKCARD 8076 DES:MTOT DISC'], R(480, '-320.00'), R(560, '8,680.00')]])], {});
+  assert.equal(signed.bank.card_deposits.total, 8000);
+  assert.equal(signed.bank.processing_fees.total, 320);
+  // the amount column, not a figure inside the description
+  const od = Core.parseStatement([page([...header, [[40, 'Beginning Balance'], R(570, '$1,500.00')], [[40, 'Deposits'], R(570, '$0.00')], [[40, 'Withdrawals'], R(570, '-$34.00')], [[40, 'Ending Balance'], R(570, '$1,466.00')],
+    [[40, 'TRANSACTION DATE'], [120, 'DESCRIPTION'], R(480, 'AMOUNT'), R(560, 'BALANCE')],
+    [[40, '08/05'], [120, 'Overdraft Fee For A $45.00 Card Purchase - Details: 0804 Sq *Sample Coffee'], R(480, '-34.00'), R(560, '1,466.00')]])], {});
+  assert.equal(od.bank.misc_fees.total, 34);
+  assert.equal(od.bank.card_deposits.total, 0);
+  // commas in headings; "ATM Withdrawal" inside a section is a description, not a heading
+  const bbt = Core.parseStatement([page([...header, [[40, 'Beginning Balance'], R(570, '$1,000.00')], [[40, 'Ending Balance'], R(570, '$11,675.00')],
+    [[40, 'Other withdrawals, debits and service charges']], [[40, '08/04'], [90, 'BANKCARD 8076 MTOT DISC'], R(570, '320.00')],
+    [[40, 'Deposits, credits and interest']], [[40, '08/03'], [90, 'BANKCARD 8076 BTOT DEP'], R(570, '12,000.00')], [[90, 'ATM Withdrawal']],
+    [[40, '08/06'], [90, 'BANKCARD 8076 BTOT DEP'], R(570, '1,000.00')]])], {});
+  assert.equal(bbt.bank.card_deposits.total, 13000);
+  assert.equal(bbt.bank.processing_fees.total, 320);
+  // two PDFs: the second statement's layout doesn't inherit the first one's columns
+  const a = colPage(['Debits', 'Credits'], [[[40, '8/3'], [90, 'BANKCARD 8076 BTOT DEP'], R(500, '8,000.00')]]); a.doc = 0;
+  const b = page([...header, [[40, 'Beginning balance on August 1, 2026'], R(570, '$100.00')], [[40, 'Deposits'], R(570, '$1,500.00')], [[40, 'Ending balance on August 31, 2026'], R(570, '$1,600.00')],
+    [[40, 'TRANSACTION DATE'], [120, 'DESCRIPTION'], R(480, 'AMOUNT'), R(560, 'BALANCE')],
+    [[40, '8/02/2026'], [120, 'Stripe Transfer ST-1234'], R(480, '$1,000.00'), R(560, '$1,100.00')], [[40, '8/04/2026'], [120, 'Stripe Transfer ST-1235'], R(480, '$500.00'), R(560, '$1,600.00')]]); b.doc = 1;
+  const both = Core.parseStatement([a, b], {});
+  assert.equal(both.bank.card_deposits.total, 9500);
+});
+
+test('review findings: check grids repeat the register only when month and day both match', () => {
+  const r = Core.parseStatement([page([
+    ...header,
+    [[40, 'LAST STATEMENT 07/31/26'], R(570, '3,000.00')], [[40, '3 DEBITS'], R(570, '1,500.00')], [[40, 'THIS STATEMENT 08/31/26'], R(570, '1,500.00')], [[40, 'MINIMUM BALANCE'], R(300, '1,500.00')],
+    [[180, '- - - - - - CHECKS - - - - - -']],
+    [[40, 'CHECK # | DATE | AMOUNT | CHECK # | DATE | AMOUNT']],
+    [[40, '1052'], [80, '08/05'], R(200, '500.00'), [240, '1053'], [280, '08/12'], R(400, '500.00')],
+    [[180, '- - - - - - OTHER DEBITS - - - - - -']],
+    [[40, 'DESCRIPTION'], [470, 'DATE'], R(570, 'AMOUNT')],
+    [[40, 'ONLINE TRANSFER TO SAVINGS'], [470, '08/20'], R(570, '500.00')],
+  ])], {});
+  assert.equal(r.bank.debits_total, 1500);
+});

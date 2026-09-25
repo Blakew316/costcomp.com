@@ -66,21 +66,27 @@ The review also points out:
 - **Possible cash advances.** Repeating identical debits to an unknown payee are flagged.
 - **Returned payments.** A payment that was returned unpaid isn't counted as a cost. If it was a lender's payment, the review says so.
 - **Settlements under the merchant's own name.** Some processors send deposits under the business's own name; these are counted as card deposits and flagged for the agent to confirm.
+- **Totals that don't add up.** The amounts read are checked against the statement's own deposit total and its beginning and ending balances. If they don't match (for example, a scan misread a digit), the review asks the agent to compare them with the statement.
 
 When several monthly statements are uploaded together, the figures are averaged per month. The AI reader follows the same rules.
 
-**Bank statement accuracy.** Measured on 36 real bank statements (29 text PDFs, 7 scanned), against an answer key built by two independent readers and reconciled where they disagreed:
+**Bank statement accuracy.** Measured on 37 real bank statements (29 text PDFs, 8 scanned), against an answer key built by two independent readers and reconciled where they disagreed:
 
-| Field | Text PDFs (29) | Scanned, read on-device (7) |
+| Field | Text PDFs (29) | Scanned, read on-device (8) |
 | --- | --- | --- |
-| Recognized as a bank statement | 29 of 29 | 7 of 7 |
-| Card-processor deposits | 29 of 29 | 7 of 7 |
-| Processing fees | 28 of 29 | 7 of 7 |
-| POS software & equipment | 28 of 29 | 7 of 7 |
-| Bank fees | 29 of 29 | 5 of 7 |
-| Cash advance / loan payments | 28 of 29 | 6 of 7 |
+| Recognized as a bank statement | 29 of 29 | 8 of 8 |
+| Card-processor deposits | 29 of 29 | 8 of 8 |
+| Processing fees | 28 of 29 | 7 of 8 |
+| POS software & equipment | 28 of 29 | 8 of 8 |
+| Bank fees | 29 of 29 | 6 of 8 |
+| Cash advance / loan payments | 28 of 29 | 7 of 8 |
 
-The text-PDF misses are judgment calls: an equipment lease from an unnamed lessor, and two debits returned unpaid that the key counted anyway. The scanned misses are a $3 fee printed too faintly to read, NSF fees counted after the bank's refunds (matching the statement's own service-charge total), and "Payroll Bridge" debits that the key itself marked as uncertain. Six synthetic statements in other bank layouts (Chase, Bank of America, Wells Fargo, Truist, credit union, and community bank styles), with every transaction labeled, are all read correctly, both as text and through OCR.
+The text-PDF misses are judgment calls: an equipment lease from an unnamed lessor, and two debits returned unpaid that the key counted anyway. On every text PDF that prints its balances, the transactions read reconcile to the cent. The scanned misses:
+
+- A $3 fee printed too faintly to read.
+- NSF fees counted after the bank's refunds, which matches the statement's own service-charge total.
+- "Payroll Bridge" debits that the key itself marked as uncertain.
+- A $105.25 fee that OCR read as $1,056.25. The totals check flags that statement for the agent. Six synthetic statements in other bank layouts (Chase, Bank of America, Wells Fargo, Truist, credit union, and community bank styles), with every transaction labeled, are all read correctly, both as text and through OCR.
 
 ## Markup vs. Appendix G
 

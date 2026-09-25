@@ -230,16 +230,17 @@
   // Read photos and scanned PDF pages on this device
   async function ocrFiles(files, pdfReads, live, onStatus) {
     const jobs = [];
-    files.forEach(f => {
+    // each PDF may be a separate statement; a set of photos is one statement
+    files.forEach((f, fi) => {
       if (isPdf(f)) {
         const read = pdfReads.find(r => r.file === f);
         if (!read) return;
         for (let p = 1; p <= read.pdf.numPages; p++) {
           // Pages that already carry text are used as-is; only image pages are OCR'd
           const pg = read.pages[p - 1];
-          jobs.push(pageChars(pg) >= 80 ? { text: pg } : { pdf: read.pdf, page: p });
+          jobs.push(pageChars(pg) >= 80 ? { text: pg, doc: fi } : { pdf: read.pdf, page: p, doc: fi });
         }
-      } else jobs.push({ file: f });
+      } else jobs.push({ file: f, doc: 'photos' });
     });
     const textJobs = jobs.filter(j => j.text).length;
     const total = Math.min(jobs.length - textJobs, OCR_MAX_PAGES);
@@ -251,7 +252,7 @@
       let n = 0;
       for (const job of jobs) {
         if (!live()) break;
-        if (job.text) { pages.push(job.text); continue; }
+        if (job.text) { pages.push(Object.assign({}, job.text, { doc: job.doc })); continue; }
         if (n >= total) continue;
         current = ++n; rotating = false;
         onStatus(current, total, 0);
@@ -262,7 +263,7 @@
           try { canvas = ocrCanvas(img, img.naturalWidth, img.naturalHeight); } finally { URL.revokeObjectURL(url); }
         }
         const ocr = await ocrPage(worker, canvas, () => { rotating = true; onStatus(current, total, 0, true); });
-        pages.push(ScanCore.buildPageLinesFromOcr(ocr));
+        pages.push(Object.assign(ScanCore.buildPageLinesFromOcr(ocr), { doc: job.doc }));
       }
     } finally { if (worker) worker.terminate().catch(() => null); }
     const r = ScanCore.parseStatement(pages, { table: await loadTable().catch(() => null) });
@@ -397,7 +398,7 @@
     if (pdfs.length) {
       const settled = await Promise.all(pdfs.map(f => readPdf(f).catch(err => { console.warn('Could not open', f.name, err); pdfErrors.push(pdfOpenError(f, err)); return null; })));
       pdfReads = settled.filter(Boolean);
-      if (pdfReads.length) dev = ScanCore.parseStatement([].concat.apply([], pdfReads.map(r => r.pages)), { table: await loadTable().catch(() => null) });
+      if (pdfReads.length) dev = ScanCore.parseStatement([].concat.apply([], pdfReads.map((r, i) => r.pages.map(pg => Object.assign({}, pg, { doc: i })))), { table: await loadTable().catch(() => null) });
     }
     if (!live()) return;
     // 1) Text PDFs: the on-device reader is instant and exact when it finds everything
