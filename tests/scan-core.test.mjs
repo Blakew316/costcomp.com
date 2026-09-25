@@ -33,7 +33,7 @@ test('Payroc-style statement: DBA, location address, totals, card mix, itemized 
   const r = Core.parseStatement([page([
     [[392, 'Statement Date:'], [511, 'January 31, 2026']],
     [[392, 'Merchant Number:'], [506, '409100000000001']],
-    [[31, 'Payroc LLC']], [[31, '7840 Graphics Dr Suite 200']], [[30, 'Tinley Park, IL 60477']],
+    [[31, 'Payroc LLC']], [[31, '100 Processor Way Suite 200']], [[30, 'Othertown, IL 60400']],
     [[31, 'Customer Service Direct:(888) 477-4510']],
     [[278, 'SAMPLE CAFE & GRILL']], [[31, 'Sample Holdings LLC']], [[278, 'Location address:']],
     [[31, '100 MAIN ST STE 2']], [[278, '100 MAIN ST STE 2']], [[31, 'MESA AZ 85202-9011'], [278, 'MESA AZ 85202-9011']],
@@ -72,13 +72,13 @@ test('Payroc-style statement: DBA, location address, totals, card mix, itemized 
 
 test('Fiserv-style statement: barcode line, owner name skipped, Location DBA and fees charged', () => {
   const r = Core.parseStatement([page([
-    [[36, 'EXAMPLE ISO, 29899 AGOURA RD #210, AGOURA HILLS, CA 91301']],
+    [[36, 'EXAMPLE ISO, 100 SAMPLE RD #210, OTHERTOWN, CA 90210']],
     [[40, 'YOUR CARD PROCESSING STATEMENT']],
     [[39, 'JANE OWNER'], [205, '400001'], [341, 'Page 1 of 4'], [427, 'THIS IS NOT A BILL']],
-    [[11, 'COLR637F 1101 8888 124SAMPLE AUTO REPAIR LLC']],
+    [[11, 'COLR000F 0000 0000 000SAMPLE AUTO REPAIR LLC']],
     [[341, 'StatementPeriod'], [427, '07/01/26 - 07/31/26']],
-    [[39, '12 OAK AVE']], [[341, 'Merchant Number'], [427, '5544 0000 0000000']], [[39, 'SALINAS CA 93901']],
-    [[345, 'Location:']], [[359, 'SAMPLE AUTO']], [[11, '07 260802 PAGE 00001 OF 00002'], [359, '12 OAK AVE']], [[359, 'SALINAS CA 93901']],
+    [[39, '12 OAK AVE']], [[341, 'Merchant Number'], [427, '9999 0000 0000000']], [[39, 'SPRINGFIELD CA 90001']],
+    [[345, 'Location:']], [[359, 'SAMPLE AUTO']], [[11, '07 999999 PAGE 00001 OF 00002'], [359, '12 OAK AVE']], [[359, 'SPRINGFIELD CA 90001']],
     [[216, 'Page'], [248, '2'], [284, 'Amounts Submitted'], [531, '$50,000.00']],
     [[216, 'Page'], [248, '3'], [284, 'Fees Charged'], [533, '-$1,250.00']],
     [[40, 'SUMMARY BY CARD TYPE']], [[40, 'Total Gross Sales You Submitted'], [300, 'Refunds']],
@@ -90,7 +90,7 @@ test('Fiserv-style statement: barcode line, owner name skipped, Location DBA and
   assert.equal(r.family, 'fiserv');
   assert.equal(r.merchant_name, 'Sample Auto');
   assert.equal(r.legal_name, 'Sample Auto Repair LLC');
-  assert.equal(r.address, '12 Oak Ave, Salinas, CA 93901');
+  assert.equal(r.address, '12 Oak Ave, Springfield, CA 90001');
   assert.equal(r.volume, 50000);
   assert.equal(r.transactions, 600);
   assert.equal(r.total_fees, 1250);
@@ -123,12 +123,12 @@ test('TSYS plan-summary statement adds discount due and fees due', () => {
 
 test('Clover billing statement: bill-to block, stacked totals, sale rows by brand', () => {
   const r = Core.parseStatement([page([
-    [[40, '7602 UNIVERSITY AVE']], [[40, 'LUBBOCK, TX, 79423']], [[40, 'United States']],
+    [[40, '500 SAMPLE AVE']], [[40, 'OTHERTOWN, TX, 79400']], [[40, 'United States']],
     [[40, 'Bill to'], [330, 'Details']],
     [[40, 'Sample Thai Kitchen'], [330, 'Statement Number']],
-    [[40, '12005 Dallas Pkwy #300'], [330, 'Issue date'], [420, 'Pending']],
-    [[40, 'Frisco, TX, 75034'], [330, 'Payment terms'], [420, 'Auto-Draft']],
-    [[40, 'Billing Account Number'], [330, '554400000000000']],
+    [[40, '100 Sample Pkwy #300'], [330, 'Issue date'], [420, 'Pending']],
+    [[40, 'Springfield, TX, 75001'], [330, 'Payment terms'], [420, 'Auto-Draft']],
+    [[40, 'Billing Account Number'], [330, '999900000000000']],
     [[40, 'Total Sales'], [330, 'Transaction Count']],
     [[40, '$20,000.00'], [330, '400']],
     [[40, 'Subtotal in USD:'], [330, '$880.00']],
@@ -138,7 +138,7 @@ test('Clover billing statement: bill-to block, stacked totals, sale rows by bran
   ])], { table });
   assert.equal(r.family, 'clover_billing');
   assert.equal(r.merchant_name, 'Sample Thai Kitchen');
-  assert.equal(r.address, '12005 Dallas Pkwy #300, Frisco, TX 75034');
+  assert.equal(r.address, '100 Sample Pkwy #300, Springfield, TX 75001');
   assert.equal(r.volume, 20000);
   assert.equal(r.transactions, 400);
   assert.equal(r.total_fees, 880);
@@ -148,9 +148,9 @@ test('Clover billing statement: bill-to block, stacked totals, sale rows by bran
 test('Toast statement: fees collected plus adjustments, not capital repayments', () => {
   const r = Core.parseStatement([page([
     [[177, 'Statement Date: 7/31/23'], [319, 'Merchant ID:'], [392, '4440000000000']],
-    [[177, 'Statement'], [245, '7/01/23 -'], [319, 'Merchant Name:'], [392, 'Sample Cantina - 22250 Bulverde Rd']],
-    [[319, 'Merchant'], [392, '22250 Bulverde Rd #114']],
-    [[319, 'Address:'], [392, 'San Antonio, TX 78258']],
+    [[177, 'Statement'], [245, '7/01/23 -'], [319, 'Merchant Name:'], [392, 'Sample Cantina - 200 Sample Rd']],
+    [[319, 'Merchant'], [392, '200 Sample Rd #114']],
+    [[319, 'Address:'], [392, 'Springfield, TX 78000']],
     [[43, 'Card Processing - Visa / MasterCard / Discover / Amex']],
     [[47, 'V/MC/D'], [95, '2.49% + 0.15'], [208, '1000 $50,000.00 0 $0.00 $1,395.00 $0.00'], [420, '$1,395.00 $8,000.00'], [520, '$40,605.00']],
     [[47, 'Amex'], [95, '3.29% + 0.15'], [160, '50'], [208, '$5,000.00'], [282, '0 $0.00 $172.00'], [330, '$0.00'], [372, '$172.00'], [420, '$700.00'], [520, '$4,128.00']],
@@ -158,7 +158,7 @@ test('Toast statement: fees collected plus adjustments, not capital repayments',
   ])], { table });
   assert.equal(r.family, 'toast');
   assert.equal(r.merchant_name, 'Sample Cantina');
-  assert.equal(r.address, '22250 Bulverde Rd #114, San Antonio, TX 78258');
+  assert.equal(r.address, '200 Sample Rd #114, Springfield, TX 78000');
   assert.equal(r.volume, 55000);
   assert.equal(r.transactions, 1050);
   assert.equal(r.total_fees, 1566.98);

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 
 const EXTRACTED = {
-  is_statement: true, merchant_name: 'Sample Cafe', legal_name: 'Sample Holdings LLC',
+  is_statement: true, document_type: 'processing_statement', bank: null, merchant_name: 'Sample Cafe', legal_name: 'Sample Holdings LLC',
   address: { street: '100 Main St', city: 'Austin', state: 'TX', zip: '78701' },
   mid: '5544000000000000', processor: 'Example Processor', statement_period: '07/01/26 - 07/31/26',
   volume: 25000, refunds: 0, transactions: 500, transactions_derived: false, total_fees: 780.5,
@@ -12,6 +12,17 @@ const EXTRACTED = {
   card_mix: [{ brand: 'visa', type: 'credit', volume: 15000, count: 300 }, { brand: 'visa', type: 'debit', volume: 10000, count: 200 }],
   interchange_lines: [], notes: [], confidence: 'high',
 };
+
+const group = (total, count, sources) => ({ total, count, sources: sources || [] });
+const BANK = Object.assign({}, EXTRACTED, {
+  document_type: 'bank_statement', processor: 'Sample Bank', transactions: null, volume: 21000, total_fees: 540,
+  bank: {
+    bank_name: 'Sample Bank', months_covered: 1,
+    card_deposits: group(21000, 22, [{ name: 'Square', total: 21000, count: 22 }]), processing_fees: group(0, 0),
+    software_fees: group(540, 1, [{ name: 'Toast', total: 540, count: 1 }]), misc_fees: group(15, 1), mca_payments: group(3000, 20, [{ name: 'Sample Funding', total: 3000, count: 20 }]),
+    mca_funding: group(0, 0), chargebacks: group(0, 0),
+  },
+});
 
 let server, requests = [], reply = 'ok';
 function sse(res, text, stopReason = 'end_turn') {
@@ -33,6 +44,7 @@ before(async () => {
     req.on('end', () => {
       requests.push({ url: req.url, headers: req.headers, body: JSON.parse(body) });
       if (reply === 'ok') return sse(res, JSON.stringify(EXTRACTED));
+      if (reply === 'bank') return sse(res, JSON.stringify(BANK));
       if (reply === 'refusal') return sse(res, '', 'refusal');
       if (reply === '429') { res.writeHead(429, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ type: 'error', error: { type: 'rate_limit_error', message: 'slow down' } })); }
     });
@@ -84,6 +96,20 @@ test('sends photos as image blocks', async () => {
   const content = requests[0].body.messages[0].content;
   assert.deepEqual(content.map(c => c.type), ['image', 'image', 'text']);
   assert.match(content[2].text, /2 files are pages of one/);
+});
+
+test('reads bank statements too: the schema asks for the bank breakdown and the result passes it through', async () => {
+  reply = 'bank'; requests = [];
+  const out = await (await post({ files: [{ media_type: 'application/pdf', data: PDF_B64 }] })).json();
+  assert.equal(out.result.document_type, 'bank_statement');
+  assert.equal(out.result.bank.card_deposits.total, 21000);
+  assert.equal(out.result.bank.mca_payments.sources[0].name, 'Sample Funding');
+  const sent = requests[0].body;
+  const props = sent.output_config.format.schema.properties;
+  assert.ok(props.document_type && props.bank, 'schema has document_type and bank');
+  assert.match(sent.system, /bank statement/i);
+  assert.match(sent.messages[0].content[1].text, /bank statement/);
+  reply = 'ok';
 });
 
 test('rejects bad input without calling the API', async () => {
