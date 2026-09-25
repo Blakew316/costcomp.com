@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wpi-cost-comp-v10';
+const CACHE_NAME = 'wpi-cost-comp-v11';
 const ASSETS = [
   '/',
   '/index.html',

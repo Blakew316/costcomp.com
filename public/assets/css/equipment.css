@@ -1,0 +1,1371 @@
+/* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
+/* 1. the cost comparison’s rules cancelled inside the app */
+:is(#raMain,#raLayer) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.icon-btn:hover){background:revert}
+:is(#raMain,#raLayer) :where(.icon-btn:active){transform:revert}
+:is(#raMain,#raLayer) :where(.tab-btn.active){color:revert;border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.tab-btn:hover){color:revert}
+:is(#raMain,#raLayer) :where(thead th){color:revert;background:revert;font-weight:revert;text-transform:revert;font-size:revert;letter-spacing:revert;padding:revert;text-align:revert;border-bottom:revert;white-space:revert;position:revert;top:revert;z-index:revert}
+:is(#raMain,#raLayer) :where(tbody tr.section-header td){color:revert;background:revert;font-weight:revert;padding-top:revert;font-size:revert}
+:is(#raMain,#raLayer) :where(tbody tr:hover){background:revert}
+:is(#raMain,#raLayer) :where(.kpi-value.brand-blue){color:revert}
+:is(#raMain,#raLayer) :where(.kpi-value.brand-teal){color:revert}
+:is(#raMain,#raLayer) :where(.kpi-value.brand-green){color:revert}
+:is(#raMain,#raLayer) :where(.kpi-value.red){color:revert}
+:is(#raMain,#raLayer) :where(.kpi-value.orange){color:revert}
+:is(#raMain,#raLayer) :where(.savings-card .savings-monthly){color:revert}
+:is(#raMain,#raLayer) :where(.savings-card .savings-pct){background:revert;color:revert}
+:is(#raMain,#raLayer) :where(.residual-val.trad){color:revert}
+:is(#raMain,#raLayer) :where(.residual-val.cdp){color:revert}
+:is(#raMain,#raLayer) :where(.comparison-col h4){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;margin-bottom:revert;padding-bottom:revert;border-bottom:revert}
+:is(#raMain,#raLayer) :where(.equip-card h4){color:revert;font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;margin-bottom:revert;padding-bottom:revert;border-bottom:revert}
+:is(#raMain,#raLayer) :where(.proposal-section h3){color:revert;font-size:revert;font-weight:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.edit-hint){color:revert;background:revert;border-color:revert;display:revert;align-items:revert;gap:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;font-size:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.ic-input.cost-cell){color:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.ic-input){color:revert;width:revert;min-height:revert;border-radius:revert;border-bottom-width:revert;-webkit-tap-highlight-color:revert;border:revert;border-bottom:revert;background:revert;padding:revert;font-size:revert;font-family:revert;font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-weight:revert;text-align:revert;transition:revert;-webkit-appearance:revert;appearance:revert;outline:revert;caret-color:revert}
+:is(#raMain,#raLayer) :where(.ic-text-input){color:revert;width:revert;min-height:revert;border-radius:revert;border-bottom-width:revert;-webkit-tap-highlight-color:revert;border:revert;border-bottom:revert;background:revert;padding:revert;font-size:revert;font-family:revert;font-weight:revert;letter-spacing:revert;text-align:revert;transition:revert;-webkit-appearance:revert;appearance:revert;outline:revert;caret-color:revert}
+:is(#raMain,#raLayer) :where(select){background:revert;color:revert;min-height:revert;font-size:revert;-webkit-tap-highlight-color:revert}
+:is(#raMain,#raLayer) :where(.editable.placeholder){color:revert;font-size:revert;min-height:revert;font-style:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.edit-input){color:revert;padding:revert;margin:revert;min-height:revert;border-radius:revert;border-bottom-width:revert;border:revert;font-size:revert;font-weight:revert;font-family:revert;background:revert;outline:revert;width:revert;min-width:revert;max-width:revert;box-sizing:revert;box-shadow:revert;border-bottom:revert;-webkit-appearance:revert;appearance:revert;line-height:revert;letter-spacing:revert;transition:revert;caret-color:revert;-webkit-tap-highlight-color:revert}
+:is(#raMain,#raLayer) :where(.logo-sub){color:revert;font-size:revert;letter-spacing:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(*){margin:revert;padding:revert;box-sizing:revert}
+:is(#raMain,#raLayer) :where(.header){background:revert;border-bottom:revert;padding:revert;position:revert;z-index:revert;box-shadow:revert;padding-top:revert}
+:is(#raMain,#raLayer) :where(.header-inner){max-width:revert;margin:revert;display:revert;align-items:revert;justify-content:revert;gap:revert;flex-wrap:revert}
+:is(#raMain,#raLayer) :where(.logo){flex-shrink:revert}
+:is(#raMain,#raLayer) :where(.logo img){height:revert;width:revert;display:revert}
+:is(#raMain,#raLayer) :where(.header-bottom){flex:revert;text-align:revert}
+:is(#raMain,#raLayer) :where(.header-btn){flex-shrink:revert}
+:is(#raMain,#raLayer) :where(.tabs-container){background:revert;border-bottom:revert;padding:revert;overflow-x:revert;-webkit-overflow-scrolling:revert}
+:is(#raMain,#raLayer) :where(.tabs){max-width:revert;margin:revert;display:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.tab-btn){background:revert;border:revert;color:revert;padding:revert;font-size:revert;font-weight:revert;cursor:revert;white-space:revert;border-bottom:revert;transition:revert;min-height:revert;-webkit-tap-highlight-color:revert}
+:is(#raMain,#raLayer) :where(.main){max-width:revert;margin:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.tab-panel){display:revert;animation:revert}
+:is(#raMain,#raLayer) :where(.tab-panel.active){display:revert}
+:is(#raMain,#raLayer) :where(.num){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where(.kpi-value){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;line-height:revert;color:revert}
+:is(#raMain,#raLayer) :where(.kpi-sub){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;margin-top:revert}
+:is(#raMain,#raLayer) :where(.savings-monthly){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.savings-yearly){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.savings-pct){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;margin-top:revert;padding:revert;border-radius:revert;display:revert}
+:is(#raMain,#raLayer) :where(.comp-value){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-weight:revert;color:revert}
+:is(#raMain,#raLayer) :where(.equip-value){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-weight:revert;color:revert}
+:is(#raMain,#raLayer) :where(.residual-val){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.info-value){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;color:revert}
+:is(#raMain,#raLayer) :where([id$="Lg"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id$="Pct"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id$="PctLg"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Total"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Cost"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Rate"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Fees"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Sav"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Vol"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Txn"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Avg"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Monthly"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="Yearly"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="pay"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="rental"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id*="purchase"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="ov"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="eq"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="cdp"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="cur"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="wpi"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="trad"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="stl"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where([id^="ic"]){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where(.card){background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert;transition:revert}
+:is(#raMain,#raLayer) :where(.card:hover){box-shadow:revert}
+:is(#raMain,#raLayer) :where(.card-title){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.kpi-grid){display:revert;grid-template-columns:revert;gap:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.kpi){background:revert;border:revert;border-radius:revert;padding:revert;transition:revert;box-shadow:revert}
+:is(#raMain,#raLayer) :where(.kpi:hover){box-shadow:revert;transform:revert}
+:is(#raMain,#raLayer) :where(.kpi-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.table-container){overflow-x:revert;-webkit-overflow-scrolling:revert;border-radius:revert}
+:is(#raMain,#raLayer) :where(table){width:revert;border-collapse:revert;font-size:revert}
+:is(#raMain,#raLayer) :where(tbody td){padding:revert;border-bottom:revert;color:revert;white-space:revert}
+:is(#raMain,#raLayer) :where(tbody td.num){text-align:revert;font-weight:revert;font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert}
+:is(#raMain,#raLayer) :where(.tier-badge){display:revert;font-size:revert;font-weight:revert;padding:revert;border-radius:revert;color:revert;min-width:revert;text-align:revert}
+:is(#raMain,#raLayer) :where(.tier-1){background:revert}
+:is(#raMain,#raLayer) :where(.tier-2){background:revert}
+:is(#raMain,#raLayer) :where(.tier-3){background:revert}
+:is(#raMain,#raLayer) :where(.tier-4){background:revert}
+:is(#raMain,#raLayer) :where(.savings-grid){display:revert;grid-template-columns:revert;gap:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.savings-card){background:revert;border:revert;border-radius:revert;padding:revert;text-align:revert;transition:revert;position:revert;overflow:revert;box-shadow:revert}
+:is(#raMain,#raLayer) :where(.savings-card)::before{content:revert;position:revert;top:revert;left:revert;right:revert;height:revert}
+:is(#raMain,#raLayer) :where(.savings-card.cdp)::before{background:revert}
+:is(#raMain,#raLayer) :where(.savings-card.stl)::before{background:revert}
+:is(#raMain,#raLayer) :where(.savings-card.trad)::before{background:revert}
+:is(#raMain,#raLayer) :where(.savings-card:hover){transform:revert;box-shadow:revert}
+:is(#raMain,#raLayer) :where(.savings-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.savings-card.cdp .savings-monthly){color:revert}
+:is(#raMain,#raLayer) :where(.savings-card.cdp .savings-pct){background:revert;color:revert}
+:is(#raMain,#raLayer) :where(.savings-card.stl .savings-monthly){color:revert}
+:is(#raMain,#raLayer) :where(.savings-card.stl .savings-pct){background:revert;color:revert}
+:is(#raMain,#raLayer) :where(.savings-card.trad .savings-monthly){color:revert}
+:is(#raMain,#raLayer) :where(.savings-card.trad .savings-pct){background:revert;color:revert}
+:is(#raMain,#raLayer) :where(.merchant-info){display:revert;grid-template-columns:revert;gap:revert;background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert}
+:is(#raMain,#raLayer) :where(.info-item){display:revert;flex-direction:revert}
+:is(#raMain,#raLayer) :where(.info-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert}
+:is(#raMain,#raLayer) :where(.proposal-section){background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert}
+:is(#raMain,#raLayer) :where(.proposal-section p){color:revert;font-size:revert;line-height:revert}
+:is(#raMain,#raLayer) :where(.comparison-grid){display:revert;grid-template-columns:revert;gap:revert;margin-top:revert}
+:is(#raMain,#raLayer) :where(.comparison-col){background:revert;border-radius:revert;padding:revert;border:revert}
+:is(#raMain,#raLayer) :where(.comparison-col.current h4){color:revert;border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.comparison-col.wpi h4){color:revert;border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.comp-row){display:revert;justify-content:revert;padding:revert;font-size:revert;border-bottom:revert;min-height:revert;align-items:revert}
+:is(#raMain,#raLayer) :where(.comp-row:last-child){border-bottom:revert}
+:is(#raMain,#raLayer) :where(.comp-label){color:revert}
+:is(#raMain,#raLayer) :where(.equip-cols){display:revert;grid-template-columns:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.equip-card){background:revert;border-radius:revert;padding:revert;border:revert}
+:is(#raMain,#raLayer) :where(.equip-row){display:revert;justify-content:revert;padding:revert;font-size:revert;border-bottom:revert;min-height:revert;align-items:revert}
+:is(#raMain,#raLayer) :where(.equip-row:last-child){border-bottom:revert}
+:is(#raMain,#raLayer) :where(.equip-label){color:revert}
+:is(#raMain,#raLayer) :where(.residual-grid){display:revert;grid-template-columns:revert;gap:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.residual-card){background:revert;border:revert;border-radius:revert;padding:revert;box-shadow:revert}
+:is(#raMain,#raLayer) :where(.residual-card h4){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.residual-row){display:revert;justify-content:revert;padding:revert;border-bottom:revert;font-size:revert;min-height:revert;align-items:revert}
+:is(#raMain,#raLayer) :where(.residual-row:last-child){border-bottom:revert}
+:is(#raMain,#raLayer) :where(.residual-type){color:revert}
+:is(#raMain,#raLayer) :where(.footer){text-align:revert;padding:revert;color:revert;font-size:revert;border-top:revert;margin-top:revert;background:revert;padding-bottom:revert}
+:is(#raMain,#raLayer) :where(.chart-grid){grid-template-columns:revert}
+:is(#raMain,#raLayer) :where(.tier-grid){grid-template-columns:revert}
+:is(#raMain,#raLayer) :where(.header button[onclick="emailPDF()"]){padding:revert;font-size:revert}
+:is(#raMain,#raLayer) :where(.icon-btn svg){width:revert;height:revert}
+:is(#raMain,#raLayer) :where(#interchangeTable){min-width:revert}
+:is(#raMain,#raLayer) :where(select.ic-text-input){width:revert;cursor:revert;-webkit-appearance:revert;appearance:revert}
+:is(#raMain,#raLayer) :where(#equipSelect){font-size:revert;min-height:revert}
+:is(#raMain,#raLayer) :where(.editable){min-height:revert;display:revert;align-items:revert;-webkit-tap-highlight-color:revert;cursor:revert;min-width:revert;position:revert;background:revert}
+:is(#raMain,#raLayer) :where(button){-webkit-tap-highlight-color:revert}
+:is(#raMain,#raLayer) :where(.offline-bar){display:revert;background:revert;color:revert;text-align:revert;padding:revert;font-size:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.offline-bar.show){display:revert}
+:is(#raMain,#raLayer) :where(.edit-measure){position:revert;visibility:revert;height:revert;overflow:revert;white-space:revert;pointer-events:revert}
+:is(#raMain,#raLayer) :where(.edit-input:focus){background:revert;border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.edit-input)::selection{background:revert}
+:is(#raMain,#raLayer) :where(.comp-value .edit-input){text-align:revert}
+:is(#raMain,#raLayer) :where(.residual-val .edit-input){text-align:revert}
+:is(#raMain,#raLayer) :where(.equip-value .edit-input){text-align:revert}
+:is(#raMain,#raLayer) :where(.edit-hint svg){flex-shrink:revert}
+:is(#raMain,#raLayer) :where(.ic-input:hover){border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.ic-input:focus){background:revert;border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.ic-text-input:hover){border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.ic-text-input:focus){background:revert;border-bottom-color:revert}
+:is(#raMain,#raLayer) :where(.scan-btn){display:revert;align-items:revert;gap:revert;background:revert;color:revert;border:revert;padding:revert;border-radius:revert;font-size:revert;font-weight:revert;cursor:revert;transition:revert;letter-spacing:revert;font-family:revert}
+:is(#raMain,#raLayer) :where(.scan-btn:hover){background:revert}
+:is(#raMain,#raLayer) :where(.scan-btn:active){transform:revert}
+:is(#raMain,#raLayer) :where(.scan-btn .scan-label-short){display:revert}
+:is(#raMain,#raLayer) :where(.scan-btn .scan-label-full){display:revert}
+:is(#raMain,#raLayer) :where(.scan-overlay){position:revert;inset:revert;z-index:revert;background:revert;display:revert;align-items:revert;justify-content:revert;padding:revert;overflow-y:revert;animation:revert;-webkit-overflow-scrolling:revert}
+:is(#raMain,#raLayer) :where(.scan-modal){background:revert;color:revert;border:revert;border-radius:revert;box-shadow:revert;width:revert;max-width:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-modal h2){font-size:revert;font-weight:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.scan-sub){font-size:revert;color:revert;margin-bottom:revert;display:revert;flex-wrap:revert;gap:revert;align-items:revert}
+:is(#raMain,#raLayer) :where(.scan-badge){display:revert;font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;padding:revert;border-radius:revert;background:revert;border:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-badge.ai){background:revert;border-color:revert}
+:is(#raMain,#raLayer) :where(.scan-fields){display:revert;grid-template-columns:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.scan-field){display:revert;flex-direction:revert;gap:revert;min-width:revert}
+:is(#raMain,#raLayer) :where(.scan-field.full){grid-column:revert}
+:is(#raMain,#raLayer) :where(.scan-field label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-field input){font:revert;font-size:revert;font-weight:revert;color:revert;background:revert;border:revert;border-radius:revert;padding:revert;width:revert;outline:revert;transition:revert;font-variant-numeric:revert}
+:is(#raMain,#raLayer) :where(.scan-field input:focus){border-color:revert}
+:is(#raMain,#raLayer) :where(.scan-field input.missing){border-color:revert;background:revert}
+:is(#raMain,#raLayer) :where(.scan-evidence){font-size:revert;color:revert;white-space:revert;overflow:revert;text-overflow:revert}
+:is(#raMain,#raLayer) :where(.scan-alt){font-size:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-alt button){background:revert;border:revert;color:revert;font:revert;font-size:revert;cursor:revert;padding:revert;text-decoration:revert}
+:is(#raMain,#raLayer) :where(.scan-summary){margin-top:revert;display:revert;grid-template-columns:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.scan-summary .kpi){padding:revert}
+:is(#raMain,#raLayer) :where(.scan-summary .kpi-value){font-size:revert}
+:is(#raMain,#raLayer) :where(.scan-mix){margin-top:revert;font-size:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-mix table){font-size:revert}
+:is(#raMain,#raLayer) :where(.scan-warn){margin-top:revert;background:revert;border:revert;border-radius:revert;padding:revert;font-size:revert;line-height:revert}
+:is(#raMain,#raLayer) :where(.scan-warn ul){margin:revert;padding-left:revert}
+:is(#raMain,#raLayer) :where(.scan-actions){display:revert;justify-content:revert;gap:revert;margin-top:revert;flex-wrap:revert}
+:is(#raMain,#raLayer) :where(.scan-actions button){font:revert;font-size:revert;font-weight:revert;padding:revert;border-radius:revert;cursor:revert;border:revert;background:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-actions button.primary){background:revert;color:revert;border-color:revert}
+:is(#raMain,#raLayer) :where(.scan-actions button:disabled){opacity:revert;cursor:revert}
+:is(#raMain,#raLayer) :where(.scan-actions .spacer){flex:revert}
+:is(#raMain,#raLayer) :where(.scan-progress){display:revert;flex-direction:revert;align-items:revert;gap:revert;padding:revert;text-align:revert}
+:is(#raMain,#raLayer) :where(.scan-spinner){width:revert;height:revert;border-radius:revert;border:revert;border-top-color:revert;animation:revert}
+:is(#raMain,#raLayer) :where(.scan-progress-msg){font-size:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.scan-progress-sub){font-size:revert;color:revert;max-width:revert}
+:is(#raMain,#raLayer) :where(.scan-error){background:revert;border:revert;border-radius:revert;padding:revert;font-size:revert;line-height:revert}
+:is(#raMain,#raLayer) :where(.scan-drop){position:revert;inset:revert;z-index:revert;background:revert;border:revert;display:revert;align-items:revert;justify-content:revert;font-size:revert;font-weight:revert;color:revert;pointer-events:revert}
+:is(#raMain,#raLayer) :where(.scan-drop.show){display:revert}
+:is(#raMain,#raLayer) :where(.scan-toast){position:revert;left:revert;bottom:revert;transform:revert;z-index:revert;background:revert;color:revert;padding:revert;border-radius:revert;font-size:revert;font-weight:revert;box-shadow:revert;max-width:revert;animation:revert}
+:is(#raMain,#raLayer) :where(.scan-flash){animation:revert}
+:is(#raMain,#raLayer) :where(.scan-options){display:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.scan-option){display:revert;align-items:revert;gap:revert;text-align:revert;width:revert;padding:revert;border:revert;border-radius:revert;background:revert;color:revert;cursor:revert;font:revert;transition:revert}
+:is(#raMain,#raLayer) :where(.scan-option:hover){background:revert;border-color:revert}
+:is(#raMain,#raLayer) :where(.scan-option:focus-visible){outline:revert;outline-offset:revert}
+:is(#raMain,#raLayer) :where(.scan-option svg){flex-shrink:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-option strong){display:revert;font-size:revert;font-weight:revert}
+:is(#raMain,#raLayer) :where(.scan-option small){display:revert;font-size:revert;color:revert;margin-top:revert;line-height:revert}
+:is(#raMain,#raLayer) :where(.scan-tip){margin-top:revert;font-size:revert;color:revert;line-height:revert}
+:is(#raMain,#raLayer) :where(.scan-badge.ocr){background:revert;border-color:revert}
+:is(#raMain,#raLayer) :where(.scan-tray){display:revert;grid-template-columns:revert;gap:revert;max-height:revert;overflow-y:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-page){margin:revert;display:revert;flex-direction:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.scan-page-img){aspect-ratio:revert;border:revert;border-radius:revert;background:revert;overflow:revert;display:revert;align-items:revert;justify-content:revert}
+:is(#raMain,#raLayer) :where(.scan-page-img img){width:revert;height:revert;object-fit:revert;object-position:revert}
+:is(#raMain,#raLayer) :where(.scan-page-noimg){font-size:revert;color:revert;padding:revert;text-align:revert;word-break:revert}
+:is(#raMain,#raLayer) :where(.scan-page figcaption){font-size:revert;font-weight:revert;text-align:revert}
+:is(#raMain,#raLayer) :where(.scan-page-tools){display:revert;justify-content:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.scan-page-tools button){width:revert;height:revert;border:revert;border-radius:revert;background:revert;color:revert;cursor:revert;font-size:revert;line-height:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-page-tools button:disabled){opacity:revert;cursor:revert}
+:is(#raMain,#raLayer) :where(.scan-add-col){display:revert;flex-direction:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.scan-add){flex:revert;min-height:revert;display:revert;flex-direction:revert;align-items:revert;justify-content:revert;gap:revert;border:revert;border-radius:revert;background:revert;color:revert;font:revert;font-size:revert;font-weight:revert;cursor:revert}
+:is(#raMain,#raLayer) :where(.scan-add:hover){border-color:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-add svg){width:revert;height:revert}
+:is(#raMain,#raLayer) :where(.scan-thumbs){display:revert;align-items:revert;gap:revert;flex-wrap:revert;margin:revert}
+:is(#raMain,#raLayer) :where(.scan-thumbs a){position:revert;display:revert;width:revert;height:revert;border:revert;border-radius:revert;overflow:revert;background:revert}
+:is(#raMain,#raLayer) :where(.scan-thumbs img){width:revert;height:revert;object-fit:revert;object-position:revert}
+:is(#raMain,#raLayer) :where(.scan-thumbs a span){position:revert;right:revert;bottom:revert;font-size:revert;font-weight:revert;background:revert;color:revert;border-radius:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-thumbs-hint){font-size:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-lightbox){position:revert;inset:revert;z-index:revert;background:revert;display:revert;flex-direction:revert;align-items:revert;overflow:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-lightbox-bar){position:revert;top:revert;display:revert;justify-content:revert;align-items:revert;width:revert;max-width:revert;color:revert;font-size:revert;font-weight:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-lightbox-bar button){background:revert;border:revert;color:revert;font-size:revert;line-height:revert;cursor:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.scan-lightbox img){max-width:revert;height:revert;background:revert}
+:is(#raMain,#raLayer) :where(.markup-kpis){display:revert;grid-template-columns:revert;gap:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.markup-kpis .kpi){box-shadow:revert;background:revert}
+:is(#raMain,#raLayer) :where(.markup-kpis .kpi-value){font-size:revert}
+:is(#raMain,#raLayer) :where(.markup-table-wrap){max-height:revert;overflow:revert;border:revert;border-radius:revert}
+:is(#raMain,#raLayer) :where(.markup-table-wrap select.ic-text-input){width:revert;max-width:revert}
+:is(#raMain,#raLayer) :where(.markup-notes){margin-top:revert;font-size:revert;color:revert;line-height:revert}
+:is(#raMain,#raLayer) :where(.markup-notes .editable){font-weight:revert;color:revert}
+:is(#raMain,#raLayer) :where(.markup-head){display:revert;align-items:revert;justify-content:revert;gap:revert}
+:is(#raMain,#raLayer) :where(.markup-close){background:revert;border:revert;color:revert;cursor:revert;font-size:revert;line-height:revert;padding:revert}
+:is(#raMain,#raLayer) :where(.markup-mode){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;padding:revert;border-radius:revert;border:revert;margin-left:revert;vertical-align:revert}
+:is(#raMain,#raLayer) :where(tr.markup-sub td){font-size:revert;color:revert}
+:is(#raMain,#raLayer) :where(.scan-actions-center){justify-content:revert}
+:is(#raMain,#raLayer) :where(.scan-badge.bank){background:revert;border-color:revert}
+:is(#raMain,#raLayer) :where(.scan-bank){margin-top:revert;font-size:revert}
+:is(#raMain,#raLayer) :where(.scan-bank-title){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
+:is(#raMain,#raLayer) :where(.scan-bank table){font-size:revert;width:revert}
+:is(#raMain,#raLayer) :where(.scan-bank td){padding:revert;vertical-align:revert}
+:is(#raMain,#raLayer) :where(.scan-bank label){display:revert;align-items:revert;gap:revert;cursor:revert}
+:is(#raMain,#raLayer) :where(.scan-bank-who){color:revert;font-size:revert;max-width:revert;overflow:revert;text-overflow:revert;white-space:revert;display:revert}
+:is(#raMain,#raLayer) :where(.scan-bank-note){margin-top:revert;font-size:revert;color:revert}
+/* 2. the page as the app’s own page starts: browser defaults for what the cost comparison sets on its page */
+:is(#raMain,#raLayer){font-size:initial;-moz-osx-font-smoothing:initial;--red:initial}
+/* 3. the app’s stylesheet */
+:is(#raMain,#raLayer){
+  /* Header row height — the sticky filter bar reads this too. */
+  --hdr-row: 104px;
+  /* Full sticky-header height (brand row + tabs). Measured at runtime because
+     it changes with the breakpoint; the literal below is only the pre-JS
+     fallback. The filter bar parks against this. */
+  --hdr-h: 161px;
+
+  /* Brand */
+  --navy:  #10254f;
+  --blue:  #1a9bd7;
+  --blue-d:#0f74b0;
+  --green: #29b45b;
+  --green-d:#1f9a4c;
+  --accent-grad: linear-gradient(90deg, #1a9bd7 0%, #29b45b 100%);
+  --accent-grad-v: linear-gradient(180deg, #1a9bd7 0%, #29b45b 100%);
+
+  /* Light theme (default).
+     Neutral greys, not blue-tinted ones. A page built out of #f4f7fb reads as
+     faintly blue everywhere; these are the same steps with the hue removed, so
+     white stays white and the only colour on screen is the brand. */
+  --bg:        #ffffff;
+  --bg-soft:   #f7f7f8;
+  --bg-softer: #f1f1f3;
+  --surface:   #ffffff;
+  --card:      #ffffff;
+  --card-hover:#fcfcfd;
+  --border:    #e6e6e9;
+  --border-2:  #f0f0f2;
+  --text:      #1d1d1f;
+  --text-soft: #6e6e73;
+  --text-mut:  #86868b;
+  --chip-bg:   #f4f4f6;
+  --chip-on:   var(--navy);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 14px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.04);
+  --shadow-lg: 0 18px 48px rgba(0,0,0,.13), 0 6px 18px rgba(0,0,0,.06);
+  --img-bg:    #fafafa;
+  --header-bg: rgba(255,255,255,.78);
+  --free-bg:   #e9f7ee;
+  --free-fg:   #1f7d43;
+
+  /* ------------------------------ motion ------------------------------
+     Three durations and two curves, and nothing outside them. Everything that
+     responds to a pointer uses --t-fast; every surface that changes shape uses
+     --t-base; everything that enters the screen uses --t-enter. Entrances all
+     move the same distance in the same direction (up), so the page reads as one
+     system rather than a set of unrelated effects. */
+  --t-fast:  120ms;
+  --t-base:  200ms;
+  --t-enter: 320ms;
+  --ease:    cubic-bezier(.22,.61,.36,1);   /* decelerate — for entrances */
+  --ease-io: cubic-bezier(.4,0,.2,1);       /* symmetric — for state changes */
+  --rise:    10px;                          /* the one entrance distance */
+}
+body.dark :is(#raMain,#raLayer),
+body.dark :is(#raMain,#raLayer){
+  --bg:        #000000;
+  --bg-soft:   #1c1c1e;
+  --bg-softer: #232325;
+  --surface:   #1c1c1e;
+  --card:      #1c1c1e;
+  --card-hover:#242426;
+  --border:    #38383a;
+  --border-2:  #2c2c2e;
+  --text:      #f5f5f7;
+  --text-soft: #aeaeb2;
+  --text-mut:  #8e8e93;
+  --chip-bg:   #2c2c2e;
+  --chip-on:   #f5f5f7;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+  --shadow-md: 0 6px 18px rgba(0,0,0,.4);
+  --shadow-lg: 0 22px 52px rgba(0,0,0,.55);
+  --img-bg:    #1c1c1e;
+  --header-bg: rgba(0,0,0,.72);
+  --free-bg:   #123021;
+  --free-fg:   #57d98a;
+}
+:is(#raMain,#raLayer) *{ box-sizing: border-box; }
+:is(#raMain,#raLayer){ -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+:is(#raMain,#raLayer){
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Inter", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+:is(#raMain,#raLayer) h1,
+:is(#raMain,#raLayer) h2,
+:is(#raMain,#raLayer) h3,
+:is(#raMain,#raLayer) h4{ letter-spacing: -0.02em; line-height: 1.12; margin: 0; font-weight: 700; }
+:is(#raMain,#raLayer) a{ color: inherit; text-decoration: none; }
+:is(#raMain,#raLayer) img{ max-width: 100%; }
+:is(#raMain,#raLayer) button{ font-family: inherit; cursor: pointer; }
+:is(#raMain,#raLayer) .wrap{ width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+:is(#raMain,#raLayer) .hdr{
+  position: sticky; top: 0; z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid var(--border-2);
+  padding-top: env(safe-area-inset-top);
+}
+:is(#raMain,#raLayer) .hdr::before{
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: var(--header-bg);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+}
+:is(#raMain,#raLayer) .hdr > .wrap{ position: relative; z-index: 1; }
+:is(#raMain,#raLayer) .hdr-in{ display: flex; align-items: center; gap: 14px; height: var(--hdr-row); }
+:is(#raMain,#raLayer) .hdr-logo{ display: flex; align-items: center; gap: 18px; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .hdr-logo img{ height: 88px; width: auto; display: block; }
+:is(#raMain,#raLayer) .hdr-logo .rep{
+  font-weight: 700; font-size: 30px; letter-spacing: -.02em; color: var(--text);
+  padding-left: 20px; margin-left: 1px; border-left: 1px solid var(--border);
+  white-space: nowrap;
+}
+:is(#raMain,#raLayer) .hdr-logo .rep b{ background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (max-width: 560px){
+:is(#raMain,#raLayer){ --hdr-row: 92px; }
+:is(#raMain,#raLayer) .hdr-logo{ gap: 14px; }
+:is(#raMain,#raLayer) .hdr-logo img{ height: 76px; }
+:is(#raMain,#raLayer) .hdr-logo .rep{ font-size: 22px; padding-left: 16px; }
+}
+@media (max-width: 400px){
+:is(#raMain,#raLayer){ --hdr-row: 88px; }
+:is(#raMain,#raLayer) .hdr-logo{ gap: 12px; }
+:is(#raMain,#raLayer) .hdr-logo img{ height: 72px; }
+:is(#raMain,#raLayer) .hdr-logo .rep{ font-size: 20px; padding-left: 14px; }
+}
+@media (max-width: 359px){
+:is(#raMain,#raLayer){ --hdr-row: 78px; }
+:is(#raMain,#raLayer) .hdr-logo{ gap: 10px; }
+:is(#raMain,#raLayer) .hdr-logo img{ height: 62px; }
+:is(#raMain,#raLayer) .hdr-logo .rep{ font-size: 17px; padding-left: 12px; }
+}
+:is(#raMain,#raLayer) .hdr-spacer{ flex: 1; }
+:is(#raMain,#raLayer) .icon-btn{
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 11px;
+  background: var(--chip-bg); border: 1px solid var(--border-2); color: var(--text);
+  transition: transform var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io);
+}
+:is(#raMain,#raLayer) .icon-btn:active{ transform: scale(.94); }
+:is(#raMain,#raLayer) .icon-btn svg{ width: 19px; height: 19px; }
+:is(#raMain,#raLayer) #installBtn{
+  display: none; align-items: center; gap: 7px; height: 38px; padding: 0 14px;
+  border-radius: 11px; font-weight: 600; font-size: 13.5px; color: #fff;
+  background: var(--navy); border: none; white-space: nowrap;
+}
+:is(#raMain,#raLayer) #installBtn.show{ display: inline-flex; }
+:is(#raMain,#raLayer) #installBtn svg{ width: 16px; height: 16px; }
+:is(#raMain,#raLayer) .subnav{ display: flex; gap: 4px; overflow-x: auto; padding: 8px 0 10px; scrollbar-width: none; }
+:is(#raMain,#raLayer) .subnav::-webkit-scrollbar{ display: none; }
+:is(#raMain,#raLayer) .tab{
+  position: relative; z-index: 1;
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  color: var(--text-soft); background: transparent; border: 1px solid transparent;
+  transition: color var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io), border-color var(--t-fast) var(--ease-io);
+  -webkit-tap-highlight-color: transparent;
+}
+:is(#raMain,#raLayer) .tab svg{ width: 16px; height: 16px; opacity: .9; }
+:is(#raMain,#raLayer) .tab:hover{ color: var(--text); background: var(--bg-soft); }
+:is(#raMain,#raLayer) .tab.active{ color: #fff; background: var(--navy); border-color: var(--navy); }
+:is(#raMain,#raLayer) .tab.active svg{ opacity: 1; }
+:is(#raMain,#raLayer) .ra-main{ min-height: 60vh; }
+:is(#raMain,#raLayer) .home-hero{ padding: 40px 0 8px; }
+:is(#raMain,#raLayer) .eyebrow{
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-mut); margin-bottom: 14px;
+}
+:is(#raMain,#raLayer) .eyebrow::before{ content:""; width: 22px; height: 3px; border-radius: 3px; background: var(--accent-grad); }
+@keyframes riseIn{
+  from { opacity: 0; transform: translateY(var(--rise)); }
+  to   { opacity: 1; transform: none; }
+}
+:is(#raMain,#raLayer) .rise{ animation: riseIn var(--t-enter) var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
+:is(#raMain,#raLayer) .hero-brand{
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 26px;
+}
+:is(#raMain,#raLayer) .hero-logo{
+  height: 64px; width: auto; display: block;
+  animation: riseIn var(--t-enter) var(--ease) both;
+}
+:is(#raMain,#raLayer) .hero-kit{
+  position: relative;
+  font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-mut); padding-left: 22px; border-left: none;
+  animation: riseIn var(--t-enter) var(--ease) 70ms both;
+}
+:is(#raMain,#raLayer) .hero-kit::before{
+  content: ""; position: absolute; left: 0; top: 50%;
+  width: 2px; height: 118%; border-radius: 2px;
+  background: var(--accent-grad-v);
+  transform: translateY(-50%);
+}
+@media (max-width: 520px){
+:is(#raMain,#raLayer) .hero-logo{ height: 52px; }
+:is(#raMain,#raLayer) .hero-kit{ font-size: 13px; padding-left: 14px; }
+:is(#raMain,#raLayer) .hero-brand{ gap: 14px; }
+}
+:is(#raMain,#raLayer) .home-hero h1{ font-size: clamp(28px, 6vw, 44px); font-weight: 700; }
+:is(#raMain,#raLayer) .home-hero h1 .g{ background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+:is(#raMain,#raLayer) .home-hero p{ color: var(--text-soft); font-size: 17px; max-width: 640px; margin: 14px 0 0; }
+:is(#raMain,#raLayer) .tiles{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 26px 0 10px; }
+:is(#raMain,#raLayer) .tile{
+  position: relative; display: flex; flex-direction: column; gap: 12px;
+  padding: 24px; border-radius: 20px; background: var(--card);
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+  transition: transform var(--t-base) var(--ease-io), box-shadow var(--t-base) var(--ease-io), border-color var(--t-base) var(--ease-io);
+  overflow: hidden; text-align: left;
+}
+:is(#raMain,#raLayer) .tile::before{
+  content:""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--accent-grad-v); opacity: 0; transition: opacity var(--t-base) var(--ease-io);
+}
+:is(#raMain,#raLayer) .tile:hover{ transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border); }
+:is(#raMain,#raLayer) .tile:hover::before{ opacity: 1; }
+:is(#raMain,#raLayer) .tile-ic{
+  width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center;
+  background: var(--bg-soft); color: var(--navy); border: 1px solid var(--border-2);
+}
+body.dark :is(#raMain,#raLayer) .tile-ic,
+body.dark :is(#raMain,#raLayer) .tile-ic{ color: var(--blue); }
+:is(#raMain,#raLayer) .tile-ic svg{ width: 24px; height: 24px; }
+:is(#raMain,#raLayer) .tile h3{ font-size: 20px; }
+:is(#raMain,#raLayer) .tile p{ margin: 0; color: var(--text-soft); font-size: 14.5px; }
+:is(#raMain,#raLayer) .home-quick{ display: flex; flex-wrap: wrap; gap: 10px; padding: 18px 0 44px; }
+:is(#raMain,#raLayer) .qlink{
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px;
+  border-radius: 12px; background: var(--card); border: 1px solid var(--border);
+  font-size: 13.5px; font-weight: 600; color: var(--text-soft); box-shadow: var(--shadow-sm);
+}
+:is(#raMain,#raLayer) .qlink svg{ width: 16px; height: 16px; color: var(--blue); }
+:is(#raMain,#raLayer) .qlink:hover{ color: var(--text); border-color: var(--blue); }
+:is(#raMain,#raLayer) .sec-head{ padding: 30px 0 6px; }
+:is(#raMain,#raLayer) .sec-head .back{ display: inline-flex; align-items: center; gap: 6px; color: var(--text-mut); font-weight: 600; font-size: 13.5px; margin-bottom: 14px; }
+:is(#raMain,#raLayer) .sec-head .back svg{ width: 15px; height: 15px; }
+:is(#raMain,#raLayer) .sec-head h2{ font-size: clamp(24px, 5vw, 32px); }
+:is(#raMain,#raLayer) .sec-head .lead{ color: var(--text-soft); margin-top: 8px; font-size: 15.5px; max-width: 680px; }
+:is(#raMain,#raLayer) .sec-accent{ width: 30px; height: 4px; border-radius: 4px; background: var(--accent-grad); margin-top: 12px; }
+:is(#raMain,#raLayer) .filters{ position: sticky; top: var(--hdr-h); z-index: 20; background: var(--bg); padding: 14px 0 8px; margin-top: 6px; }
+:is(#raMain,#raLayer) .filters::after{ content:""; display:block; height:1px; background: var(--border-2); margin-top: 12px; }
+:is(#raMain,#raLayer) .search{
+  display: flex; align-items: center; gap: 9px; padding: 0 13px; height: 42px;
+  background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 12px; margin-bottom: 10px;
+}
+:is(#raMain,#raLayer) .search svg{ width: 17px; height: 17px; color: var(--text-mut); flex: 0 0 auto; }
+:is(#raMain,#raLayer) .search input{ flex: 1; border: none; background: transparent; color: var(--text); font-size: 15px; outline: none; min-width: 0; }
+:is(#raMain,#raLayer) .search input::placeholder{ color: var(--text-mut); }
+:is(#raMain,#raLayer) .filter-row{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+:is(#raMain,#raLayer) .chips{ display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;
+         flex: 1 1 100%; min-width: 0; -webkit-overflow-scrolling: touch; }
+:is(#raMain,#raLayer) .chips::-webkit-scrollbar{ display: none; }
+@media (min-width: 720px){
+:is(#raMain,#raLayer) .chips{ flex: 1 1 auto; }
+}
+:is(#raMain,#raLayer) .chip{
+  flex: 0 0 auto; padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 600;
+  color: var(--text-soft); background: var(--chip-bg); border: 1px solid transparent; white-space: nowrap;
+  transition: color var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io), border-color var(--t-fast) var(--ease-io);
+}
+:is(#raMain,#raLayer) .chip:hover{ color: var(--text); }
+:is(#raMain,#raLayer) .chip.active{ color: #fff; background: var(--navy); }
+:is(#raMain,#raLayer) .hscroll{ position: relative; min-width: 0; flex: 1 1 100%; }
+:is(#raMain,#raLayer) .catbar > .hscroll{ flex: 1 1 auto; }
+@media (min-width: 720px){
+:is(#raMain,#raLayer) .filter-row > .hscroll{ flex: 1 1 auto; }
+}
+:is(#raMain,#raLayer) .hscroll::before,
+:is(#raMain,#raLayer) .hscroll::after{
+  content: ""; position: absolute; top: 0; bottom: 0; width: 44px;
+  pointer-events: none; opacity: 0; transition: opacity var(--t-base) var(--ease-io); z-index: 2;
+}
+:is(#raMain,#raLayer) .hscroll::before{ left: 0;  background: linear-gradient(to right, var(--bg), transparent); }
+:is(#raMain,#raLayer) .hscroll::after{ right: 0; background: linear-gradient(to left,  var(--bg), transparent); }
+:is(#raMain,#raLayer) .hscroll.can-l::before,
+:is(#raMain,#raLayer) .hscroll.can-r::after{ opacity: 1; }
+:is(#raMain,#raLayer) .hs-btn{
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+  width: 28px; height: 28px; border-radius: 999px; display: none;
+  align-items: center; justify-content: center; padding: 0; cursor: pointer;
+  border: 1px solid var(--border-2); background: var(--bg); color: var(--text-soft);
+  box-shadow: 0 1px 4px rgba(0,0,0,.10); font-family: inherit;
+}
+:is(#raMain,#raLayer) .hs-btn svg{ width: 15px; height: 15px; }
+:is(#raMain,#raLayer) .hs-btn:hover{ color: var(--text); }
+:is(#raMain,#raLayer) .hs-btn.l{ left: 2px; }
+:is(#raMain,#raLayer) .hs-btn.r{ right: 2px; }
+@media (hover: hover) and (pointer: fine){
+:is(#raMain,#raLayer) .hscroll.can-l > .hs-btn.l,
+:is(#raMain,#raLayer) .hscroll.can-r > .hs-btn.r{ display: flex; }
+}
+:is(#raMain,#raLayer) .hscroll.dragging{ cursor: grabbing; }
+:is(#raMain,#raLayer) .hscroll.dragging .chip,
+:is(#raMain,#raLayer) .hscroll.dragging .cchip{ pointer-events: none; }
+:is(#raMain,#raLayer) .selectwrap{ position: relative; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .selectwrap select{
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  padding: 8px 30px 8px 13px; border-radius: 999px; font-size: 13px; font-weight: 600;
+  color: var(--text); background: var(--chip-bg); border: 1px solid var(--border-2); outline: none;
+}
+:is(#raMain,#raLayer) .selectwrap::after{ content:"⌄"; position: absolute; right: 12px; top: 46%; transform: translateY(-50%); color: var(--text-mut); pointer-events: none; font-size: 14px; }
+:is(#raMain,#raLayer) .count{ color: var(--text-mut); font-size: 13px; padding: 12px 0 4px; }
+:is(#raMain,#raLayer) .grid{
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 6px 0 60px;
+
+  /* Card geometry. --card-h is derived from these, never typed as a literal,
+     so a change to any one of them keeps the reserved size honest. */
+  --c-img:    190px;   /* image frame */
+  --c-pad-t:  14px;
+  --c-pad-b:  16px;
+  --c-type:   15px;    /* category line, always 1 line */
+  --c-name:   20px;    /* title line-height */
+  --c-name-n: 2;       /* title lines reserved — measured to fit every title */
+  --c-tag:    19px;    /* tagline line-height */
+  --c-tag-n:  2;       /* tagline lines reserved */
+  --c-foot:   30px;
+  --c-gap:    6px;
+  --c-foot-t: 12px;
+  --card-h: calc(
+    var(--c-img) + 1px                                    /* frame + divider */
+    + var(--c-pad-t) + var(--c-type) + var(--c-gap)
+    + (var(--c-name-n) * var(--c-name)) + var(--c-gap)
+    + (var(--c-tag-n) * var(--c-tag))
+    + var(--c-foot-t) + var(--c-foot) + var(--c-pad-b)
+    + 2px                                                 /* card border */
+  );
+}
+:is(#raMain,#raLayer) .card{
+  height: var(--card-h);
+  /* The grid renders every matching device at once. content-visibility lets the
+     browser skip layout and paint for the cards below the fold, which is what
+     keeps a 67-card tab snappy on a phone. The intrinsic size is now the exact
+     card height, so nothing shifts as cards come into view. */
+  content-visibility: auto;
+  contain-intrinsic-size: var(--card-h);
+  display: flex; flex-direction: column; border-radius: 18px; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+  transition: transform var(--t-base) var(--ease-io), box-shadow var(--t-base) var(--ease-io),
+              border-color var(--t-base) var(--ease-io);
+  text-align: left;
+  /* The card is a <button>. iOS Safari paints button text in its system blue
+     unless a colour is set, which is what turned every card title blue in the
+     installed PWA while Chromium resolved it to black. Set it explicitly. */
+  color: var(--text);
+}
+:is(#raMain,#raLayer) .card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-md); }
+:is(#raMain,#raLayer) .card:active{ transform: translateY(-1px); transition-duration: var(--t-fast); }
+:is(#raMain,#raLayer) .card-img{
+  position: relative; height: var(--c-img); flex: 0 0 var(--c-img); background: #ffffff;
+  padding: 16px; border-bottom: 1px solid var(--border-2); overflow: hidden;
+}
+:is(#raMain,#raLayer) .card-img img{
+  position: absolute; top: 16px; right: 16px; bottom: 16px; left: 16px;
+  width: auto; height: auto; max-width: calc(100% - 32px); max-height: calc(100% - 32px);
+  margin: auto; object-fit: contain;
+}
+:is(#raMain,#raLayer) .card-badge{
+  position: absolute; z-index: 2; top: 10px; left: 10px; font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  padding: 4px 9px; border-radius: 999px; background: var(--free-bg); color: var(--free-fg);
+}
+:is(#raMain,#raLayer) .card-body{
+  padding: var(--c-pad-t) 15px var(--c-pad-b);
+  display: flex; flex-direction: column; gap: var(--c-gap); flex: 1; min-height: 0;
+}
+:is(#raMain,#raLayer) .card-body h3{ font-size: 16.5px; }
+:is(#raMain,#raLayer) .card-type{
+  height: var(--c-type); line-height: var(--c-type);
+  font-size: 12px; color: var(--text-mut); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+:is(#raMain,#raLayer) .card-name{
+  color: var(--text); overflow-wrap: anywhere;
+  height: calc(var(--c-name-n) * var(--c-name)); line-height: var(--c-name);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--c-name-n); overflow: hidden;
+}
+:is(#raMain,#raLayer) .cn-brand{ color: var(--blue); }
+:is(#raMain,#raLayer) .card-model{ display: none; }
+:is(#raMain,#raLayer) .dv-model{
+  display: block; max-width: 100%; margin-top: 5px;
+  font-size: 12.5px; line-height: 1.35; font-weight: 590; letter-spacing: -.012em;
+  font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;
+  color: var(--text); white-space: normal; overflow-wrap: anywhere;
+}
+:is(#raMain,#raLayer) .dv-model b{
+  display: block; font-weight: 600; font-size: 10px; line-height: 1.5;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--text-mut);
+  margin: 0 0 1px;
+}
+:is(#raMain,#raLayer) .card-tag{
+  font-size: 13.5px; color: var(--text-soft);
+  height: calc(var(--c-tag-n) * var(--c-tag)); line-height: var(--c-tag);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--c-tag-n); overflow: hidden;
+}
+:is(#raMain,#raLayer) .card-foot{
+  margin-top: auto; padding-top: var(--c-foot-t); height: var(--c-foot); box-sizing: content-box;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+:is(#raMain,#raLayer) .card-price{ font-size: 13px; color: var(--text-soft); font-weight: 600; }
+:is(#raMain,#raLayer) .card-price b{ color: var(--text); font-weight: 700; }
+:is(#raMain,#raLayer) .card-price.free b{ color: var(--free-fg); }
+:is(#raMain,#raLayer) .card-arrow{ color: var(--blue); display: inline-flex; }
+:is(#raMain,#raLayer) .card-arrow svg{ width: 18px; height: 18px; }
+:is(#raMain,#raLayer) .empty{ padding: 60px 20px; text-align: center; color: var(--text-mut); }
+:is(#raMain,#raLayer) .overlay{
+  position: fixed; inset: 0; z-index: 100; display: none;
+  background: rgba(0,0,0,.34); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  overscroll-behavior: contain;
+}
+:is(#raMain,#raLayer) .overlay.open{ display: block; animation: scrimIn var(--t-base) var(--ease-io) both; }
+@keyframes scrimIn{ from { opacity: 0; } to { opacity: 1; } }
+:is(#raMain,#raLayer) .sheet{
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: min(920px, calc(100% - 28px)); max-height: calc(100dvh - 40px); overflow-y: auto;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-lg);
+  -webkit-overflow-scrolling: touch;
+  animation: sheetIn var(--t-enter) var(--ease) both;
+}
+@keyframes sheetIn{
+  from { opacity: 0; transform: translate(-50%, calc(-50% + var(--rise))); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+:is(#raMain,#raLayer) .sheet-head{
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: transparent;
+  border-bottom: 1px solid var(--border-2);
+}
+:is(#raMain,#raLayer) .sheet-head::before{
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: var(--header-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+:is(#raMain,#raLayer) .sheet-head > *{ position: relative; z-index: 1; }
+:is(#raMain,#raLayer) .sheet-head .st{ font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-mut); }
+:is(#raMain,#raLayer) .sheet-head .close{ margin-left: auto; }
+:is(#raMain,#raLayer) .sheet-body{ padding: 4px 22px 26px; }
+@media (max-width: 560px){
+:is(#raMain,#raLayer) .sheet{
+    width: 100%; height: 100dvh; max-height: none; top: 0; left: 0; transform: none; border-radius: 0;
+    animation: sheetInFull var(--t-enter) var(--ease) both;
+  }
+@keyframes sheetInFull{
+    from { opacity: 0; transform: translateY(calc(var(--rise) * 2)); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+:is(#raMain,#raLayer) .dv-hero{ display: grid; grid-template-columns: 280px 1fr; gap: 26px; padding: 22px 0 8px; align-items: center; }
+:is(#raMain,#raLayer) .dv-img{ position: relative; background: #ffffff; border: 1px solid var(--border-2); border-radius: 16px; height: 280px; padding: 20px; overflow: hidden; }
+:is(#raMain,#raLayer) .dv-img img{
+  position: absolute; top: 20px; right: 20px; bottom: 20px; left: 20px;
+  width: auto; height: auto; max-width: calc(100% - 40px); max-height: calc(100% - 40px);
+  margin: auto; object-fit: contain;
+}
+:is(#raMain,#raLayer) .dv-meta .brandline{ display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--text-mut); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+:is(#raMain,#raLayer) .dv-meta h2{ font-size: 26px; }
+:is(#raMain,#raLayer) .dv-name{ color: var(--text); overflow-wrap: anywhere; }
+:is(#raMain,#raLayer) .dv-model{
+  display: block; margin-top: 9px;
+  font-size: 15px; line-height: 1.35; font-weight: 590; letter-spacing: -.012em;
+  font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;
+  color: var(--text);
+}
+:is(#raMain,#raLayer) .dv-model b{ font-size: 10.5px; margin-bottom: 2px; }
+:is(#raMain,#raLayer) .dv-meta .tag{ color: var(--text-soft); font-size: 15px; margin-top: 8px; }
+:is(#raMain,#raLayer) .dv-meta .accent{ width: 30px; height: 4px; border-radius: 4px; background: var(--accent-grad); margin: 14px 0 0; }
+:is(#raMain,#raLayer) .dv-badges{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 0; }
+:is(#raMain,#raLayer) .pill{ display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--border-2); color: var(--text-soft); }
+:is(#raMain,#raLayer) .pill svg{ width: 14px; height: 14px; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .pill.free{ background: var(--free-bg); color: var(--free-fg); border-color: transparent; }
+:is(#raMain,#raLayer) .dv-section{ padding: 20px 0 4px; }
+:is(#raMain,#raLayer) .dv-section h4{ font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-mut); display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+:is(#raMain,#raLayer) .dv-section h4::before{ content:""; width: 16px; height: 3px; border-radius: 3px; background: var(--accent-grad); }
+:is(#raMain,#raLayer) .benefits{ list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+:is(#raMain,#raLayer) .benefits li{ display: flex; gap: 11px; font-size: 15px; color: var(--text); }
+:is(#raMain,#raLayer) .benefits li svg{ width: 19px; height: 19px; flex: 0 0 auto; margin-top: 1px; color: var(--green); }
+:is(#raMain,#raLayer) .overview{ color: var(--text-soft); font-size: 15px; }
+:is(#raMain,#raLayer) .specs{ display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-2); border: 1px solid var(--border-2); border-radius: 14px; overflow: hidden; }
+:is(#raMain,#raLayer) .specs .sp{ background: var(--card); padding: 12px 14px; }
+:is(#raMain,#raLayer) .specs .sp .k{ font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-mut); font-weight: 700; }
+:is(#raMain,#raLayer) .specs .sp .v{ font-size: 14px; color: var(--text); margin-top: 3px; }
+:is(#raMain,#raLayer) .pricebox{ display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+:is(#raMain,#raLayer) .pb{ background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 15px; box-shadow: var(--shadow-sm); }
+:is(#raMain,#raLayer) .pb .k{ font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-mut); font-weight: 700; }
+:is(#raMain,#raLayer) .pb .v{ font-size: 21px; font-weight: 700; margin-top: 4px; }
+:is(#raMain,#raLayer) .pb .v small{ font-size: 13px; font-weight: 600; color: var(--text-mut); }
+:is(#raMain,#raLayer) .pb.freecard{ background: var(--free-bg); border-color: transparent; }
+:is(#raMain,#raLayer) .pb.freecard .v{ color: var(--free-fg); font-size: 16px; }
+:is(#raMain,#raLayer) .price-note{ color: var(--text-mut); font-size: 12.5px; margin-top: 12px; line-height: 1.5; }
+:is(#raMain,#raLayer) .fin-pick{ margin-bottom: 16px; }
+:is(#raMain,#raLayer) .modal-body .fin-pick select{
+  width: 100%; font-family: inherit; font-size: 15.5px; font-weight: 700; color: var(--text);
+  background-color: var(--card); border: 2px solid var(--blue); border-radius: 12px;
+  padding: 13px 46px 13px 14px; outline: none; appearance: none; -webkit-appearance: none;
+  cursor: pointer; box-shadow: 0 0 0 4px rgba(26,155,215,.10);
+  background-image: linear-gradient(45deg, transparent 50%, var(--blue) 50%),
+                    linear-gradient(135deg, var(--blue) 50%, transparent 50%);
+  background-position: calc(100% - 24px) calc(50% + 1px), calc(100% - 18px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+  transition: box-shadow var(--t-base) var(--ease-io), border-color var(--t-base) var(--ease-io);
+}
+:is(#raMain,#raLayer) .modal-body .fin-pick select:hover{ box-shadow: 0 0 0 5px rgba(26,155,215,.16); }
+:is(#raMain,#raLayer) .modal-body .fin-pick select:focus{ border-color: var(--blue); box-shadow: 0 0 0 5px rgba(26,155,215,.24); }
+:is(#raMain,#raLayer) .modal-body .fin-pick > span{ color: var(--blue); }
+:is(#raMain,#raLayer) .term-row{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+:is(#raMain,#raLayer) .term{
+  flex: 1 1 auto; min-width: 62px; text-align: center; padding: 9px 6px; border-radius: 11px; font-weight: 700; font-size: 14px;
+  background: var(--card); border: 1px solid var(--border); color: var(--text-soft); transition: color var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io), border-color var(--t-fast) var(--ease-io);
+}
+:is(#raMain,#raLayer) .term small{ display: block; font-size: 10px; font-weight: 600; color: var(--text-mut); text-transform: uppercase; letter-spacing: .03em; }
+:is(#raMain,#raLayer) .term.active{ color: #fff; background: var(--navy); border-color: var(--navy); }
+:is(#raMain,#raLayer) .term.active small{ color: rgba(255,255,255,.75); }
+:is(#raMain,#raLayer) .btn-row{ display: flex; flex-wrap: wrap; gap: 10px; padding: 22px 0 2px; }
+:is(#raMain,#raLayer) .btn{
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 13px;
+  font-weight: 600; font-size: 14.5px; white-space: nowrap; border: 1px solid var(--border); background: var(--card); color: var(--text);
+  transition: transform var(--t-fast) var(--ease-io), box-shadow var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io);
+  box-shadow: var(--shadow-sm);
+}
+:is(#raMain,#raLayer) .btn svg{ width: 17px; height: 17px; }
+:is(#raMain,#raLayer) .btn:active{ transform: scale(.98); }
+:is(#raMain,#raLayer) .btn.primary{ background: var(--navy); color: #fff; border-color: var(--navy); }
+:is(#raMain,#raLayer) .btn.accent{ background: var(--accent-grad); color: #fff; border: none; }
+:is(#raMain,#raLayer) .btn.ghost{ background: transparent; box-shadow: none; }
+:is(#raMain,#raLayer) .btn.call{ background: var(--green); color:#fff; border-color: var(--green); }
+:is(#raMain,#raLayer) .btn-split{ display: inline-flex; gap: 10px; }
+:is(#raMain,#raLayer) .btn.dl{
+  width: 46px; padding: 0; align-self: stretch;
+  justify-content: center; flex: none;
+  background: var(--navy); border: none; color: #fff;
+}
+:is(#raMain,#raLayer) .btn.dl svg{ width: 22px; height: 22px; }
+:is(#raMain,#raLayer) .steps{ list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 12px; }
+:is(#raMain,#raLayer) .steps li{ display: grid; grid-template-columns: 30px 1fr; gap: 13px; align-items: start; font-size: 15px; color: var(--text); }
+:is(#raMain,#raLayer) .steps li::before{
+  counter-increment: s; content: counter(s); width: 28px; height: 28px; border-radius: 9px;
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; background: var(--navy);
+}
+:is(#raMain,#raLayer) .tips{ list-style: none; margin: 14px 0 0; padding: 14px 16px; background: var(--bg-soft); border-radius: 13px; display: grid; gap: 9px; border: 1px solid var(--border-2); }
+:is(#raMain,#raLayer) .tips li{ display: flex; gap: 10px; font-size: 14px; color: var(--text-soft); }
+:is(#raMain,#raLayer) .tips li svg{ width: 17px; height: 17px; color: var(--blue); flex: 0 0 auto; margin-top: 1px; }
+:is(#raMain,#raLayer) .support-stack{ display: grid; gap: 10px; }
+:is(#raMain,#raLayer) .support-stack .support .si{ background: var(--bg-soft); color: var(--blue); }
+:is(#raMain,#raLayer) .support-stack .support:first-child .si{ background: var(--free-bg); color: var(--free-fg); }
+:is(#raMain,#raLayer) .modal{ position: fixed; inset: 0; z-index: 150; display: none; background: rgba(0,0,0,.38); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+:is(#raMain,#raLayer) .modal.open{ display: block; }
+:is(#raMain,#raLayer) .modal-card{
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: min(460px, calc(100% - 28px)); max-height: calc(100dvh - 40px); overflow-y: auto;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-lg);
+}
+:is(#raMain,#raLayer) .modal-head{ display: flex; align-items: center; gap: 12px; padding: 16px 18px 8px; }
+:is(#raMain,#raLayer) .modal-head h3{ font-size: 18px; flex: 1; }
+:is(#raMain,#raLayer) .modal-body{ padding: 4px 18px 8px; }
+:is(#raMain,#raLayer) .modal-lead{ color: var(--text-soft); font-size: 13.5px; margin: 0 0 14px; }
+:is(#raMain,#raLayer) .fld{ display: block; margin-bottom: 12px; }
+:is(#raMain,#raLayer) .fld span{ display: block; font-size: 12px; font-weight: 700; color: var(--text-mut); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+:is(#raMain,#raLayer) .fld input{
+  width: 100%; font-family: inherit; font-size: 16px; color: var(--text);
+  background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 12px; padding: 11px 13px; outline: none;
+}
+:is(#raMain,#raLayer) .fld input:focus{ border-color: var(--blue); }
+:is(#raMain,#raLayer) .modal-foot{ display: flex; justify-content: flex-end; gap: 10px; padding: 8px 18px 18px; }
+:is(#raMain,#raLayer) .quote-card{ width: min(560px, calc(100% - 28px)); }
+:is(#raMain,#raLayer) .fld select{
+  width: 100%; font-family: inherit; font-size: 16px; color: var(--text);
+  background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 12px;
+  padding: 11px 13px; outline: none; appearance: none; -webkit-appearance: none;
+}
+:is(#raMain,#raLayer) .q-list{ display: grid; gap: 8px; margin: 4px 0 16px; }
+:is(#raMain,#raLayer) .q-empty{ color: var(--text-mut); font-size: 13.5px; padding: 14px; text-align: center; background: var(--bg-soft); border-radius: 12px; }
+:is(#raMain,#raLayer) .q-row{ display: flex; align-items: center; gap: 11px; padding: 9px 11px; background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 12px; }
+:is(#raMain,#raLayer) .q-row img{ width: 40px; height: 40px; object-fit: contain; background: #fff; border-radius: 8px; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .q-nm{ flex: 1; min-width: 0; }
+:is(#raMain,#raLayer) .q-nm .n{ font-weight: 600; font-size: 14px; }
+:is(#raMain,#raLayer) .q-nm .s{ font-size: 12px; color: var(--text-mut); }
+:is(#raMain,#raLayer) .q-qty{ display: flex; align-items: center; gap: 8px; }
+:is(#raMain,#raLayer) .q-qty span{ min-width: 18px; text-align: center; font-weight: 700; font-size: 14px; }
+:is(#raMain,#raLayer) .qb{ width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 15px; font-weight: 700; line-height: 1; }
+:is(#raMain,#raLayer) .q-del{ background: none; border: none; color: var(--text-mut); padding: 4px; display: inline-flex; }
+:is(#raMain,#raLayer) .q-del svg{ width: 17px; height: 17px; }
+:is(#raMain,#raLayer) .q-del:hover{ color: #d64545; }
+:is(#raMain,#raLayer) .k-lbl{ font-size: 12px; font-weight: 700; color: var(--text-mut); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+:is(#raMain,#raLayer) .q-terms{ margin-bottom: 14px; }
+:is(#raMain,#raLayer) .q-disc{ margin-bottom: 14px; }
+:is(#raMain,#raLayer) .disc-row{ display: flex; align-items: stretch; gap: 8px; }
+:is(#raMain,#raLayer) .disc-kind{ display: flex; gap: 4px; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .dk{
+  width: 44px; border-radius: 11px; font-weight: 700; font-size: 15px;
+  background: var(--card); border: 1px solid var(--border); color: var(--text-soft);
+  transition: color var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io), border-color var(--t-fast) var(--ease-io);
+}
+:is(#raMain,#raLayer) .dk.active{ color: #fff; background: var(--navy); border-color: var(--navy); }
+:is(#raMain,#raLayer) .disc-row input{
+  flex: 1 1 auto; min-width: 0; padding: 11px 13px; border-radius: 11px; font-size: 15px; font-weight: 600;
+  background: var(--card); border: 1px solid var(--border); color: var(--text);
+}
+:is(#raMain,#raLayer) .disc-row input:focus{ border-color: var(--blue); outline: none; }
+:is(#raMain,#raLayer) .disc-hint{ font-size: 12px; color: var(--text-mut); margin-top: 6px; min-height: 15px; }
+:is(#raMain,#raLayer) .disc-hint.warn{ color: #b26a00; font-weight: 600; }
+body.dark :is(#raMain,#raLayer) .disc-hint.warn,
+body.dark :is(#raMain,#raLayer) .disc-hint.warn{ color: #f0a63a; }
+:is(#raMain,#raLayer) .q-sum .disc span,
+:is(#raMain,#raLayer) .q-sum .disc b{ color: var(--green-d, #1f9a4c); }
+body.dark :is(#raMain,#raLayer) .q-sum .disc span,
+body.dark :is(#raMain,#raLayer) .q-sum .disc b,
+body.dark :is(#raMain,#raLayer) .q-sum .disc span,
+body.dark :is(#raMain,#raLayer) .q-sum .disc b{ color: var(--green); }
+:is(#raMain,#raLayer) .q-sum{ background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 14px; padding: 14px 16px; }
+:is(#raMain,#raLayer) .q-sum > div{ display: flex; align-items: baseline; justify-content: space-between; font-size: 14px; color: var(--text-soft); }
+:is(#raMain,#raLayer) .q-sum b{ color: var(--text); font-weight: 700; }
+:is(#raMain,#raLayer) .q-sum .big{ margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-2); }
+:is(#raMain,#raLayer) .q-sum .big b{ font-size: 26px; }
+:is(#raMain,#raLayer) .q-sum .big .g{ background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+:is(#raMain,#raLayer) .q-row.q-na{ opacity: .62; }
+:is(#raMain,#raLayer) .q-row.q-na .q-nm .s{ color: var(--text-soft); font-weight: 600; }
+:is(#raMain,#raLayer) .q-note{ margin-top: 9px; font-size: 12.5px; color: var(--text-mut); line-height: 1.45; }
+:is(#raMain,#raLayer) .ind-wrap{ margin-top: 20px; padding-top: 4px; }
+:is(#raMain,#raLayer) .ind-head{
+  display: flex; align-items: center; gap: 7px; margin-bottom: 9px;
+  font-size: 11px; font-weight: 600; letter-spacing: .085em; text-transform: uppercase;
+  color: var(--text-mut);
+}
+:is(#raMain,#raLayer) .ind-head svg{ width: 15px; height: 15px; color: var(--blue); flex: 0 0 auto; }
+:is(#raMain,#raLayer) .seg{
+  position: relative; display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0; padding: 3px; border-radius: 12px;
+  background: var(--bg-softer); border: 1px solid var(--border-2);
+  margin-bottom: 16px; isolation: isolate;
+}
+:is(#raMain,#raLayer) .seg-thumb{
+  position: absolute; z-index: 0; top: 3px; left: 3px;
+  width: calc((100% - 6px) / 3); height: calc(100% - 6px);
+  border-radius: 9px; background: var(--card);
+  box-shadow: 0 1px 3px rgba(0,0,0,.10), 0 0 0 .5px rgba(0,0,0,.04);
+  transition: transform var(--t-enter) cubic-bezier(.32,.72,0,1);
+}
+body.dark :is(#raMain,#raLayer) .seg-thumb,
+body.dark :is(#raMain,#raLayer) .seg-thumb{ box-shadow: 0 1px 3px rgba(0,0,0,.5); }
+:is(#raMain,#raLayer) .seg-btn{
+  position: relative; z-index: 1; appearance: none; border: 0; background: none;
+  padding: 8px 4px; border-radius: 9px; font-family: inherit; font-size: 13.5px;
+  font-weight: 590; letter-spacing: -.01em; color: var(--text-soft);
+  transition: color var(--t-base) var(--ease-io); -webkit-tap-highlight-color: transparent;
+}
+:is(#raMain,#raLayer) .seg-btn.on{ color: var(--text); }
+:is(#raMain,#raLayer) .seg-btn:not(.on):hover{ color: var(--text); }
+:is(#raMain,#raLayer) .ind-list{ margin: 0; }
+:is(#raMain,#raLayer) .catbar{ display: flex; align-items: center; gap: 9px; margin: 0 0 14px; }
+:is(#raMain,#raLayer) .catbar-lead{ flex: 0 0 auto; display: flex; align-items: center; color: var(--blue); }
+:is(#raMain,#raLayer) .catbar-lead svg{ width: 16px; height: 16px; }
+:is(#raMain,#raLayer) .cchips{
+  display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; min-width: 0; flex: 1;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+:is(#raMain,#raLayer) .cchips::-webkit-scrollbar{ display: none; }
+:is(#raMain,#raLayer) .cchip{
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border-2);
+  background: var(--chip-bg); color: var(--text-soft);
+  font-family: inherit; font-size: 12.5px; font-weight: 590; letter-spacing: -.01em;
+  white-space: nowrap; transition: background var(--t-fast) var(--ease-io), color var(--t-fast) var(--ease-io), border-color var(--t-fast) var(--ease-io);
+  -webkit-tap-highlight-color: transparent;
+}
+:is(#raMain,#raLayer) .cchip i{
+  font-style: normal; font-size: 10.5px; font-weight: 700; line-height: 1;
+  padding: 2px 5px; border-radius: 999px;
+  background: var(--bg); color: var(--text-mut);
+  font-variant-numeric: tabular-nums;
+}
+:is(#raMain,#raLayer) .cchip:hover{ color: var(--text); }
+:is(#raMain,#raLayer) .cchip.on{ background: var(--navy); border-color: var(--navy); color: #fff; }
+:is(#raMain,#raLayer) .cchip.on i{ background: rgba(255,255,255,.18); color: #fff; }
+:is(#raMain,#raLayer) .cat-empty{
+  color: var(--text-mut); font-size: 13.5px; padding: 14px;
+  text-align: center; background: var(--bg-soft); border-radius: 12px;
+}
+:is(#raMain,#raLayer) .steps li[hidden],
+:is(#raMain,#raLayer) .accordion details[hidden]{ display: none; }
+:is(#raMain,#raLayer) .ind-empty{ color: var(--text-mut); font-size: 13.5px; padding: 12px 14px; background: var(--bg-soft); border-radius: 12px; }
+:is(#raMain,#raLayer) #indOut{ animation: riseIn var(--t-base) var(--ease) both; }
+:is(#raMain,#raLayer) button.qlink{ font-family: inherit; cursor: pointer; }
+:is(#raMain,#raLayer) .video-embed{ position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid var(--border-2); }
+:is(#raMain,#raLayer) .video-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+:is(#raMain,#raLayer) .video-tabs{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+:is(#raMain,#raLayer) .vtab{ display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border-radius: 11px; font-size: 13px; font-weight: 600; color: var(--text-soft); background: var(--chip-bg); border: 1px solid transparent; transition: color var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io), border-color var(--t-fast) var(--ease-io); }
+:is(#raMain,#raLayer) .vtab svg{ width: 15px; height: 15px; }
+:is(#raMain,#raLayer) .vtab:hover{ color: var(--text); }
+:is(#raMain,#raLayer) .vtab.active{ color: #fff; background: var(--navy); }
+:is(#raMain,#raLayer) .support{
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow-sm);
+}
+:is(#raMain,#raLayer) .support .si{ width: 42px; height: 42px; border-radius: 12px; background: var(--free-bg); color: var(--free-fg); display: grid; place-items: center; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .support .si svg{ width: 21px; height: 21px; }
+:is(#raMain,#raLayer) .support .st{ flex: 1; min-width: 160px; }
+:is(#raMain,#raLayer) .support .st .n{ font-weight: 700; font-size: 15px; }
+:is(#raMain,#raLayer) .support .st .p{ color: var(--text-soft); font-size: 13.5px; }
+:is(#raMain,#raLayer) .support .actions{ display: flex; gap: 8px; flex-wrap: wrap; }
+:is(#raMain,#raLayer) .accordion{ display: grid; gap: 10px; }
+:is(#raMain,#raLayer) .acc{
+  border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--card); box-shadow: var(--shadow-sm);
+}
+:is(#raMain,#raLayer) .acc summary{
+  list-style: none; cursor: pointer; padding: 15px 16px; display: flex; align-items: center; gap: 12px;
+  font-weight: 600; font-size: 15px; color: var(--text);
+}
+:is(#raMain,#raLayer) .acc summary::-webkit-details-marker{ display: none; }
+:is(#raMain,#raLayer) .acc summary .q{ flex: 1; }
+:is(#raMain,#raLayer) .acc summary .qi{ width: 26px; height: 26px; border-radius: 8px; background: var(--bg-soft); color: var(--blue); display: grid; place-items: center; flex: 0 0 auto; font-weight: 800; }
+:is(#raMain,#raLayer) .acc summary .chev{ color: var(--text-mut); transition: transform var(--t-base) var(--ease-io); }
+:is(#raMain,#raLayer) .acc[open] summary .chev{ transform: rotate(180deg); }
+:is(#raMain,#raLayer) .acc .a{ padding: 0 16px 16px 54px; color: var(--text-soft); font-size: 14.5px; }
+:is(#raMain,#raLayer) .info-card{ background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow-sm); }
+:is(#raMain,#raLayer) .info-card h4{ font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-mut); margin-bottom: 12px; }
+:is(#raMain,#raLayer) .ptable{ width: 100%; border-collapse: collapse; font-size: 14px; }
+:is(#raMain,#raLayer) .ptable td{ padding: 9px 4px; border-bottom: 1px solid var(--border-2); color: var(--text); }
+:is(#raMain,#raLayer) .ptable td:last-child{ text-align: right; color: var(--text-soft); }
+:is(#raMain,#raLayer) .ptable tr:last-child td{ border-bottom: none; }
+:is(#raMain,#raLayer) .two-col{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+:is(#raMain,#raLayer) .notes{ margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+:is(#raMain,#raLayer) .notes li{ display: flex; gap: 9px; color: var(--text-mut); font-size: 12.5px; }
+:is(#raMain,#raLayer) .notes li::before{ content:""; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); margin-top: 7px; flex: 0 0 auto; }
+:is(#raMain,#raLayer) .foot{ border-top: 1px solid var(--border-2); padding: 26px 0 40px; color: var(--text-mut); font-size: 13px; text-align: center; }
+:is(#raMain,#raLayer) .foot .logo{ height: 29px; opacity: .8; margin-bottom: 10px; }
+:is(#raMain,#raLayer) .foot a{ color: var(--blue); font-weight: 600; }
+@media (max-width: 860px){
+:is(#raMain,#raLayer) .tiles{ grid-template-columns: 1fr; }
+:is(#raMain,#raLayer) .grid{ grid-template-columns: repeat(2, 1fr); }
+:is(#raMain,#raLayer) .dv-hero{ grid-template-columns: 1fr; }
+:is(#raMain,#raLayer) .dv-img{ max-width: 260px; }
+:is(#raMain,#raLayer) .pricebox{ grid-template-columns: 1fr; }
+:is(#raMain,#raLayer) .two-col{ grid-template-columns: 1fr; }
+:is(#raMain,#raLayer) .specs{ grid-template-columns: 1fr; }
+}
+@media (max-width: 520px){
+:is(#raMain,#raLayer) .grid{
+    grid-template-columns: repeat(2, 1fr); gap: 12px;
+    --c-img: 150px; --c-pad-t: 12px; --c-pad-b: 14px;
+    /* A two-up card is ~150px of text width, so titles and taglines that fit on
+       two lines at desk width take three here. Measured, not guessed: three
+       lines covers every tagline and all but nine of 246 titles, and those nine
+       ellipsis on the card and read in full on the detail sheet. */
+    --c-name: 18px; --c-name-n: 3;
+    --c-tag: 17px;  --c-tag-n: 3;
+  }
+:is(#raMain,#raLayer) .wrap{ padding: 0 16px; }
+:is(#raMain,#raLayer) .card-img{ padding: 12px; }
+:is(#raMain,#raLayer) .card-img img{ top: 12px; right: 12px; bottom: 12px; left: 12px; max-width: calc(100% - 24px); max-height: calc(100% - 24px); }
+:is(#raMain,#raLayer) .card-body{ padding: var(--c-pad-t) 12px var(--c-pad-b); }
+:is(#raMain,#raLayer) .card-body h3{ font-size: 15px; }
+:is(#raMain,#raLayer) .card-tag{ font-size: 12.5px; }
+:is(#raMain,#raLayer) .card-price{ font-size: 12px; }
+:is(#raMain,#raLayer) .card-badge{ font-size: 10px; padding: 3px 7px; top: 8px; left: 8px; }
+}
+@media (max-width: 359px){
+:is(#raMain,#raLayer) .grid{
+    grid-template-columns: 1fr;
+    --c-img: 170px; --c-name-n: 2; --c-tag-n: 2;
+  }
+}
+:is(#raMain,#raLayer) .toast{
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+  background: var(--navy); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 600;
+  box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none;
+  transition: opacity var(--t-enter) var(--ease), transform var(--t-enter) var(--ease);
+  z-index: 200; max-width: 90vw; text-align: center;
+}
+:is(#raMain,#raLayer) .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+:is(#raMain,#raLayer) #print-root{ display: none; }
+:is(#raMain,#raLayer) .pdoc{
+  width: 8.5in; min-height: 11in; margin: 0 auto; background: #fff; color: #12233f;
+  font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; position: relative;
+  padding: 0.7in 0.75in 0.9in; letter-spacing: -0.01em;
+}
+:is(#raMain,#raLayer) .pdoc .p-topbar{ height: 6px; background: linear-gradient(90deg,#1a9bd7,#29b45b); border-radius: 4px; margin-bottom: 26px; }
+:is(#raMain,#raLayer) .pdoc .p-head{ display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+:is(#raMain,#raLayer) .pdoc .p-logo{ height: 40px; }
+:is(#raMain,#raLayer) .pdoc .p-kicker{ text-align: right; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: #8a97a8; font-weight: 700; padding-top: 6px; }
+:is(#raMain,#raLayer) .pdoc h1{ font-size: 30px; color: #10254f; margin: 26px 0 0; letter-spacing: -0.02em; }
+:is(#raMain,#raLayer) .pdoc .p-tag{ color: #5b6b80; font-size: 14px; margin-top: 6px; }
+:is(#raMain,#raLayer) .pdoc .p-rule{ display: flex; align-items: center; gap: 12px; margin: 8px 0 18px; }
+:is(#raMain,#raLayer) .pdoc .p-rule::before{ content:""; width: 40px; height: 4px; border-radius: 4px; background: linear-gradient(90deg,#1a9bd7,#29b45b); }
+:is(#raMain,#raLayer) .pdoc .p-rule .brand{ font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #29b45b; }
+:is(#raMain,#raLayer) .pdoc .p-body{ display: grid; grid-template-columns: 2.15fr 1fr; gap: 26px; align-items: start; }
+:is(#raMain,#raLayer) .pdoc .p-imgwrap{ background: #f6f8fb; border: 1px solid #eef2f7; border-radius: 12px; padding: 14px; display: grid; place-items: center; aspect-ratio: 1/1; }
+:is(#raMain,#raLayer) .pdoc .p-imgwrap img{ max-width: 100%; max-height: 100%; object-fit: contain; }
+:is(#raMain,#raLayer) .pdoc h2.p-sub{ font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: #10254f; margin: 4px 0 12px; }
+:is(#raMain,#raLayer) .pdoc .p-benes{ list-style: none; margin: 0 0 18px; padding: 0; }
+:is(#raMain,#raLayer) .pdoc .p-benes li{ display: flex; gap: 10px; font-size: 13.5px; color: #23364f; margin-bottom: 10px; line-height: 1.4; }
+:is(#raMain,#raLayer) .pdoc .p-benes li .dot{ width: 16px; height: 16px; border-radius: 50%; background: #e9f7ee; color: #1f9a4c; display: inline-grid; place-items: center; flex: 0 0 auto; margin-top: 1px; font-size: 11px; font-weight: 800; }
+:is(#raMain,#raLayer) .pdoc .p-over{ font-size: 13px; color: #5b6b80; line-height: 1.55; background: #f7f9fc; border-left: 3px solid #1a9bd7; padding: 12px 14px; border-radius: 0 10px 10px 0; }
+:is(#raMain,#raLayer) .pdoc .p-side .p-card{ border: 1px solid #eef2f7; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+:is(#raMain,#raLayer) .pdoc .p-side .p-card .lbl{ font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #8a97a8; font-weight: 700; }
+:is(#raMain,#raLayer) .pdoc .p-side .p-card .val{ font-size: 16px; font-weight: 700; color: #10254f; margin-top: 3px; }
+:is(#raMain,#raLayer) .pdoc .p-side .p-card .val small{ font-size: 12px; color: #8a97a8; font-weight: 600; }
+:is(#raMain,#raLayer) .pdoc .p-side .p-free{ background: #e9f7ee; border: none; }
+:is(#raMain,#raLayer) .pdoc .p-side .p-free .val{ color: #1f7d43; font-size: 13px; }
+:is(#raMain,#raLayer) .pdoc .p-specs{ list-style: none; margin: 10px 0 0; padding: 0; }
+:is(#raMain,#raLayer) .pdoc .p-specs li{ display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; padding: 6px 0; border-bottom: 1px solid #f0f3f7; }
+:is(#raMain,#raLayer) .pdoc .p-specs li .k{ color: #8a97a8; font-weight: 600; }
+:is(#raMain,#raLayer) .pdoc .p-specs li .v{ color: #23364f; text-align: right; }
+:is(#raMain,#raLayer) .pdoc .p-contact{ margin-top: 26px; border-top: 1px solid #eef2f7; padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 26px; }
+:is(#raMain,#raLayer) .pdoc .p-field{ font-size: 12px; color: #23364f; display: flex; align-items: flex-end; gap: 8px; }
+:is(#raMain,#raLayer) .pdoc .p-field .fl{ color: #5b6b80; font-weight: 600; white-space: nowrap; }
+:is(#raMain,#raLayer) .pdoc .p-field .line{ flex: 1; border-bottom: 1px solid #c7d0dc; height: 15px; }
+:is(#raMain,#raLayer) .pdoc .p-foot{ position: absolute; left: 0.75in; right: 0.75in; bottom: 0.5in; display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; color: #a3aebd; border-top: 1px solid #eef2f7; padding-top: 10px; }
+:is(#raMain,#raLayer) .pdoc .p-foot img{ height: 15px; opacity: .7; }
+:is(#raMain,#raLayer) .pdoc .p-disc{ font-size: 8.5px; color: #b3bcc9; margin-top: 14px; line-height: 1.4; }
+@media (prefers-reduced-motion: reduce){
+:is(#raMain,#raLayer){ scroll-behavior: auto; }
+:is(#raMain,#raLayer){ --rise: 0px; }
+:is(#raMain,#raLayer) .rise,
+:is(#raMain,#raLayer) .hero-logo,
+:is(#raMain,#raLayer) .hero-kit,
+:is(#raMain,#raLayer) .sheet,
+:is(#raMain,#raLayer) .overlay.open,
+:is(#raMain,#raLayer) #indOut{
+    animation-duration: 1ms !important; animation-delay: 0ms !important;
+  }
+:is(#raMain,#raLayer) .card:hover,
+:is(#raMain,#raLayer) .tile:hover{ transform: none; }
+:is(#raMain,#raLayer) .seg-thumb{ transition: none; }
+}
+:is(#raMain,#raLayer) .bz-page{ padding-bottom: 116px; }
+:is(#raMain,#raLayer) .bz-hero{ display: flex; align-items: center; gap: 18px; padding: 26px 2px 4px; }
+:is(#raMain,#raLayer) .bz-logo{ width: 62px; height: auto; }
+:is(#raMain,#raLayer) .bz-hero h1{ font-size: 27px; letter-spacing: -.02em; margin: 0; }
+:is(#raMain,#raLayer) .bz-hero p{ margin: 3px 0 0; color: var(--text-soft); font-size: 13.5px; }
+:is(#raMain,#raLayer) .bz-card{ background: var(--card); border: 1px solid var(--border-2); border-radius: 18px; padding: 30px 22px 26px; margin-top: 24px; }
+:is(#raMain,#raLayer) .bz-card h2{ font-size: 19px; font-weight: 700; letter-spacing: -.01em; margin: 2px 0 12px; }
+:is(#raMain,#raLayer) .bz-kicker{ font-size: 21px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #2D9B57; margin-bottom: 18px; }
+:is(#raMain,#raLayer) .bz-sub{ color: var(--text-mut); font-size: 13px; margin: -6px 0 16px; line-height: 1.5; }
+:is(#raMain,#raLayer) .bz-opt-hint{ font-weight: 400; color: var(--text-mut); font-size: 14px; }
+:is(#raMain,#raLayer) .bz-opts{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+:is(#raMain,#raLayer) .bz-opt{
+  text-align: left; background: var(--bg-soft); border: 1.5px solid var(--border-2); border-radius: 14px;
+  padding: 14px; display: flex; flex-direction: column; gap: 4px; cursor: pointer;
+  color: var(--text); font-family: inherit; transition: border-color var(--t-fast) var(--ease-io), background var(--t-fast) var(--ease-io);
+}
+:is(#raMain,#raLayer) .bz-opt:active{ transform: scale(.99); }
+:is(#raMain,#raLayer) .bz-opt.sel{ border-color: #2D9B57; background: rgba(45,155,87,.07); box-shadow: 0 0 0 3px rgba(45,155,87,.13); }
+:is(#raMain,#raLayer) .bz-opt-ic svg{ width: 20px; height: 20px; color: #2D9B57; }
+:is(#raMain,#raLayer) .bz-opt-t{ font-weight: 700; font-size: 14px; }
+:is(#raMain,#raLayer) .bz-opt-d{ font-size: 12px; color: var(--text-mut); line-height: 1.45; }
+:is(#raMain,#raLayer) .bz-opt-p{ font-size: 12px; font-weight: 700; color: #1f9a4c; }
+:is(#raMain,#raLayer) .bz-note{ margin-top: 12px; border: 1px solid var(--border-2); background: var(--bg-soft); border-radius: 12px; padding: 11px 13px; font-size: 13px; line-height: 1.55; color: var(--text-soft); }
+:is(#raMain,#raLayer) .bz-note b{ color: var(--text); }
+:is(#raMain,#raLayer) .bz-note a{ color: var(--blue); font-weight: 600; text-decoration: none; }
+:is(#raMain,#raLayer) .bz-note.green{ border-color: rgba(45,155,87,.35); background: rgba(45,155,87,.07); }
+:is(#raMain,#raLayer) .bz-note.amber{ border-color: rgba(217,119,6,.4); background: rgba(217,119,6,.08); }
+:is(#raMain,#raLayer) .bz-note.blue{ border-color: rgba(26,155,215,.35); background: rgba(26,155,215,.07); }
+:is(#raMain,#raLayer) .bz-form{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+:is(#raMain,#raLayer) .bz-form3{ grid-template-columns: 1fr 1fr 1fr; }
+:is(#raMain,#raLayer) .bz-span{ grid-column: 1 / -1; }
+:is(#raMain,#raLayer) .fld textarea{
+  width: 100%; font-family: inherit; font-size: 16px; color: var(--text); resize: vertical; min-height: 58px;
+  background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 12px; padding: 11px 13px; outline: none;
+}
+:is(#raMain,#raLayer) .fld textarea:focus{ border-color: var(--blue); }
+:is(#raMain,#raLayer) .bz-mid{ margin-top: 6px; border: 1px solid rgba(217,119,6,.4); background: rgba(217,119,6,.07); border-radius: 14px; padding: 14px 14px 2px; }
+:is(#raMain,#raLayer) .bz-stepper{ display: flex; align-items: center; gap: 8px; }
+:is(#raMain,#raLayer) .bz-stepper input{ text-align: center; }
+:is(#raMain,#raLayer) .bz-page .qb{ width: 34px; height: 34px; border-radius: 10px; font-size: 17px; flex: none; }
+:is(#raMain,#raLayer) .bz-qty{ display: flex; align-items: center; gap: 10px; }
+:is(#raMain,#raLayer) .bz-qty span{ min-width: 22px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+:is(#raMain,#raLayer) .bz-bundles{ display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 12px; }
+:is(#raMain,#raLayer) .bz-bundle{ border: 1.5px solid var(--border-2); background: var(--bg-soft); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 9px; transition: border-color var(--t-fast) var(--ease-io); }
+:is(#raMain,#raLayer) .bz-bundle.sel{ border-color: #2D9B57; background: rgba(45,155,87,.06); box-shadow: 0 0 0 3px rgba(45,155,87,.12); }
+:is(#raMain,#raLayer) .bz-b-name{ font-weight: 700; font-size: 15px; }
+:is(#raMain,#raLayer) .bz-b-saas{ font-size: 24px; font-weight: 800; color: #1f9a4c; line-height: 1; letter-spacing: -.01em; }
+:is(#raMain,#raLayer) .bz-b-saas small{ font-size: 12px; font-weight: 600; color: var(--text-mut); letter-spacing: 0; }
+:is(#raMain,#raLayer) .bz-b-acq{ font-size: 12px; color: var(--text-soft); background: var(--card); border: 1px solid var(--border-2); border-radius: 8px; padding: 6px 9px; }
+:is(#raMain,#raLayer) .bz-b-items{ flex: 1; display: grid; grid-template-columns: 14px 1fr; gap: 4px 7px; font-size: 12px; color: var(--text-mut); line-height: 1.4; }
+:is(#raMain,#raLayer) .bz-b-items svg{ width: 13px; height: 13px; color: #2D9B57; margin-top: 2px; }
+:is(#raMain,#raLayer) .bz-cfs{ margin-top: 12px; border: 1px solid rgba(217,119,6,.4); background: rgba(217,119,6,.07); border-radius: 14px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+:is(#raMain,#raLayer) .bz-cfs-t{ font-weight: 700; font-size: 14px; min-width: 200px; flex: 1; }
+:is(#raMain,#raLayer) .bz-cfs-t small{ display: block; font-weight: 400; font-size: 12px; color: var(--text-soft); margin-top: 3px; }
+:is(#raMain,#raLayer) .bz-cfs-c{ display: flex; align-items: center; gap: 10px; }
+:is(#raMain,#raLayer) .bz-cfs-c small{ font-size: 11.5px; color: var(--text-mut); white-space: nowrap; }
+:is(#raMain,#raLayer) .bz-eq{ display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; border: 1px solid var(--border-2); background: var(--bg-soft); border-radius: 12px; padding: 11px 13px; margin-bottom: 8px; transition: border-color var(--t-fast) var(--ease-io); }
+:is(#raMain,#raLayer) .bz-eq.has{ border-color: #2D9B57; background: rgba(45,155,87,.05); }
+:is(#raMain,#raLayer) .bz-eq-i{ flex: 1 1 230px; min-width: 0; }
+:is(#raMain,#raLayer) .bz-eq-n{ font-weight: 600; font-size: 13.5px; }
+:is(#raMain,#raLayer) .bz-eq-m{ font-size: 11.5px; color: var(--text-mut); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 3px; font-variant-numeric: tabular-nums; }
+:is(#raMain,#raLayer) .bz-badge{ font-style: normal; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; text-transform: uppercase; letter-spacing: .03em; }
+:is(#raMain,#raLayer) .bz-badge.saas{ background: rgba(45,155,87,.13); color: #1f9a4c; }
+:is(#raMain,#raLayer) .bz-badge.crf{ background: rgba(217,119,6,.15); color: #b45309; }
+:is(#raMain,#raLayer) .bz-pill{ display: inline-flex; background: var(--card); border: 1px solid var(--border); border-radius: 9px; overflow: hidden; flex: none; }
+:is(#raMain,#raLayer) .bz-pill button{ border: none; background: none; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-mut); padding: 7px 11px; cursor: pointer; }
+:is(#raMain,#raLayer) .bz-pill button.on{ background: var(--navy); color: #fff; }
+:is(#raMain,#raLayer) .bz-pill-gap{ font-size: 11px; color: var(--text-mut); min-width: 64px; text-align: center; flex: none; }
+:is(#raMain,#raLayer) .bz-tog{ margin-top: 16px; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left; background: var(--bg-soft); border: 1.5px solid var(--border-2); border-radius: 14px; padding: 14px 16px; cursor: pointer; color: var(--text); font-family: inherit; transition: border-color var(--t-fast) var(--ease-io); }
+:is(#raMain,#raLayer) .bz-tog.on{ border-color: #2D9B57; background: rgba(45,155,87,.06); }
+:is(#raMain,#raLayer) .bz-tog b{ font-size: 14px; }
+:is(#raMain,#raLayer) .bz-tog small{ display: block; color: var(--text-mut); font-size: 12px; margin-top: 2px; font-weight: 400; line-height: 1.4; }
+:is(#raMain,#raLayer) .bz-switch{ flex: none; width: 46px; height: 27px; border-radius: 14px; background: var(--border); position: relative; transition: background var(--t-fast) var(--ease-io); }
+:is(#raMain,#raLayer) .bz-switch::after{ content: ''; position: absolute; top: 2.5px; left: 2.5px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left var(--t-fast) var(--ease-io); }
+:is(#raMain,#raLayer) .bz-tog.on .bz-switch{ background: #2D9B57; }
+:is(#raMain,#raLayer) .bz-tog.on .bz-switch::after{ left: 21.5px; }
+:is(#raMain,#raLayer) .bz-docs{ display: flex; flex-wrap: wrap; gap: 8px; }
+:is(#raMain,#raLayer) .bz-doc{ display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--text-mut); border: 1px solid var(--border-2); background: var(--bg-soft); border-radius: 9px; padding: 7px 11px; }
+:is(#raMain,#raLayer) .bz-doc.on{ color: #1f9a4c; border-color: rgba(45,155,87,.4); background: rgba(45,155,87,.07); }
+:is(#raMain,#raLayer) .bz-doc svg{ width: 13px; height: 13px; }
+:is(#raMain,#raLayer) .bz-admin{ margin-top: 16px; border: 1px solid rgba(192,57,43,.3); background: rgba(192,57,43,.04); border-radius: 14px; padding: 14px 14px 12px; }
+:is(#raMain,#raLayer) .bz-pinrow{ display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-mut); }
+:is(#raMain,#raLayer) .bz-pinrow input{ width: 108px; text-align: center; letter-spacing: 6px; font-size: 16px; background: var(--card); border: 1.5px solid var(--border); border-radius: 9px; padding: 9px; color: var(--text); outline: none; }
+:is(#raMain,#raLayer) .bz-pinrow b{ color: #c0392b; }
+:is(#raMain,#raLayer) .bz-adminfoot{ display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+:is(#raMain,#raLayer) .bz-adminfoot small{ color: var(--text-mut); font-size: 12px; }
+:is(#raMain,#raLayer) .bz-bar{ position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 11px 18px calc(11px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.86); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border-2); }
+body.dark :is(#raMain,#raLayer) .bz-bar{ background: rgba(17,19,23,.86); }
+:is(#raMain,#raLayer) .bz-bar-t{ display: flex; gap: 24px; }
+:is(#raMain,#raLayer) .bz-bar-t small{ display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-mut); }
+:is(#raMain,#raLayer) .bz-bar-t b{ font-size: 19px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+:is(#raMain,#raLayer) .bz-bar-t b.mo{ color: #1f9a4c; }
+:is(#raMain,#raLayer) .bz-bar-meta{ font-size: 11.5px; color: var(--text-mut); text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 560px){
+:is(#raMain,#raLayer) .bz-form,
+:is(#raMain,#raLayer) .bz-form3{ grid-template-columns: 1fr; }
+:is(#raMain,#raLayer) .bz-bar-meta{ display: none; }
+}
+body.dark :is(#raMain,#raLayer) .bz-kicker,
+body.dark :is(#raMain,#raLayer) .bz-opt-p,
+body.dark :is(#raMain,#raLayer) .bz-b-saas,
+body.dark :is(#raMain,#raLayer) .bz-doc.on,
+body.dark :is(#raMain,#raLayer) .bz-bar-t b.mo,
+body.dark :is(#raMain,#raLayer) .bz-badge.saas{ color: #3fd68f; }
+body.dark :is(#raMain,#raLayer) .bz-badge.crf{ color: #f0b35c; }
+:is(#raMain,#raLayer) .gn .bz-kicker{ color: var(--blue); }
+:is(#raMain,#raLayer) .gn .bz-opt.sel{ border-color: var(--blue); background: rgba(26,155,215,.07); box-shadow: 0 0 0 3px rgba(26,155,215,.13); }
+:is(#raMain,#raLayer) .gn .bz-opt-ic svg{ color: var(--blue); }
+:is(#raMain,#raLayer) .gn-logo{ display: block; width: 207px; margin: 0 auto 18px; }
+:is(#raMain,#raLayer) .gn .bz-card h2{ font-size: 22px; margin: 0 0 22px; }
+:is(#raMain,#raLayer) .gn .bz-note{ margin-top: 14px; }
+:is(#raMain,#raLayer) .gn .k-lbl{ margin-top: 20px; margin-bottom: 10px; }
+:is(#raMain,#raLayer) .gn-doc{ border: 1px solid var(--border-2); background: var(--bg-soft); border-radius: 14px; padding: 15px 16px; margin-bottom: 12px; }
+:is(#raMain,#raLayer) .gn-doc-h{ display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+:is(#raMain,#raLayer) .gn-doc-h b{ font-size: 14px; }
+:is(#raMain,#raLayer) .gn-doc-h small{ display: block; color: var(--text-mut); font-size: 12px; margin-top: 2px; }
+:is(#raMain,#raLayer) .gn-add{ cursor: pointer; }
+:is(#raMain,#raLayer) .gn-chips{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+:is(#raMain,#raLayer) .gn-chip{ display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; background: var(--card); border: 1px solid var(--border-2); border-radius: 9px; padding: 6px 8px 6px 11px; max-width: 100%; overflow-wrap: anywhere; }
+:is(#raMain,#raLayer) .gn-chip i{ font-style: normal; color: var(--text-mut); font-size: 11px; white-space: nowrap; }
+:is(#raMain,#raLayer) .gn-chip button{ display: inline-flex; border: none; background: none; color: var(--text-mut); padding: 2px; cursor: pointer; border-radius: 6px; }
+:is(#raMain,#raLayer) .gn-chip button:hover{ color: #c0392b; }
+:is(#raMain,#raLayer) .gn-chip button svg{ width: 13px; height: 13px; }
+:is(#raMain,#raLayer) .gn-none{ font-size: 12.5px; color: var(--text-mut); }
+:is(#raMain,#raLayer) .gn-hero2{ display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 0 6px; }
+:is(#raMain,#raLayer) .gn-hero-txt{ max-width: 520px; }
+:is(#raMain,#raLayer) .gn-hero-txt h1{ font-size: 30px; letter-spacing: -.02em; margin: 0; }
+:is(#raMain,#raLayer) .gn-hero-txt p{ margin: 9px auto 0; color: var(--text-soft); font-size: 14px; line-height: 1.55; }
+:is(#raMain,#raLayer) .gnhero{ position: relative; width: 236px; margin: 26px auto 8px; flex: none; }
+:is(#raMain,#raLayer) .gnh-glow{ position: absolute; left: 50%; top: 45%; transform: translate(-50%,-50%); width: 300px; height: 230px; background: radial-gradient(ellipse at center, rgba(57,61,255,.4), rgba(57,61,255,0) 60%); filter: blur(38px); z-index: 0; }
+:is(#raMain,#raLayer) .gnh-term{ position: relative; z-index: 2; animation: gnh-floaty 6s ease-in-out infinite; }
+@keyframes gnh-floaty{ 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+:is(#raMain,#raLayer) .gnh-bezel{ background: linear-gradient(160deg, #23242c, #0d0d12); border-radius: 20px; padding: 12px; box-shadow: 0 34px 60px -24px rgba(0,0,0,.7), inset 0 1px rgba(255,255,255,.06); }
+:is(#raMain,#raLayer) .gnh-screen{ position: relative; width: 100%; aspect-ratio: 3 / 4; border-radius: 11px; overflow: hidden; background: linear-gradient(160deg, #1b1ec9, #393dff); }
+:is(#raMain,#raLayer) .gnh-screen::after{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 30; background: linear-gradient(125deg, rgba(255,255,255,.16), transparent 32%); }
+:is(#raMain,#raLayer) .gnh-chin{ display: flex; align-items: center; justify-content: center; margin-top: 9px; }
+:is(#raMain,#raLayer) .gnh-chin > div{ display: flex; flex-direction: column; align-items: center; }
+:is(#raMain,#raLayer) .gnh-arc{ width: 40px; height: 10px; border: 2.5px solid #6f72ff; border-bottom: none; border-radius: 40px 40px 0 0; margin-bottom: -3px; }
+:is(#raMain,#raLayer) .gnh-gtext{ font-weight: 700; font-size: 13px; color: #fff; letter-spacing: -.02em; line-height: 1.2; }
+:is(#raMain,#raLayer) .gs{ position: absolute; inset: 0; padding: 15px 14px; display: flex; flex-direction: column; color: #fff; opacity: 0; visibility: hidden; transform: translateY(8px); z-index: 10; }
+:is(#raMain,#raLayer) .gs.on{ opacity: 1; visibility: visible; transform: none; z-index: 20; transition: opacity .4s ease, transform .4s ease; }
+:is(#raMain,#raLayer) .gs-h{ font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); font-weight: 600; }
+:is(#raMain,#raLayer) .gs .gl{ display: flex; justify-content: space-between; font-size: 12px; margin-top: 9px; color: rgba(255,255,255,.92); }
+:is(#raMain,#raLayer) .gs .gl i{ font-style: normal; color: rgba(255,255,255,.55); font-size: 11px; }
+:is(#raMain,#raLayer) .gs .gr{ height: 1px; background: rgba(255,255,255,.16); margin: 11px 0; }
+:is(#raMain,#raLayer) .gs .gtot{ display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; margin-top: auto; }
+:is(#raMain,#raLayer) .gs .gsm{ display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.7); margin-top: 6px; }
+:is(#raMain,#raLayer) .gs .tt{ font-weight: 700; font-size: 17px; margin: 4px 0 2px; text-align: center; }
+:is(#raMain,#raLayer) .gs .ts{ font-size: 11px; color: rgba(255,255,255,.65); text-align: center; margin-bottom: 12px; }
+:is(#raMain,#raLayer) .gs .tips{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+:is(#raMain,#raLayer) .gs .tip{ background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.18); border-radius: 10px; padding: 9px 6px; text-align: center; }
+:is(#raMain,#raLayer) .gs .tip .pct{ font-weight: 700; font-size: 15px; color: #fff; }
+:is(#raMain,#raLayer) .gs .tip .amt{ font-size: 10px; color: rgba(255,255,255,.7); margin-top: 2px; }
+:is(#raMain,#raLayer) .gs .tip.sel{ background: #fff; border-color: #fff; }
+:is(#raMain,#raLayer) .gs .tip.sel .pct{ color: #393dff; }
+:is(#raMain,#raLayer) .gs .tip.sel .amt{ color: #1b1ec9; }
+:is(#raMain,#raLayer) .gs .ttot{ font-weight: 700; font-size: 15px; text-align: center; margin-top: 12px; }
+:is(#raMain,#raLayer) .gs-tap,
+:is(#raMain,#raLayer) .gs-ap{ align-items: center; justify-content: center; text-align: center; }
+:is(#raMain,#raLayer) .gnh-waves{ position: relative; width: 84px; height: 84px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; }
+:is(#raMain,#raLayer) .gnh-ring{ position: absolute; inset: 0; border: 2px solid rgba(255,255,255,.6); border-radius: 50%; opacity: 0; }
+:is(#raMain,#raLayer) .gs.on .gnh-ring{ animation: gnh-ripple 1.8s ease-out infinite; }
+:is(#raMain,#raLayer) .gs.on .gnh-ring:nth-child(2){ animation-delay: .6s; }
+@keyframes gnh-ripple{ 0% { transform: scale(.5); opacity: .7; } 100% { transform: scale(1.4); opacity: 0; } }
+:is(#raMain,#raLayer) .gnh-nfc{ width: 30px; height: 30px; border: 3px solid #fff; border-left-color: transparent; border-bottom-color: transparent; border-radius: 50%; transform: rotate(-45deg); position: relative; }
+:is(#raMain,#raLayer) .gnh-nfc::before,
+:is(#raMain,#raLayer) .gnh-nfc::after{ content: ''; position: absolute; border: 3px solid #fff; border-left-color: transparent; border-bottom-color: transparent; border-radius: 50%; }
+:is(#raMain,#raLayer) .gnh-nfc::before{ inset: -8px; }
+:is(#raMain,#raLayer) .gnh-nfc::after{ inset: -16px; }
+:is(#raMain,#raLayer) .gs .tapamt{ font-weight: 800; font-size: 26px; margin: 5px 0 3px; }
+:is(#raMain,#raLayer) .gs .tapcta{ font-size: 12px; color: rgba(255,255,255,.7); }
+:is(#raMain,#raLayer) .gnh-checkc{ width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+:is(#raMain,#raLayer) .gnh-check{ width: 40px; height: 40px; }
+:is(#raMain,#raLayer) .gnh-check path{ stroke: #fff; stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 48; stroke-dashoffset: 48; }
+:is(#raMain,#raLayer) .gs.on .gnh-check path{ animation: gnh-draw .5s ease .15s forwards; }
+@keyframes gnh-draw{ to { stroke-dashoffset: 0; } }
+:is(#raMain,#raLayer) .gs .aptitle{ font-weight: 800; font-size: 21px; margin-bottom: 3px; }
+:is(#raMain,#raLayer) .gs .apamt{ font-size: 13px; color: rgba(255,255,255,.85); }
+:is(#raMain,#raLayer) .gs .aprec{ font-size: 10.5px; color: rgba(255,255,255,.6); margin-top: 11px; }
+:is(#raMain,#raLayer) .gnh-card{ position: absolute; z-index: 4; right: -16px; bottom: 66px; width: 104px; height: 66px; border-radius: 10px; background: linear-gradient(135deg, #101018, #2a2c5e); box-shadow: 0 16px 26px -10px rgba(0,0,0,.7); transform: translateY(110px) rotate(-12deg); opacity: 0; transition: .6s cubic-bezier(.34,1.3,.4,1); border: 1px solid rgba(255,255,255,.12); }
+:is(#raMain,#raLayer) .gnh-card.show{ transform: translateY(0) rotate(-12deg); opacity: 1; }
+:is(#raMain,#raLayer) .gnh-card .chipc{ position: absolute; left: 11px; top: 12px; width: 21px; height: 16px; border-radius: 4px; background: linear-gradient(135deg, #d9a441, #a9762a); }
+:is(#raMain,#raLayer) .gnh-card .wv{ position: absolute; left: 37px; top: 13px; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.6); border-left: 0; border-bottom: 0; border-radius: 50%; transform: rotate(-45deg); }
+:is(#raMain,#raLayer) .gnh-card .num{ position: absolute; left: 11px; bottom: 11px; font-size: 8px; letter-spacing: .12em; color: rgba(255,255,255,.7); }
+:is(#raMain,#raLayer) .gn-group{ background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 16px; overflow: hidden; }
+:is(#raMain,#raLayer) .gn-row{ position: relative; display: flex; align-items: center; gap: 14px; padding: 0 16px; min-height: 52px; }
+:is(#raMain,#raLayer) .gn-row + .gn-row::before{ content: ''; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--border-2); }
+:is(#raMain,#raLayer) .gn-row label{ flex: 0 0 44%; max-width: 44%; font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; padding: 10px 0; }
+:is(#raMain,#raLayer) .gn-row input{
+  flex: 1; min-width: 0; border: none; background: none; outline: none;
+  font-family: inherit; font-size: 16px; color: var(--text); text-align: right; padding: 13px 0;
+}
+:is(#raMain,#raLayer) .gn-row input::placeholder{ color: var(--text-mut); opacity: .75; }
+:is(#raMain,#raLayer) .gn-row:focus-within{ background: rgba(26,155,215,.06); }
+:is(#raMain,#raLayer) .gn-row input[type="date"]{ appearance: none; -webkit-appearance: none; }
+:is(#raMain,#raLayer) .gn-row input[type="date"]::-webkit-date-and-time-value{ text-align: right; }
+:is(#raMain,#raLayer) .gn-area{ padding: 10px 14px 4px; }
+:is(#raMain,#raLayer) .gn-area label{ display: block; font-size: 13px; font-weight: 600; color: var(--text-mut); margin-bottom: 2px; line-height: 1.4; }
+:is(#raMain,#raLayer) .gn-area textarea{ width: 100%; border: none; background: none; outline: none; resize: vertical; font-family: inherit; font-size: 16px; color: var(--text); min-height: 52px; padding: 4px 0 10px; }
+:is(#raMain,#raLayer) .gn-seg{ margin: 8px 0 0; }
+:is(#raMain,#raLayer) .gn-seg + .gn-group{ margin-top: 12px; }
+:is(#raMain,#raLayer) .seg.empty .seg-thumb{ opacity: 0; }
+@media (max-width: 760px){
+:is(#raMain,#raLayer) .gn-hero2{ justify-content: center; }
+:is(#raMain,#raLayer) .gnhero{ margin-top: 6px; }
+}
+:is(#raMain,#raLayer) .gn-row input[type="number"]::-webkit-inner-spin-button,
+:is(#raMain,#raLayer) .gn-row input[type="number"]::-webkit-outer-spin-button{ -webkit-appearance: none; margin: 0; }
+:is(#raMain,#raLayer) .gn-row input[type="number"]{ -moz-appearance: textfield; appearance: textfield; }
+:is(#raMain,#raLayer) .cmp-page{ padding-bottom: 40px; }
+:is(#raMain,#raLayer) .cmp-filter{ padding-bottom: 8px; }
+:is(#raMain,#raLayer) .seg.four{ grid-template-columns: repeat(4, 1fr); }
+:is(#raMain,#raLayer) .seg.four .seg-thumb{ width: calc((100% - 6px) / 4); }
+:is(#raMain,#raLayer) .cmp-filter .seg{ margin-bottom: 0; }
+:is(#raMain,#raLayer) .cmp-board{ padding: 22px 16px 20px; }
+:is(#raMain,#raLayer) .cmp-cols{ display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: start; }
+:is(#raMain,#raLayer) .cmp-col{ min-width: 0; }
+:is(#raMain,#raLayer) .cmp-sel{ position: relative; }
+:is(#raMain,#raLayer) .cmp-sel select{
+  appearance: none; -webkit-appearance: none; width: 100%;
+  font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+  background: var(--bg-soft); border: 1px solid var(--border-2); border-radius: 11px;
+  padding: 9px 28px 9px 11px; cursor: pointer; text-align: left;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
+:is(#raMain,#raLayer) .cmp-sel select:focus{ outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,155,215,.15); }
+:is(#raMain,#raLayer) .cmp-sel svg{ position: absolute; right: 9px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-mut); pointer-events: none; }
+:is(#raMain,#raLayer) .cmp-shot{
+  background: var(--img-bg); border: 1px solid var(--border-2); border-radius: 14px;
+  aspect-ratio: 1 / 1; max-width: 240px; margin: 12px auto 0;
+  display: flex; align-items: center; justify-content: center; padding: 12px;
+}
+:is(#raMain,#raLayer) .cmp-shot img{ width: 100%; height: 100%; object-fit: contain; }
+:is(#raMain,#raLayer) .cmp-col-name{
+  font-size: 17px; font-weight: 700; letter-spacing: -.01em; text-align: center;
+  margin: 12px 0 0; padding-bottom: 13px; border-bottom: 1px solid var(--border-2);
+}
+:is(#raMain,#raLayer) .cmp-why{ list-style: none; margin: 14px 0 0; padding: 0; }
+:is(#raMain,#raLayer) .cmp-why li{ display: flex; gap: 9px; margin-bottom: 16px; }
+:is(#raMain,#raLayer) .cmp-why li:last-child{ margin-bottom: 0; }
+:is(#raMain,#raLayer) .cmp-n{
+  flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--navy); color: #fff;
+  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+:is(#raMain,#raLayer) .cmp-wt{ min-width: 0; }
+:is(#raMain,#raLayer) .cmp-lead{ font-size: 14.5px; font-weight: 700; letter-spacing: -.01em; line-height: 1.3; }
+:is(#raMain,#raLayer) .cmp-why p{ margin: 3px 0 0; font-size: 13px; line-height: 1.5; color: var(--text-soft); }
+:is(#raMain,#raLayer) .cmp-vs{
+  align-self: start; margin-top: 88px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg-softer); display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--text-mut);
+}
+:is(#raMain,#raLayer) .cmp-swap{
+  margin: 20px auto 0; display: flex; align-items: center; gap: 7px;
+  background: none; border: none; font-family: inherit; font-size: 13px; font-weight: 600;
+  color: var(--blue); cursor: pointer; padding: 6px 4px;
+}
+:is(#raMain,#raLayer) .cmp-swap svg{ width: 15px; height: 15px; }
+:is(#raMain,#raLayer) .cmp-actions{ justify-content: center; padding-top: 4px; }
+@media (max-width: 620px){
+:is(#raMain,#raLayer) .cmp-board{ padding: 18px 12px 16px; }
+:is(#raMain,#raLayer) .cmp-cols{ gap: 10px; }
+:is(#raMain,#raLayer) .cmp-vs{ display: none; }
+:is(#raMain,#raLayer) .cmp-cols{ grid-template-columns: 1fr 1fr; }
+:is(#raMain,#raLayer) .cmp-sel select{ font-size: 12.5px; padding: 8px 22px 8px 9px; }
+:is(#raMain,#raLayer) .cmp-sel svg{ right: 6px; width: 13px; height: 13px; }
+:is(#raMain,#raLayer) .cmp-shot{ border-radius: 12px; padding: 8px; }
+:is(#raMain,#raLayer) .cmp-col-name{ font-size: 14.5px; padding-bottom: 10px; }
+:is(#raMain,#raLayer) .cmp-why li{ gap: 7px; margin-bottom: 13px; }
+:is(#raMain,#raLayer) .cmp-n{ width: 17px; height: 17px; font-size: 10px; }
+:is(#raMain,#raLayer) .cmp-lead{ font-size: 12.5px; }
+:is(#raMain,#raLayer) .cmp-why p{ font-size: 11.5px; line-height: 1.45; }
+:is(#raMain,#raLayer) .seg.four .seg-btn{ font-size: 12px; padding: 8px 2px; }
+}
+:is(#raMain,#raLayer) .cmp-note{
+  margin-top: 10px; text-align: center; font-size: 12.5px; font-weight: 500;
+  letter-spacing: -.005em; color: var(--text-mut);
+}
+
+/* ─── The app inside the Equipment tab ─── */
+/* edge to edge under the cost comparison's tabs, like the app's own page (undoes .main's padding) */
+#raMain{margin:-1.5rem -1.5rem 0}
+@media(max-width:900px){#raMain{margin:-1rem -1rem 0}}
+@media(max-width:600px){#raMain{margin:-0.75rem -0.75rem 0}}
+@media(max-height:500px) and (orientation:landscape){#raMain{margin:-0.5rem -0.5rem 0}}
+/* pop-ups sit above the cost comparison's header; the layer itself takes no space */
+#raLayer{position:relative;z-index:1000;height:0;margin:0;padding:0;background:transparent}
+body:not(.ra-tab) #raLayer{display:none}
+/* the page behind the app is the app's background */
+body.ra-on{background:#ffffff}
+body.dark.ra-on{background:#000000}
