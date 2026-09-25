@@ -53,6 +53,8 @@
   // Fix the digit confusions OCR makes inside money/number tokens.
   function normalizeOcrWord(raw) {
     let s = String(raw || '').replace(/[“”]/g, '"').replace(/[‘’`´]/g, "'").replace(/[—–]/g, '-').trim();
+    // a leading "|" that can only be a 1: "|,250.00" → 1,250.00, "|00.00" → 100.00
+    s = s.replace(/^([$S§]?)\|(?=,\d{3}|0\d)/, '$11');
     s = s.replace(/^[»«¥£€•·*~_=|]+|[»«¥£€•·*~_=|]+$/g, '');
     if (!s) return s;
     // stray quote/comma specks next to a number: "12,345.67 → 12,345.67
@@ -386,16 +388,18 @@
     if (fam === 'usbank') lab(/Total Charges and Fees\b/i, 100);
     if (fam === 'worldpay') lab(/Total Fees For Billing Period/i, 100);
     if (fam === 'worldpay_ip') {
-      // Total fees = interchange & Worldpay fees + other fees + discount + the card-type processing fees
+      // The printed Total Fees wins. When OCR garbles it, rebuild it from the fee sections:
+      // interchange & Worldpay fees + other fees + discount + the card-type processing-fee column
       const one = re => valueAfterLabel(doc, re, { nextLine: false })[0];
-      const ic = one(/^Total Interchange and Worldpay Fees\b/i), other = one(/^Total Other \S+ \|/i), disc = one(/^Discount Collected\b/i);
-      const row = worldpayIpTotal(doc);
-      const proc = row ? tokens(row.src).filter(t => t.k === 'money').pop() : null;
-      const comp = ic && other ? r2(ic.value + other.value + (disc ? disc.value : 0) + (proc && proc.v !== row.amount ? proc.v : 0)) : null;
       const total = one(/^Total Fees \|/i);
-      if (total && (comp == null || Math.abs(total.value - comp) <= comp * 0.005)) add(100, total, 'Total fees');
-      else if (total) add(90, total, 'Total fees');
-      if (comp != null) add(98, { value: comp, line: ic.line, src: [ic.src, other.src, disc && disc.src, proc && row.src].filter(Boolean).join(' + ') }, 'Fee section totals');
+      if (total) add(100, total, 'Total fees');
+      else {
+        const ic = one(/^Total Interchange and Worldpay Fees\b/i), other = one(/^Total Other \S+ \|/i), disc = one(/^Discount Collected\b/i);
+        const row = worldpayIpTotal(doc);
+        const hi = row ? doc.all.slice(Math.max(0, row.line - 12), row.line).map(l => l.text).join(' ') : '';
+        const proc = row && /Processing|Fees/i.test(hi) ? tokens(row.src).filter(t => t.k === 'money').pop() : null;
+        if (ic && other) add(95, { value: r2(ic.value + other.value + (disc ? disc.value : 0) + (proc && proc.v !== row.amount ? proc.v : 0)), line: ic.line, src: [ic.src, other.src, disc && disc.src, proc && row.src].filter(Boolean).join(' + ') }, 'Fee section totals');
+      }
     }
     if (fam === 'spoton') lab(/^TOTAL FEES\b/i, 100);
     if (fam === 'square') lab(/^Fees \|/i, 100, { nextLine: false });
@@ -469,8 +473,20 @@
   function extractMerchant(doc, fam) {
     const res = { name: null, legal_name: null, address: null, src: null };
     const pageLines = pi => doc.all.filter(l => l.page === pi);
-    let lines = pageLines(0);
-    if (lines.length < 12 || !lines.some(l => CITY_RE.test(l.segs[0] ? l.segs[0].t : ''))) lines = lines.concat(pageLines(1));
+    // Photos often arrive out of order: start from the page marked "Page 1 of N" (OCR: "Page 10f 4"),
+    // else the first page not marked as a later page ("Page 3of 4")
+    const pageNo = pi => {
+      for (const l of pageLines(pi)) {
+        const m = /\bPage\s*([\dIl]{1,2})\s*[o0]\s?f\s*\d/i.exec(l.text);
+        if (m) return +m[1].replace(/[Il]/g, '1');
+      }
+      return null;
+    };
+    const nums = doc.pages.map((p, pi) => pageNo(pi));
+    let first = nums.indexOf(1);
+    if (first < 0) first = Math.max(0, nums.findIndex(n => !(n >= 2)));
+    let lines = pageLines(first);
+    if (lines.length < 12 || !lines.some(l => CITY_RE.test(l.segs[0] ? l.segs[0].t : ''))) lines = lines.concat(pageLines(first + 1));
     const stream = [];
     lines.forEach((l, li) => l.segs.forEach((s, si) => stream.push({ t: cleanName(s.t) || s.t, raw: s.t, x: s.x, y: l.y, pg: l.page, li, si, w: l.width })));
     // A suite number wrapped onto the city line ("…Main St Suite" / "#200 Springfield, TX 75001") belongs to the street
@@ -478,7 +494,7 @@
       const m = /^(#\s?\w+|(?:Suite|Ste|Unit|Apt)\.?\s+#?\w+),?\s+(.+)$/i.exec(sg.t);
       if (!m || !CITY_RE.test(m[2])) return;
       for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
-        if (!isStreet(stream[j].t)) continue;
+        if (stream[j].li >= sg.li || Math.abs(stream[j].x - sg.x) > 28 || !isStreet(stream[j].t)) continue;   // same column, line above
         stream[j].t += ' ' + m[1]; sg.t = m[2];
         break;
       }
@@ -592,20 +608,21 @@
         if (lineGap > 0 && stream[n].pg === stream[k].pg && stream[n].y - prevY > lineGap * 2.6) break;
         prevY = stream[n].y;
         if (SKIP_LABEL.test(t) || (isStreet(t) && t === stream[k].t)) continue;
+        if (/^[A-Za-z .#]{1,14}:\s*[A-Z0-9-]*\d[A-Z0-9-]*$/i.test(t)) continue;   // mail-drop / routing codes ("MD: 1GH2Y1")
         if (!t || cityOf(stream[n], null) || STOP_LINE.test(t) || /:$/.test(t) || !/[A-Za-z]{2}/.test(t) || /^\d{1,2}\/\d{1,2}/.test(t)) break;
-        if (PROC_WORDS.test(t)) { procAbove = true; break; }
+        if (PROC_WORDS.test(t)) { if (!names.length) procAbove = true; break; }
         names.push({ t });
       }
       const near = [stream[k].t, stream[cityIdx].t, names[0] ? names[0].t : ''].join(' ');
       let score = 10;
-      if (PROC_WORDS.test(near) || (procAbove && names.length < 2)) score -= 25;
+      if (PROC_WORDS.test(near) || (procAbove && !names.length)) score -= 25;
       if (/^p\.?\s?o\.?\s+box/i.test(stream[k].t) && /(charlotte|pmb)/i.test(near)) score -= 20;
       const ctxAbove = aligned(k, stream[k].x, 3).map(j => stream[j].raw).join(' ');
       if (/Location|Bill to|Merchant Address|Address:|DBA/i.test(ctxAbove)) score += 8;
       if (names.some(n => BIZ_WORDS.test(n.t))) score += 5;
       if (names.length) score += 3;
       const below = stream.find(s => s.li > stream[i].li && Math.abs(s.x - stream[i].x) < 28);
-      if (below && /^\(?\d{3}\)?[ .-]?\d{3}-\d{4}|^Customer Service/i.test(below.raw)) score -= 12;   // processor/ISO header: phone right under the address
+      if (below && /^\(?\d{3}\)?[ .-]?\d{3}-\d{4}|^Customer Service/i.test(below.raw)) score -= names.length ? 12 : 6;   // processor/ISO header: phone right under the address
       else if (below && /^United States$/i.test(below.raw) && !names.length) score -= 6;
       blocks.push({ score, street: stream[k].t, city, names, idx: i });
     }

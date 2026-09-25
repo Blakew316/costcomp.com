@@ -28,10 +28,17 @@ How a scan is routed:
 
 Photos that aren't a statement are rejected with a clear message. So are statements too blurry or low-resolution to read, with a note to retake the photos or rescan at 200 dpi or higher.
 
-**Photo accuracy (on-device, no AI).** Tested on the sample photo sets and scanned PDFs, 35 uploads in all:
+**Photo accuracy.** Measured on the sample photo sets and scanned PDFs (36 uploads; 33 statements). An answer key was built by two independent readers per upload, reconciled, and spot-checked against the images. Counts are fields the statement actually shows:
 
-- Fully legible uploads (every statement page, in focus) read correctly or within a few cents. Examples: Fiserv, TSYS, Toast, Worldpay, Worldpay Integrated Payments (a 9-page statement), Shift4, Clover billing, U.S. Bank, and Square.
-- Partial uploads (only a fees page, a cropped screenshot) and very low-resolution faxes can't be read on-device. The agent is told so and can enter the numbers or use the AI reader.
+| Field | On-device photo reader | AI reader (simulated) |
+| --- | --- | --- |
+| Merchant name | 27 of 29 | 29 of 29 |
+| Address | 30 of 31 | 31 of 31 |
+| Monthly volume | 30 of 31 | 29 of 31 (30 within 0.1%) |
+| Transactions | 28 of 29 | 28 of 29 |
+| Total fees | 26 of 31 (29 within 0.1%) | 27 of 31 (29 within 0.1%) |
+
+The on-device misses are a 75-dpi fax the reader can't make out (the agent is told to rescan) and "ñ" read as "fi". The rest are 2-cent Toast fee adjustments and a $25 add-on fee that the key counts differently. Uploads that are not statements (an ID and a check) are rejected. Partial uploads, like a lone fees page, leave fields for the agent to fill in.
 
 For the most reliable photo reads, turn on the AI reader (see below).
 
@@ -49,15 +56,16 @@ The markup analysis is on-screen only; the emailed/downloaded proposal PDF is un
 
 ## Deploying on Netlify
 
-The site was previously deployed by drag-and-drop, which serves static files only. To turn on the AI reader:
+The **enchanting-sprinkles-fa7ad4** project (wpicostcomp.com) deploys from this repository's `main` branch. Every push or merge to `main` publishes the site. `netlify.toml` sets the publish directory (`public`) and the functions directory. Changes on other branches don't go live until they're merged into `main`.
 
-1. In Netlify, open the **enchanting-sprinkles-fa7ad4** project → **Project configuration → Build & deploy → Continuous deployment → Link repository**, and choose this GitHub repository. `netlify.toml` already sets the publish directory (`public`) and functions directory.
-2. Under **Project configuration → Environment variables**, add `ANTHROPIC_API_KEY` (an Anthropic API key, scoped to Functions). Optional: `ANTHROPIC_MODEL` (default `claude-opus-5`) and `SCAN_EFFORT` (`low` by default; `medium` reads more carefully but takes longer).
-3. Deploy. Visiting `/api/scan-statement` should return `{"configured":true}`.
+To turn on the AI reader:
+
+1. Under **Project configuration → Environment variables**, add `ANTHROPIC_API_KEY` (an Anthropic API key, scoped to Functions). Optional: `ANTHROPIC_MODEL` (default `claude-opus-5`) and `SCAN_EFFORT` (`low` by default; `medium` reads more carefully but takes longer).
+2. Redeploy (**Deploys → Trigger deploy**). Visiting `/api/scan-statement` should return `{"configured":true}`.
 
 Netlify functions stop after 60 seconds, so the AI reader asks for compact output and gives up at 50 seconds. On a timeout, the page falls back to the on-device reader, or asks for just the summary pages.
 
-Drag-and-drop deploys still work: drag the `public` folder. Both on-device readers and the markup analysis work there. Only the AI reader needs the Git-linked deploy.
+If you ever deploy by drag-and-drop instead, drag the `public` folder, not the repository or a zip. Both on-device readers and the markup analysis work that way, but the AI reader needs the Git-linked deploy.
 
 **Privacy:** the on-device readers, including the photo reader, never upload the statement; photos are read in the browser. The AI reader sends the statement through the Netlify Function to the Anthropic API for that one request. The site stores nothing.
 

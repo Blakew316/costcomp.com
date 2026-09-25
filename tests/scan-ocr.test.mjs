@@ -39,6 +39,10 @@ test('normalizeOcrWord repairs digit confusions inside numbers only', () => {
   assert.equal(n('Sales'), 'Sales');
   assert.equal(n('SOLD'), 'SOLD');
   assert.equal(n('I'), 'I');
+  assert.equal(n('|,250.00'), '1,250.00');   // a leading "|" that can only be a 1
+  assert.equal(n('|00.00'), '100.00');
+  assert.equal(n('|$1,250.00'), '$1,250.00'); // a table rule glued to the number
+  assert.equal(n('|0.50'), '0.50');
 });
 
 test('ocrQuality separates a readable page from a sideways one', () => {
@@ -139,7 +143,7 @@ test('Worldpay Integrated statement: "12.345" count read as thousands and fees r
     [[40, 'ATTENTION: SAMPLE PERSON']], [[40, 'SAMPLE GIFTS LLC']], [[40, '9 SUNSET BLVD']], [[40, 'DBA NAME: SAMPLE GIFTS']], [[40, 'SPRINGFIELD, CA 90000']],
     [[40, 'DEPOSIT SUMMARY']], [[40, '01-Aug'], [120, '179.02'], [200, '0.00'], [300, '179.02']],
   ]), page([
-    [[40, 'Card Type'], [120, 'Settled Sales'], [220, 'Amount of Sales']],
+    [[40, 'Card Type'], [120, 'Settled Sales'], [220, 'Amount of Sales'], [560, 'Processing Fees']],
     [[40, 'VISA'], [120, '7,000'], [220, '280,000.00'], [320, '10'], [380, '200.00'], [440, '279,800.00'], [500, '40.00'], [560, '350.00']],
     [[40, 'MASTERCARD'], [120, '5,345'], [220, '213,800.00'], [320, '5'], [380, '100.00'], [440, '213,700.00'], [500, '40.00'], [560, '267.25']],
     [[40, 'Total'], [120, '12.345'], [220, '493,800.00'], [320, '15'], [380, '300.00'], [440, '493,500.00'], [500, '40.00'], [560, '617.25']],
@@ -154,7 +158,7 @@ test('Worldpay Integrated statement: "12.345" count read as thousands and fees r
   assert.equal(r.total_fees, 20617.25);
 });
 
-test('Worldpay Integrated: a total fees value that disagrees with its sections loses to the sections', () => {
+test('Worldpay Integrated: a readable printed total fees wins over the rebuilt section sum', () => {
   const r = Core.parseStatement([page([
     [[40, 'MERCHANT STATEMENT'], [400, 'worldpay integrated']], [[40, 'SAMPLE STORE']], [[40, '1 MAIN ST']], [[40, 'TOLEDO, OH 43604']],
     [[40, 'Card Type'], [120, 'Settled Sales']],
@@ -162,7 +166,7 @@ test('Worldpay Integrated: a total fees value that disagrees with its sections l
     [[40, 'Total Interchange and Worldpay Fees'], [500, '700.00']], [[40, 'Total Other Fees'], [500, '400.00']],
     [[40, 'Discount Collected'], [500, '0.00']], [[40, 'Total Fees'], [500, '1,700.00']],
   ])], {});
-  assert.equal(r.total_fees, 1200);
+  assert.equal(r.total_fees, 1700);
 });
 
 test('Shift4 is recognised by its fee summary when the logo is unreadable, and a misread add-on fee is corrected', () => {
@@ -234,11 +238,41 @@ test('Clover billing: transaction count two lines under the label', () => {
 
 test('a logo word floating above the address block is not taken as the merchant name', () => {
   const rows = [
-    [[120, 'Merchant Statement']], [[120, 'mave']], [], [], [],
-    [[120, 'FRUGAL SAM']], [[120, '10 OAK RD']], [[120, 'SPRINGFIELD TN 37000']],
+    [[120, 'Merchant Statement']], [[120, 'zeta']], [], [], [],
+    [[120, 'PLUM ORCHARD']], [[120, '10 OAK RD']], [[120, 'SPRINGFIELD TN 37000']],
     [[120, 'Total Amount Submitted'], [1300, '$12,000.00']], [[120, 'Total Fees Charged'], [1300, '$360.00']],
   ];
   const r = Core.parseStatement([Core.buildPageLinesFromOcr(ocrPage(rows, 0))], {});
-  assert.equal(r.merchant_name, 'Frugal Sam');
+  assert.equal(r.merchant_name, 'Plum Orchard');
   assert.equal(r.address, '10 Oak Rd, Springfield, TN 37000');
+});
+
+const textPage = rows => ({ width: 612, lines: rows.map((r, i) => ({ y: 700 - i * 12, text: r.map(c => c[1]).join(' | '), segs: r.map(([x, t]) => ({ t, x })) })) });
+const totals = [[[40, 'Total Amount Submitted'], [400, '$12,000.00']], [[40, 'Total Fees Charged'], [400, '$360.00']]];
+
+test('a processor name printed right above a one-line merchant block does not hide the merchant', () => {
+  const r = Core.parseStatement([textPage([[[40, 'Heartland']], [[40, 'SAMPLE BAKERY']], [[40, '12 ELM ST']], [[40, 'SPRINGFIELD, TX 75001']], ...totals])], {});
+  assert.equal(r.merchant_name, 'Sample Bakery');
+  assert.equal(r.address, '12 Elm St, Springfield, TX 75001');
+});
+
+test('a processor remit block with a mail-drop code is not taken as the merchant address', () => {
+  const r = Core.parseStatement([textPage([
+    [[40, 'WORLDPAY, LLC']], [[40, 'MD: 1AB2C3']], [[40, '100 REMIT WAY']], [[40, 'CINCINNATI, OH 45249']],
+    [[40, 'SAMPLE OWNER'], [400, 'Statement Date']], [[40, '5 MAPLE PIKE']], [[40, 'SPRINGFIELD, TN 37000']], ...totals])], {});
+  assert.equal(r.address, '5 Maple Pike, Springfield, TN 37000');
+});
+
+test('a merchant phone number under its own address keeps the address', () => {
+  const r = Core.parseStatement([textPage([
+    [[300, 'Merchant Name: SAMPLE MARKET']], [[40, 'Statement Period 05/01/26 - 05/31/26']],
+    [[40, '12 ELM ST']], [[40, 'SPRINGFIELD, TX 75001']], [[40, '(555) 010-0000']], ...totals])], {});
+  assert.equal(r.address, '12 Elm St, Springfield, TX 75001');
+});
+
+test('a suite number is only rejoined to the street in its own column', () => {
+  const r = Core.parseStatement([textPage([
+    [[40, 'SAMPLE MARKET'], [330, 'REMIT TO']], [[40, '12 ELM ST'], [330, 'SAMPLE PROCESSING']],
+    [[40, 'SPRINGFIELD, TX 75001'], [330, 'Suite 300 Dallas, TX 75201']], ...totals])], {});
+  assert.equal(r.address, '12 Elm St, Springfield, TX 75001');
 });

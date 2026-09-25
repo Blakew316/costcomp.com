@@ -18,6 +18,8 @@
   };
   const OCR_LONG_EDGE = 2400;      // ~300 dpi for a letter page
   const OCR_MAX_PAGES = 12;
+  const OCR_START_TIMEOUT_MS = 120000;
+  const MAX_AI_FILES = 20;        // the function's per-request limit
   const API = '/api/scan-statement';
   const UPLOAD_BUDGET = 4200000;   // raw bytes; base64 inflates ~33% and Netlify accepts ~6 MB
   const AI_TIMEOUT_MS = 58000;
@@ -136,13 +138,25 @@
   }
   async function createOcrWorker(onProgress) {
     const T = await loadTesseract();
-    const worker = await T.createWorker('eng', 1, {
+    // Tesseract.js never settles createWorker when the language download or init fails, so race it
+    let failStart;
+    const startFailed = new Promise((resolve, reject) => { failStart = reject; });
+    startFailed.catch(() => null);
+    const timer = setTimeout(() => failStart(new Error('the reader did not finish loading; check the connection and try again')), OCR_START_TIMEOUT_MS);
+    const created = T.createWorker('eng', 1, {
       workerPath: TESS.workerPath, corePath: TESS.corePath, langPath: TESS.langPath,
-      logger: m => { if (onProgress && m && m.status === 'recognizing text') onProgress(m.progress || 0); }
+      logger: m => { if (onProgress && m && m.status === 'recognizing text') onProgress(m.progress || 0); },
+      errorHandler: err => failStart(err instanceof Error ? err : new Error(String(err)))
     });
-    // Sparse-text mode finds table cells and shaded rows that page layout analysis skips
-    await worker.setParameters({ tessedit_pageseg_mode: '11', preserve_interword_spaces: '1', user_defined_dpi: '300' });
-    return worker;
+    try {
+      const worker = await Promise.race([created, startFailed]);
+      // Sparse-text mode finds table cells and shaded rows that page layout analysis skips
+      await worker.setParameters({ tessedit_pageseg_mode: '11', preserve_interword_spaces: '1', user_defined_dpi: '300' });
+      return worker;
+    } catch (err) {
+      created.then(w => w.terminate()).catch(() => null);
+      throw err;
+    } finally { clearTimeout(timer); }
   }
   function decodeImage(file) {
     const url = URL.createObjectURL(file);
@@ -212,6 +226,7 @@
     }
     return best;
   }
+  const pageChars = pg => (pg ? pg.lines.reduce((a, l) => a + l.text.replace(/[\s|]/g, '').length, 0) : 0);
   // Read photos and scanned PDF pages on this device
   async function ocrFiles(files, pdfReads, live, onStatus) {
     const jobs = [];
@@ -222,8 +237,7 @@
         for (let p = 1; p <= read.pdf.numPages; p++) {
           // Pages that already carry text are used as-is; only image pages are OCR'd
           const pg = read.pages[p - 1];
-          const chars = pg ? pg.lines.reduce((a, l) => a + l.text.replace(/[\s|]/g, '').length, 0) : 0;
-          jobs.push(chars >= 80 ? { text: pg } : { pdf: read.pdf, page: p });
+          jobs.push(pageChars(pg) >= 80 ? { text: pg } : { pdf: read.pdf, page: p });
         }
       } else jobs.push({ file: f });
     });
@@ -264,10 +278,15 @@
   }
 
   // Build the upload for the AI reader within the request budget
+  const tooLarge = () => Object.assign(new Error('Too many pages to upload at once. Try fewer photos.'), { code: 'too_large' });
   async function buildUpload(files, pdfReads) {
     const out = [];
     let used = 0;
-    const push = async (name, type, blob) => { used += blob.size; out.push({ name, media_type: type, data: await blobToBase64(blob) }); };
+    const push = async (name, type, blob) => {
+      if (out.length >= MAX_AI_FILES) throw tooLarge();
+      used += blob.size; out.push({ name, media_type: type, data: await blobToBase64(blob) });
+    };
+    let photosLeft = files.filter(f => !isPdf(f) && isImage(f)).length;
     for (const f of files) {
       if (isPdf(f)) {
         const read = pdfReads.find(r => r.file === f);
@@ -281,17 +300,25 @@
           await push(f.name + ' p' + p, 'image/jpeg', jpg);
         }
       } else if (isImage(f)) {
-        let jpg = await imageToJpeg(f, 2000, 0.8);
-        if (jpg.size > UPLOAD_BUDGET - used) jpg = await imageToJpeg(f, 1400, 0.65);
-        if (jpg.size > UPLOAD_BUDGET - used) throw Object.assign(new Error('Too many pages to upload at once. Try fewer photos.'), { code: 'too_large' });
+        // share what's left of the budget evenly across the remaining photos
+        const target = (UPLOAD_BUDGET - used) / Math.max(1, photosLeft);
+        let jpg = null;
+        for (const [dim, q] of [[2000, 0.8], [1700, 0.74], [1400, 0.66], [1150, 0.6]]) {
+          jpg = await imageToJpeg(f, dim, q);
+          if (jpg.size <= target) break;
+        }
+        if (jpg.size > UPLOAD_BUDGET - used) throw tooLarge();
+        photosLeft--;
         await push(f.name, 'image/jpeg', jpg);
       }
     }
     return out;
   }
 
+  let aiRequest = null;   // the in-flight AI call, so Cancel can stop it
   async function callAi(upload) {
     const ctl = new AbortController();
+    aiRequest = ctl;
     const t = setTimeout(() => ctl.abort(), AI_TIMEOUT_MS);
     try {
       const res = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ files: upload }), signal: ctl.signal });
@@ -306,7 +333,7 @@
     } catch (err) {
       if (err.name === 'AbortError') throw Object.assign(new Error('The AI reader took too long. Try uploading just the summary pages.'), { code: 'timeout' });
       throw err;
-    } finally { clearTimeout(t); }
+    } finally { clearTimeout(t); if (aiRequest === ctl) aiRequest = null; }
   }
 
   // ───────────── Scan orchestration ─────────────
@@ -342,6 +369,14 @@
   }
 
   let scanSeq = 0;   // bumped by every new scan and by Cancel, so a stale scan never reopens a window
+  // Why a PDF would not open, in words an agent can act on
+  function pdfOpenError(file, err) {
+    const why = err && err.name === 'PasswordException' ? 'it is password-protected. Open it, save or print it as a new PDF without a password, and try again'
+      : err && err.name === 'InvalidPDFException' ? 'the file is damaged or is not really a PDF'
+      : 'the PDF reader could not start (' + (err && err.message || 'unknown error') + ')';
+    return 'Could not open ' + file.name + ': ' + why + '.';
+  }
+
   async function scanFiles(fileList, opts) {
     opts = opts || {};
     const my = ++scanSeq, live = () => my === scanSeq;
@@ -352,19 +387,16 @@
     const aiReady = aiAvailable();
     loadTable().catch(() => null);
     let dev = null, pdfReads = [];
-    try {
-      const pdfs = files.filter(isPdf);
-      if (pdfs.length) {
-        pdfReads = await Promise.all(pdfs.map(readPdf));
-        const pages = [].concat.apply([], pdfReads.map(r => r.pages));
-        dev = ScanCore.parseStatement(pages, { table: await loadTable().catch(() => null) });
-      }
-    } catch (err) {
-      console.warn('On-device read failed', err);
+    const pdfErrors = [];
+    const pdfs = files.filter(isPdf);
+    if (pdfs.length) {
+      const settled = await Promise.all(pdfs.map(f => readPdf(f).catch(err => { console.warn('Could not open', f.name, err); pdfErrors.push(pdfOpenError(f, err)); return null; })));
+      pdfReads = settled.filter(Boolean);
+      if (pdfReads.length) dev = ScanCore.parseStatement([].concat.apply([], pdfReads.map(r => r.pages)), { table: await loadTable().catch(() => null) });
     }
     if (!live()) return;
     // 1) Text PDFs: the on-device reader is instant and exact when it finds everything
-    const devUsable = dev && dev.textChars >= 80 && !images.length;
+    const devUsable = dev && dev.textChars >= 80 && !images.length && !pdfErrors.length;
     if (devUsable && !opts.forceAi && !assess(dev).needsAi) {
       const canRecheck = await aiReady;
       if (live()) showReview(dev, files, { canRecheck });
@@ -372,12 +404,14 @@
     }
 
     // 2) AI reader (preferred for photos, scans, and incomplete reads) when this site has it
-    let aiError = null;
+    let aiError = null, uploaded = false;
     if (await aiReady) {
       if (!live()) return;
       showProgress('Analyzing ' + (images.length ? (images.length === 1 ? 'photo' : images.length + ' photos') : 'statement') + ' with AI…', 'Reading every page — this usually takes 15–40 seconds.');
       try {
         const upload = await buildUpload(files, pdfReads);
+        if (!live()) return;
+        uploaded = true;
         const raw = await callAi(upload);
         if (!live()) return;
         if (raw && raw.is_statement === false) { showNotStatement(files, (raw.notes || []).join(' ')); return; }
@@ -389,31 +423,40 @@
       }
       if (!live()) return;
     }
-    if (devUsable) {
+    const aiNote = aiError ? ' (AI reader unavailable: ' + aiError.message + ')' : '';
+    // A PDF that would not open: say why instead of guessing
+    if (pdfErrors.length && !pdfReads.length && !images.length) { showError(pdfErrors.join(' ') + aiNote, { files }); return; }
+    // An incomplete text read, unless some pages are scanned images the OCR can add to
+    const imagePages = pdfReads.some(r => r.pages.some(pg => pageChars(pg) < 80));
+    const showDev = () => {
       dev.warnings.unshift(aiError ? 'AI reader unavailable (' + aiError.message + ') — showing on-device results.' : 'Some details could not be read automatically — please fill in any highlighted fields.');
       showReview(dev, files, { canRecheck: false });
-      return;
-    }
+    };
+    if (devUsable && !imagePages) { showDev(); return; }
 
-    // 3) On-device OCR for photos and scanned PDFs
+    // 3) On-device OCR for photos and scanned PDFs (text pages are reused as they are)
     const kind = images.length ? 'photo' : 'page';
+    const where = uploaded ? 'Reading on this device instead.' : (images.length ? 'Photos' : 'Pages') + ' are read in your browser — nothing is uploaded.';
     try {
       const r = await ocrFiles(files, pdfReads, live, (i, n, p, rotating) => {
         if (!live()) return;
         const msg = i === 0 ? 'Loading the on-device reader…' : rotating ? kind[0].toUpperCase() + kind.slice(1) + ' ' + i + ' looks rotated — turning it upright…' : 'Reading ' + kind + ' ' + i + ' of ' + n + ' on this device… ' + Math.round(p * 100) + '%';
-        setProgress(msg, i === 0 ? 'First use downloads about 3 MB; after that it works offline.' : 'Photos are read in your browser — nothing is uploaded.');
+        setProgress(msg, i === 0 ? 'First use downloads about 3 MB; after that it works offline.' : where);
       });
       if (!live()) return;
+      pdfErrors.forEach(e => r.warnings.push(e));
       if (!looksLikeStatement(r)) {
-        if (r.vocab >= 2) showError('This looks like a statement, but the totals could not be read on this device. ' + (images.length ? 'Retake the photos flat, in focus, and well lit, with the summary page included' : 'The scan is too low-resolution; rescan it at 200 dpi or higher') + ' — or enter the numbers manually.', { files });
-        else showNotStatement(files, '');
+        if (devUsable) { showDev(); return; }
+        if (r.vocab >= 2) showError('This looks like a statement, but the totals could not be read on this device. ' + (images.length ? 'Retake the photos flat, in focus, and well lit, with the summary page included' : 'The scan is too low-resolution; rescan it at 200 dpi or higher') + ' — or enter the numbers manually.' + aiNote, { files });
+        else showNotStatement(files, (pdfErrors.join(' ') + aiNote).trim());
         return;
       }
-      r.warnings.unshift('Read from ' + (images.length ? 'photos' : 'a scanned PDF') + ' on this device. Compare the numbers with the ' + (images.length ? 'photos' : 'statement') + ' before applying' + (aiError ? ' (AI reader unavailable: ' + aiError.message + ')' : '') + '.');
+      r.warnings.unshift('Read from ' + (images.length ? 'photos' : 'a scanned PDF') + ' on this device. Compare the numbers with the ' + (images.length ? 'photos' : 'statement') + ' before applying' + aiNote + '.');
       showReview(r, files, { canRecheck: false });
     } catch (err) {
       console.warn('On-device OCR failed', err);
       if (!live()) return;
+      if (devUsable) { showDev(); return; }
       showError((aiError ? aiError.message + ' ' : '') + (err.code === 'decode' ? err.message : 'The on-device reader could not read these ' + kind + 's (' + err.message + ').'), { files });
     }
   }
@@ -455,12 +498,12 @@
     const m = openModal('<h2 id="scanTitle" style="text-align:center">Scan Statement</h2><div class="scan-progress"><div class="scan-spinner"></div><div class="scan-progress-msg" role="status">' + esc(msg) + '</div><div class="scan-progress-sub">' + esc(sub || '') + '</div></div>' +
       '<div class="scan-actions scan-actions-center"><button type="button" data-act="stop">Cancel</button></div>');
     overlay.dataset.busy = '1';
-    m.querySelector('[data-act="stop"]').onclick = () => { scanSeq++; closeModal(); };
+    m.querySelector('[data-act="stop"]').onclick = () => { scanSeq++; if (aiRequest) aiRequest.abort(); closeModal(); };
     return m;
   }
   function setProgress(msg, sub) {
     const m = overlay && overlay.querySelector('.scan-progress-msg');
-    if (!m) { showProgress(msg, sub); return; }
+    if (!m) return;
     m.textContent = msg;
     const s2 = overlay.querySelector('.scan-progress-sub'); if (s2 && sub != null) s2.textContent = sub;
   }
@@ -677,11 +720,14 @@
     photos: '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>',
     camera: '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg>'
   };
+  ICON.resume = ICON.photos;
   const touch = () => window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
   const tray = [];   // photos collected for one statement, in page order
 
   const inputs = {};
-  function picker(kind) {
+  let pickFresh = false;   // photos chosen from the start screen begin a new set; the tray's Add buttons append
+  function picker(kind, fresh) {
+    pickFresh = Boolean(fresh);
     if (!inputs[kind]) {
       const el = document.createElement('input');
       el.type = 'file';
@@ -692,8 +738,12 @@
       el.addEventListener('change', () => {
         const f = Array.from(el.files || []); el.value = '';
         if (!f.length) return;
-        if (kind === 'pdf') scanFiles(f);
-        else { addToTray(f); openTray(); }
+        if (kind === 'pdf') { scanFiles(f); return; }
+        if (pickFresh) tray.length = 0;
+        const pdfsPicked = f.filter(isPdf);
+        addToTray(f);
+        if (!tray.length && pdfsPicked.length) { scanFiles(pdfsPicked); return; }   // a PDF picked under "photos"
+        openTray();
       });
       document.body.appendChild(el);
       inputs[kind] = el;
@@ -707,13 +757,14 @@
     const m = openModal('<h2 id="scanTitle">Scan Statement</h2>' +
       '<div class="scan-sub">Read the merchant\u2019s processing statement to fill in this comparison.</div>' +
       '<div class="scan-options">' +
+      (tray.length ? opt('resume', 'Continue with ' + tray.length + (tray.length === 1 ? ' photo' : ' photos'), 'Pick up the photos you already added.') : '') +
       opt('pdf', 'PDF Statement', 'Upload the statement PDF the merchant downloaded or emailed.') +
       opt('photos', 'Statement Photos', 'Upload photos of each page \u2014 select all the pages at once.') +
       (touch() ? opt('camera', 'Take Photos', 'Use the camera to photograph each page.') : '') +
       '</div>' +
       '<div class="scan-tip">' + (touch() ? 'Photograph pages flat and in good light, with the summary page first.' : 'Tip: you can also drag a PDF or photos onto this page.') + '</div>' +
       '<div class="scan-actions"><button type="button" data-act="cancel">Cancel</button></div>');
-    m.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => picker(b.dataset.pick)));
+    m.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => (b.dataset.pick === 'resume' ? openTray() : picker(b.dataset.pick, true))));
     m.querySelector('[data-act="cancel"]').onclick = closeModal;
     setTimeout(() => { const b = m.querySelector('[data-pick]'); if (b) b.focus(); }, 30);
   }
@@ -751,7 +802,7 @@
       const t = tray[i]; tray[i] = tray[j]; tray[j] = t; openTray();
     }));
     m.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => { tray.splice(+b.dataset.remove, 1); tray.length ? openTray() : openChooser(); }));
-    m.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => picker(b.dataset.add)));
+    m.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => picker(b.dataset.add, false)));
     m.querySelector('[data-act="clear"]').onclick = () => { tray.length = 0; openChooser(); };
     m.querySelector('[data-act="cancel"]').onclick = closeModal;
     m.querySelector('[data-act="read"]').onclick = () => scanFiles(tray.slice());
@@ -781,9 +832,12 @@
     window.addEventListener('drop', e => {
       if (!hasFiles(e)) return;
       e.preventDefault(); depth = 0; drop.classList.remove('show');
+      if (overlay && overlay.dataset.busy) { toast('Finish or cancel the current scan first.'); return; }
       const files = Array.from(e.dataTransfer.files || []);
-      if (files.length && files.every(isImage)) { addToTray(files); openTray(); }   // photos: review page order first
-      else scanFiles(files);
+      if (files.length && files.every(isImage)) {   // photos: review page order first
+        if (!(overlay && overlay.querySelector('.scan-tray'))) tray.length = 0;   // a new set unless the tray is open
+        addToTray(files); openTray();
+      } else scanFiles(files);
     });
   }
 
