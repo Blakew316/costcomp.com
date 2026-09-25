@@ -1,0 +1,35 @@
+{
+  "name": "Wholesale Payments - Cost Comparison",
+  "short_name": "WPI Cost Comp",
+  "description": "Interactive cost comparison analysis tool for Wholesale Payments Inc.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1B75BB",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "en-US",
+  "categories": ["business", "finance", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "New Proposal",
+      "url": "/index.html",
+      "description": "Create a new cost comparison proposal"
+    }
+  ]
+}
