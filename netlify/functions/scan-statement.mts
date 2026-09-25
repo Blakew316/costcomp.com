@@ -57,7 +57,7 @@ const STATEMENT_SCHEMA = {
     bank: nullable({
       type: "object",
       additionalProperties: false,
-      description: "Only for a bank statement: what the account shows about card processing and related costs.",
+      description: "For a bank statement (alone, or uploaded with a processing statement): what the account shows about card processing and related costs.",
       required: ["bank_name", "months_covered", "card_deposits", "processing_fees", "software_fees", "misc_fees", "mca_payments", "mca_funding", "chargebacks"],
       properties: {
         bank_name: str,
@@ -147,7 +147,7 @@ How to read the key totals:
 
 Merchant identity: merchant_name is the business the customer knows (the DBA or location name). Statements often print an owner or contact person above or below the business name — never use a person's name as merchant_name. The address is the merchant's business location; prefer a "Location" address over a mailing address or PO box when both appear, and never use the processor's or ISO's address.
 
-Several files, or several photos, are pages of one statement: combine them. Agents often photograph pages with a phone, so photos can be skewed, shaded, out of order, or include the same page twice — combine them without double counting, read what is legible, and lower confidence if a key total is hard to read or its page is missing. Report only what the pages show; if the summary page was not photographed, leave those totals null rather than rebuilding them from partial detail.
+Several photos are pages of one statement: combine them. Agents often photograph pages with a phone, so photos can be skewed, shaded, out of order, or include the same page twice — combine them without double counting, read what is legible, and lower confidence if a key total is hard to read or its page is missing. Report only what the pages show; if the summary page was not photographed, leave those totals null rather than rebuilding them from partial detail. Several PDF files may instead be separate statements: consecutive monthly bank statements (add them up, and never drop a payment because the same amount appears in another month), or a processing statement together with a bank statement.
 
 Bank statements: the upload may instead be the merchant's bank account statement. Then set document_type to "bank_statement" and fill bank:
 - Read every transaction on every page and sort it into exactly one category. card_deposits: settlements of card sales from a processor, payment facilitator, or card network (including payment payouts from industry POS systems, such as Tekmetric Payments). Cash or check deposits, transfers between the owner's accounts, person-to-person payments (Zelle, Venmo, Cash App), loan proceeds, refunds, fee adjustments, and chargeback reversals are not card sales. processing_fees: the processor's fee debits. software_fees: POS software (including industry POS such as Tekmetric or Mindbody), payment gateways, and POS terminal leases or rentals — not payroll (Gusto, ADP), bookkeeping (QuickBooks), website, shipping, or other general business software. misc_fees: the bank's own fees (service charges, NSF, overdraft, returned-item and wire fees), less any fee the bank reversed. A returned deposited check is not a fee; only its returned-item fee is. mca_payments: merchant cash advance or business-loan repayments, including processor capital programs and SBA loans, and repeated daily or weekly debits to a funder you don't recognize by name (for example "… Funding" or "… Fnd Daily Pmt"); consumer loans, mortgages, and credit card bill payments are not. mca_funding: advance or loan proceeds. chargebacks: card chargeback debits. Everything else is left out.
@@ -155,7 +155,7 @@ Bank statements: the upload may instead be the merchant's bank account statement
 - A card network name on a DEBIT is usually the merchant paying its own credit card bill (for example "AMERICAN EXPRESS ACH PMT" or "DISCOVER E-PAYMENT"), not a fee. On a CREDIT it is a settlement.
 - Totals cover the whole upload; set months_covered to the number of months the statement periods cover (one monthly statement listing a savings and a checking account is still one month).
 - Also set volume = card_deposits.total ÷ months_covered, total_fees = (processing_fees.total + software_fees.total) ÷ months_covered, transactions = null (a bank statement doesn't show card transaction counts), processor = the bank name, and merchant_name and address from the account holder (the business, not the bank). Note in notes when no separate processing-fee debits appear: the processor then takes fees out of each deposit, so deposits are net of fees.
-For a processing statement set document_type to "processing_statement" and bank to null.
+For a processing statement set document_type to "processing_statement" and bank to null. When the upload has both a processing statement and a bank statement, set document_type to "processing_statement", take volume, total_fees, transactions, card mix and interchange from the processing statement, and fill bank from the bank statement (its months_covered counts only the bank statement periods).
 
 If the files are neither a merchant card-processing statement nor a bank statement (for example a driver's license, a check, a receipt, or a credit card bill), set is_statement to false, document_type to "other", leave every other field null or empty, and name the kind of document in notes. Never transcribe personal identifiers such as license, account, routing, card, or Social Security numbers.`;
 
@@ -225,8 +225,10 @@ export default async (req: Request, _context: Context) => {
   }
   content.push({
     type: "text",
-    text: files.length > 1
+    text: files.length > 1 && files.every((f) => f.media_type !== "application/pdf")
       ? `These ${files.length} files are pages of one merchant statement (a card-processing statement or a bank statement). Extract the statement details.`
+      : files.length > 1
+      ? `These ${files.length} files are one merchant's statements: one statement, several monthly bank statements, or a processing statement with a bank statement. Extract the statement details.`
       : "Extract the details from this merchant statement (a card-processing statement or a bank statement).",
   });
 

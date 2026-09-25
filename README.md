@@ -55,10 +55,10 @@ From a bank statement it fills in:
   | --- | --- | --- |
   | Processing fees | The processor's fee debits (discount, monthly, PCI, statement fees) | Yes |
   | POS software & equipment | POS subscriptions, app market, gateways, and terminal leases or rentals. Payroll, bookkeeping, website, and other general software doesn't count. | Yes |
-  | Bank fees | Service charges, NSF and overdraft fees, returned-item and wire fees, less any the bank refunded | No |
+  | Bank fees | Service charges, NSF and overdraft fees, returned-item and wire fees, less refunds of those fees | No |
   | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans), SBA loans, and daily or weekly debits to an unnamed "… Funding" payee | No |
 
-- **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate waits for that number.
+- **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate, in the review and on the Overview, waits for that number.
 
 The review also points out:
 
@@ -68,7 +68,9 @@ The review also points out:
 - **Settlements under the merchant's own name.** Some processors send deposits under the business's own name; these are counted as card deposits and flagged for the agent to confirm.
 - **Totals that don't add up.** The amounts read are checked against the statement's own deposit total and its beginning and ending balances. If they don't match (for example, a scan misread a digit), the review asks the agent to compare them with the statement.
 
-When several monthly statements are uploaded together, the figures are averaged per month. The AI reader follows the same rules.
+When several monthly statements are uploaded together, the figures are averaged per month. The months come from the statement periods; the same period in two files (checking and savings) counts once, and a file that prints no period counts as one month. The AI reader follows the same rules.
+
+A processing statement uploaded together with the bank statement is read as a processing statement. Volume, fees, and transactions come from it, and the bank statement's software, bank-fee, and cash-advance rows are listed underneath, unchecked. Checking a row adds it to Total Monthly Fees.
 
 **Bank statement accuracy.** Measured on 37 real bank statements (29 text PDFs, 8 scanned), against an answer key built by two independent readers and reconciled where they disagreed:
 
@@ -83,10 +85,12 @@ When several monthly statements are uploaded together, the figures are averaged 
 
 The text-PDF misses are judgment calls: an equipment lease from an unnamed lessor, and two debits returned unpaid that the key counted anyway. On every text PDF that prints its balances, the transactions read reconcile to the cent. The scanned misses:
 
-- A $3 fee printed too faintly to read.
-- NSF fees counted after the bank's refunds, which matches the statement's own service-charge total.
-- "Payroll Bridge" debits that the key itself marked as uncertain.
-- A $105.25 fee that OCR read as $1,056.25. The totals check flags that statement for the agent. Six synthetic statements in other bank layouts (Chase, Bank of America, Wells Fargo, Truist, credit union, and community bank styles), with every transaction labeled, are all read correctly, both as text and through OCR.
+- A small fee printed too faintly to read.
+- Bank fees counted after the bank's refunds, which matches that statement's own service-charge total. The key counted them before the refunds.
+- Recurring debits to a payroll-financing service that the key itself marked as uncertain.
+- A fee that OCR read with an extra digit. The totals check flags that statement for the agent.
+
+Six synthetic statements in other bank layouts (Chase, Bank of America, Wells Fargo, Truist, credit union, and community bank styles), with every transaction labeled, are all read correctly, both as text and through OCR.
 
 ## Markup vs. Appendix G
 

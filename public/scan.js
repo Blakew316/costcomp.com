@@ -358,6 +358,7 @@
     ['merchant_name', 'legal_name', 'address', 'mid', 'processor', 'statement_period', 'volume', 'transactions', 'total_fees'].forEach(k => { if (out[k] == null || out[k] === '') out[k] = dev[k]; });
     if (!out.card_mix || !out.card_mix.length) out.card_mix = dev.card_mix;
     if (!out.interchange_lines || !out.interchange_lines.length) out.interchange_lines = dev.interchange_lines;
+    if (!out.bank && dev.bank && out.document_type === dev.document_type) out.bank = dev.bank;
     // Only show the on-device "Found:" line where both readers agree on the value
     out.evidence = {};
     const ev = dev.evidence || {};
@@ -366,12 +367,21 @@
   }
   function fromAi(r) {
     // map AI field names onto the on-device result shape
-    return Object.assign({}, r, {
+    const isBank = r.document_type === 'bank_statement';
+    const bank = r.bank && r.bank.card_deposits ? Object.assign({}, r.bank, { months: Math.max(1, r.bank.months_covered || 1), companion: !isBank }) : null;
+    const out = Object.assign({}, r, {
       interchange_lines: (r.interchange_lines || []).map(l => ({ name: l.name, brand: l.brand, type: l.type, volume: l.volume, count: l.count, fee: l.fee, rate: l.rate_pct, item: l.per_item, pc: null })),
       warnings: (r.notes || []).slice(),
       evidence: {},
-      bank: r.document_type === 'bank_statement' && r.bank ? Object.assign({}, r.bank, { months: Math.max(1, r.bank.months_covered || 1) }) : null
+      bank
     });
+    // the review's rows and checkboxes work from the bank groups, so the fields start from the same numbers
+    if (isBank && bank) {
+      const t = k => (bank[k] && bank[k].total) || 0, r2 = v => Math.round(v * 100) / 100;
+      if (t('card_deposits') > 0) out.volume = r2(t('card_deposits') / bank.months);
+      out.total_fees = r2((t('processing_fees') + t('software_fees')) / bank.months);
+    }
+    return out;
   }
 
   let scanSeq = 0;   // bumped by every new scan and by Cancel, so a stale scan never reopens a window
@@ -552,19 +562,21 @@
       mix.map(x => '<tr><td>' + esc((BRAND[x.brand] || x.brand) + (x.type && x.type !== 'unknown' && x.brand !== 'pin_debit' && x.brand !== 'ebt' ? ' ' + x.type : '')) + '</td><td class="num">' + money(x.volume) + '</td><td class="num">' + (x.count != null ? Number(x.count).toLocaleString('en-US') : '—') + '</td></tr>').join('') +
       '</tbody></table></div></details>' : '';
     // Bank statement: card deposits and each cost category, per month; checked categories make up the fees
-    const bank = r.document_type === 'bank_statement' && r.bank ? r.bank : null;
+    const bank = r.bank && (r.document_type === 'bank_statement' || r.bank.companion) ? r.bank : null;
+    const companion = Boolean(bank && bank.companion);   // uploaded with a processing statement, whose fees already include the processor's
     const BANK_ROWS = [
-      ['processing_fees', 'Processing fees', true], ['software_fees', 'POS software & equipment', true],
+      ['processing_fees', 'Processing fees', !companion], ['software_fees', 'POS software & equipment', !companion],
       ['misc_fees', 'Bank fees', false], ['mca_payments', 'Cash advance / loan payments', false]
-    ];
+    ].filter(row => !(companion && row[0] === 'processing_fees'));
     const perMonth = v => (bank ? (v || 0) / (bank.months || 1) : 0);
     const who = g => (g && g.sources && g.sources.length ? g.sources.slice(0, 3).map(x => esc(x.name)).join(', ') + (g.sources.length > 3 ? ' +' + (g.sources.length - 3) : '') : '');
-    const bankHtml = bank ? '<div class="scan-bank"><div class="scan-bank-title">From the bank statement' + (bank.months > 1 ? ' (monthly average of ' + bank.months + ' statements)' : ', per month') + '</div>' +
+    const bankHtml = bank ? '<div class="scan-bank"><div class="scan-bank-title">' + (companion ? 'Also on the bank statement' : 'From the bank statement') + (bank.months > 1 ? ' (monthly average of ' + bank.months + ' statements)' : ', per month') + '</div>' +
       '<div class="table-container"><table><tbody>' +
       '<tr><td>Card-processor deposits</td><td class="num">' + money(perMonth(bank.card_deposits.total)) + '</td><td class="scan-bank-who">' + (bank.card_deposits.count || 0) + ' deposits' + (who(bank.card_deposits) ? ' · ' + who(bank.card_deposits) : '') + '</td></tr>' +
+      (companion && bank.processing_fees && bank.processing_fees.count ? '<tr><td>Processing fees</td><td class="num">' + money(perMonth(bank.processing_fees.total)) + '</td><td class="scan-bank-who">' + bank.processing_fees.count + ' · ' + who(bank.processing_fees) + '</td></tr>' : '') +
       BANK_ROWS.map(([k, label, on]) => { const g = bank[k] || { total: 0, count: 0 }; return '<tr><td><label><input type="checkbox" data-bank="' + k + '"' + (on ? ' checked' : '') + '> ' + label + '</label></td><td class="num">' + money(perMonth(g.total)) + '</td><td class="scan-bank-who">' + (g.count ? g.count + ' · ' : '') + who(g) + '</td></tr>'; }).join('') +
       (bank.chargebacks && bank.chargebacks.count ? '<tr><td>Chargebacks</td><td class="num">' + money(perMonth(bank.chargebacks.total)) + '</td><td class="scan-bank-who">' + bank.chargebacks.count + '</td></tr>' : '') +
-      '</tbody></table></div><div class="scan-bank-note">Checked rows add up to Total Monthly Fees.</div></div>' : '';
+      '</tbody></table></div><div class="scan-bank-note">' + (companion ? 'Total Monthly Fees is from the processing statement. Check a row to add it.' : 'Checked rows add up to Total Monthly Fees.') + '</div></div>' : '';
     const src = r.source === 'ai' ? '<span class="scan-badge ai">Read by AI</span>'
       : r.source === 'ocr' ? '<span class="scan-badge ocr">Read from ' + (files.some(f => !isPdf(f)) ? 'photos' : 'scan') + ' on-device</span>'
       : '<span class="scan-badge">Read on-device</span>';
@@ -572,7 +584,7 @@
     const thumbs = photoFiles.length ? '<div class="scan-thumbs" aria-label="Statement photos">' + photoFiles.map((f, i) =>
       '<a href="#" data-photo="' + i + '" title="Open page ' + (i + 1) + ' to compare"><img alt="Page ' + (i + 1) + '" data-thumb="' + i + '"><span>' + (i + 1) + '</span></a>').join('') + '<span class="scan-thumbs-hint">Tap a page to compare</span></div>' : '';
     const sub = [r.processor, r.statement_period, files.length === 1 ? files[0].name : files.length + ' files'].filter(Boolean).map(esc).join(' · ');
-    const kindBadge = bank ? '<span class="scan-badge bank">Bank statement</span>' : '';
+    const kindBadge = bank ? '<span class="scan-badge bank">' + (companion ? 'Processing + bank statement' : 'Bank statement') + '</span>' : '';
     const m = openModal(
       '<h2 id="scanTitle">Review Scanned Statement</h2>' +
       '<div class="scan-sub">' + src + kindBadge + '<span>' + sub + '</span></div>' + thumbs +
@@ -612,8 +624,9 @@
     };
     Object.values(inputs).forEach(i => i.addEventListener('input', () => { i.classList.remove('missing'); update(); }));
     m.querySelectorAll('input[data-bank]').forEach(cb => cb.addEventListener('change', () => {
-      const sum = Array.from(m.querySelectorAll('input[data-bank]:checked')).reduce((a, c) => a + perMonth((bank[c.dataset.bank] || {}).total), 0);
-      inputs.fees.value = (Math.round(sum * 100) / 100).toFixed(2); inputs.fees.classList.remove('missing'); update();
+      const delta = perMonth((bank[cb.dataset.bank] || {}).total) * (cb.checked ? 1 : -1);
+      const next = Math.max(0, (num(inputs.fees.value) || 0) + delta);
+      inputs.fees.value = (Math.round(next * 100) / 100).toFixed(2); inputs.fees.classList.remove('missing'); update();
     }));
     loadTable().then(update).catch(update);
     update();
@@ -632,6 +645,7 @@
     D.address = v.address || '';
     if (v.volume != null) D.volume = Math.round(v.volume * 100) / 100;
     if (v.transactions != null) D.transactions = Math.round(v.transactions);
+    else { D.transactions = 0; D.avgTicket = 0; }   // not the previous merchant's count
     if (v.fees != null) D.statementFees = Math.round(v.fees * 100) / 100;
     state.scan = { source: r.source, processor: r.processor, period: r.statement_period, card_mix: r.card_mix || [], interchange_lines: r.interchange_lines || [] };
     tray.length = 0;
@@ -720,11 +734,20 @@
     if (!card) return;
     if (!state.scan || !(D.volume > 0) || !state.table) { card.style.display = 'none'; if (state.scan && !state.table) loadTable().then(refresh).catch(() => null); return; }
     card.style.display = '';
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    if (!(D.transactions > 0)) {
+      // per-transaction interchange and assessments are part of the wholesale cost, so there is no markup without a count
+      ['mkFees', 'mkTrue', 'mkMarkup', 'mkAnnual', 'mkIc', 'mkAmex', 'mkAssess', 'mkTrue2'].forEach(id => set(id, '—'));
+      ['mkFeesPct', 'mkTruePct', 'mkMarkupPct', 'mkShare', 'mkMode'].forEach(id => set(id, ''));
+      const body = document.getElementById('mkBody'); if (body) body.innerHTML = '';
+      state.signature = '';
+      set('mkNotes', 'Enter the # of Transactions above to see the markup — the wholesale cost includes a per-transaction charge.');
+      return;
+    }
     const mk = ScanCore.computeMarkup(markupInput());
     const sig = mk.mode + '|' + mk.rows.map(r => r.kind + r.label).join('|');
     if (sig !== state.signature) { renderMarkupRows(mk); state.signature = sig; }
     else mk.rows.forEach((row, i) => { const c = card.querySelector('[data-cost="' + i + '"]'); if (c) c.textContent = money(row.cost); });
-    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
     set('mkMode', mk.mode === 'itemized' ? 'Itemized interchange' : mk.mixAssumed ? 'Estimated · assumed card mix' : 'Estimated from card mix');
     set('mkFees', money(mk.fees)); set('mkFeesPct', pct(mk.feesPct) + ' effective rate');
     set('mkTrue', money(mk.trueCost)); set('mkTruePct', pct(mk.trueCostPct) + ' of volume');

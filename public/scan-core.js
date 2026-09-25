@@ -712,10 +712,14 @@
   const bankSource = d => { for (const [re, name, kind] of BANK_SOURCES) if (re.test(d)) return { name, kind }; return null; };
   const MCA_FUNDERS = /\b(on\s*deck|ondeck|kabbage|rapid\s*(finance|advance|capital)|credibly|fundbox|clearco|clearbanc|libertas|yellowstone|forward\s*fin\w*|kapitus|fora\s*fin\w*|national\s*funding|mulligan|fundation|bluevine|can\s*capital|pearl\s*(capital|delta)|everest\s*bus\w*|ebf\s*hold\w*|greenbox\s*cap\w*|headway\s*cap\w*|lendio|fundkite|newtek|bizfund|biz2credit|iou\s*(central|fin\w*)|rok\s*fin\w*|reliant\s*fund\w*|vox\s*fund\w*|wynwood\s*cap\w*|parkview\s*(adv\w*|cap\w*|fund\w*)|capytal|fintap|smart\s*business\s*fund\w*|global\s*merchant\s*cash|merchant\s*cash|cash\s*advance|mca|par\s*funding|itria|expansion\s*capital|velocity\s*capital|fox\s*capital|mantis\s*fund\w*|cfg\s*merchant|world\s*business\s*lenders|swift\s*financial|funding\s*circle|breakout\s*capital|idea\s*financial|backd|elevate\s*fund\w*|kalamata|legend\s*fund\w*|ace\s*funding|family\s*business\s*fund\w*|lg\s*funding|seamless\s*capital|cloudfund|giggle\s*fin\w*|people\s*fund|webbank(?=[^|]{0,40}(paypal|loan|lending))|capital\s*resource|cardiff|liftfund|accion|kiva|wayflyer|channel\s*partners|fundomate|1\s*west|quick\s*bridge|bitty\s*adv\w*|ein\s*cap(ital)?|eincap|byzfunder|rowan\s*adv\w*|lendini|spartan\s*cap\w*|ml\s*factors|mr\s*advance|sos\s*capital|specialty\s*capital|lionheart\s*cap\w*|emmy\s*cap\w*|nexgen\s*cap\w*|hop\s*capital|instagreen|uplyft|lendr|credibly|biz\s*fund\w*|fund\s*box|kabbage\s*(loan|pmt)?)\b/i;
   const CAPITAL_PROGRAMS = /\b(sq(uare)?\s*cap(ital)?|sq\s*cap\d+|(square|sq|toast|paypal|stripe|shopify|clover|spoton|amazon)\b[^|]{0,40}\b(loan\s*(pmt|payment|repay\w*)|capital\s*(rpmt|repay\w*|pmt|payment)|cap\s*(rpmt|repay\w*|pmt))|capital\s*(rpmt|repaymt|repayment)|sba\b[^|]{0,20}\bloan|eidl|toast\s*(cap(ital)?|loan)|paypal\s*(working\s*cap\w*|wc|loan|bus\w*\s*loan)|ppwc|shopify\s*cap(ital)?|stripe\s*(cap(ital)?|loan)|amazon\s*lending|clover\s*cap(ital)?|spoton\s*cap\w*|(sba|business|commercial\s*(bus\w*)?)\s*loan)\b/i;
+  // a processor's own lending program: the capital word right after its name ("360 PAYMENTS CAPITAL"), not a
+  // business name that happens to contain it ("BANKCARD-0000 MTOT DISC … CAPITAL PLUMBING")
+  const PROCESSOR_CAPITAL = /\b(square|sq|toast|clover|stripe|shopify|spoton|paypal|360\s*payments|heartland|intuit|quickbooks|elavon|fiserv|first\s*data|worldpay|payroc|shift\s*4|tekmetric)\s*(cap|capital)\b/i;
+  const PAYROLL = /\b(payroll|gusto|paychex|adp\s*(payroll|wage|tax))\b/i;
   const GENERIC_FUNDER = /\b(funding|fundng|fnd|fndg)\b|\b(merchant|business)\s+(advance|funding)\b|\bcap(ital)?\s+(funding|advance)\b/i;
   const FUNDER_PAYMENT = /\b(daily|weekly|dly|wkly|pmt|payment|pymt|debit|remit\w*|ach)\b/i;
   const NOT_FUNDER = /\b(payroll|adp|gusto|paychex|intuit|tax|irs|401k|retirement|insurance|refund|mtg|mortgage|home\s*loan|student|fingerhut|auto\s*loan)\b/i;
-  const SOFTWARE_FEES = /\b((toast|clover|square|sq|spoton|shift\s*4|heartland|skytab|harbortouch|lightspeed|shopify|stripe|paypal|ncr|aloha|revel|touchbistro|upserve|lavu|shopkeep|linga|epos\s*now|posist|mindbody|vagaro|clover\s*go)\b[^|]{0,30}\b(subscr\w*|software|saas|app|apps|plan|pos|monthly|service\s*plan|hardware)|app\s*market|toast\s*subscr\w*|tekmetric|shopmonkey|shop[-\s]?ware|mitchell\s*1|clover\s*(app|plan|software|service\s*plan|fees?)|lightspeed|revel\s*systems|touchbistro|upserve|lavu|shopkeep|stripe\s*billing|sq\s*subscr\w*|(pos|terminal|card\s*machine|credit\s*card|merchant)\s*(equip\w*\s*)?(rent\w*|lease|leasing)|northern\s*leasing|timepayment\w*|time\s*payment\s*corp|leaf\s*(fin\w*|comm\w*|cap\w*)|first\s*data\s*global\s*leas\w*|fdgl|ctc\s*leasing|global\s*leasing|merchant\s*leasing|pos\s*lease)\b/i;
+  const SOFTWARE_FEES = /\b((toast|clover|square|sq|spoton|shift\s*4|heartland|skytab|harbortouch|lightspeed|shopify|stripe|paypal|ncr|aloha|revel|touchbistro|upserve|lavu|shopkeep|linga|epos\s*now|posist|mindbody|vagaro|clover\s*go)\b[^|]{0,30}\b(subscr\w*|software|saas|app|apps|plan|pos|monthly|service\s*plan|hardware)|app\s*market|toast\s*subscr\w*|tekmetric|shopmonkey|shop[-\s]?ware|mitchell\s*1|clover\s*(app|plan|software|service\s*plan|fees?)|lightspeed|revel\s*systems|touchbistro|upserve|lavu|shopkeep|stripe\s*billing|sq\s*subscr\w*|authorize\.?net|authnet|usa\s*e\s*pay|nmi\s*(gateway|fee|billing)|network\s*merchants|bambora|payeezy|payjunction|cybersource|(payment\s*)?gateway\s*(fees?|monthly|billing|svc|service)|(pos|terminal|card\s*machine|credit\s*card|merchant)\s*(equip\w*\s*)?(rent\w*|lease|leasing)|northern\s*leasing|timepayment\w*|time\s*payment\s*corp|leaf\s*(fin\w*|comm\w*|cap\w*)|first\s*data\s*global\s*leas\w*|fdgl|ctc\s*leasing|global\s*leasing|merchant\s*leasing|pos\s*lease)\b/i;
   const BANK_FEES = /\b(service\s*(charge|fee)s?|maint(enance)?\s*fee|monthly\s*(service\s*|maint\w*\s*|account\s*)?fee|account\s*(analysis\s*)?fee|analysis\s*(fee|charge|service)|nsf|non[-\s]?sufficient|insufficient\s*funds|overdraft|od\s*(fee|charge)|returned?\s*(deposit(ed)?\s*)?item\s*(fee|charge)|wire\s*(transfer\s*)?fee|(incoming|outgoing|domestic|intl|international)\s*wire\s*(transfer\s*)?(fee|charge)|atm\s*(fee|surcharge)|\batm\b[^|]{0,50}\bfee\b|stop\s*pay(ment)?|paper\s*statement\s*fee|cash\s*(handling|deposit|processing)\s*fee|cash\s*deposit\s*processing\s*fee|transactions?\s+fee|excess\s*(item|transaction|deposit)s?\s*fee|foreign\s*transaction\s*fee|foreign\s*atm|(atm|withdrawal|inquiry|transfer|xfer|deposit|item)\s+(fee|charge)|(od|overdraft|nsf)\s*(item\s*)?(fee|charge)|paid\s*item\s*fee|continuous\s*overdraft|extended\s*overdraft|item\s+returned\s+(fee|charge)|(svc|serv)\.?\s*(charge|chg|fee)s?)\b/i;
   // the bank's own fee even when the item it's charged on came from a processor ("OVERDRAFT ITEM FEE ... STRIPE TRANSFER")
   const STRONG_BANK_FEE = /\b(overdraft|od|nsf|non[-\s]?sufficient|insufficient\s+funds|return(ed)?\s+(deposit(ed)?\s+)?item|deposit(ed)?\s+item\s+return\w*|paid\s+item|item\s+returned)\b[^|]{0,30}\b(fee|charge|chg)\b|^\s*(monthly\s+)?(service|maintenance|maint)\s+(fee|charge)/i;
@@ -730,7 +734,7 @@
 
   const CARD_BILL = /\b((cr|credit)\s*(crd|card)|crd)\s*(pmt|payment|pymt|epay)|\bbankcard\b[^|]{0,20}\b(pmt|payment|pymt|epay|online)\b|\bfirst\s*bankcard\b|\bcard\s*(services|member\s*serv\w*)\s*(pmt|payment)|\bcredit\s*card\s*(bill|autopay)/i;
   const OWN_CARD_PURCHASE = /\b(debit\s*purchase|purchase\s*authorized|card\s*purchase|crd\s*purchase|recurring\s*(card\s*)?(purchase|payment)|pos\s*(db|debit|purchase|pur)|dbt\s*crd|checkcard|chk\s*card|visa\s*(debit|purchase)|point\s*of\s*sale\s*(debit|withdrawal|purchase))\b/i;
-  // "Orig CO Name:Harbor Ridge Fnd ..." → "Harbor Ridge Fnd"; falls back to the matched word
+  // "Orig CO Name:Sample Ridge Fnd ..." → "Sample Ridge Fnd"; falls back to the matched word
   function fundName(desc, m) {
     const before = desc.slice(0, m.index).replace(/^.*(name|co|ach\s+(debit|credit|withdrawal|deposit)|des|from|to)\s*[:#]?\s*/i, '').split(/\s+/).filter(w => /^[a-z&'.-]+$/i.test(w)).slice(-3);
     return titleCase((before.join(' ') + ' ' + m[0]).trim().toUpperCase());
@@ -756,7 +760,7 @@
       if (funder) return { category: 'mca_funding', source: funderName() };
       // a network name on a credit is a settlement only when it isn't the owner's own Discover/Amex savings or rewards
       if (src && src.kind === 'network' && /\b(transfer|xfer|p2p|savings|bank|cashback|reward|bonus)\b/i.test(desc)) return { category: 'other_deposit', source: null };
-      if (src && !NOT_SALES.test(desc)) return { category: 'card_deposit', source: src.name };
+      if (src && !NOT_SALES.test(desc) && !PAYROLL.test(org)) return { category: 'card_deposit', source: src.name };
       return { category: 'other_deposit', source: null };
     }
     if (CARD_BILL.test(desc)) return { category: 'other_debit', source: null };
@@ -765,7 +769,8 @@
     if (OWN_CARD_PURCHASE.test(desc)) src = null;   // the merchant bought something from a business that happens to use Clover, Square...
     if (CHARGEBACKS.test(desc) && !moved) return { category: 'chargeback', source: src && src.name };
     if (funder) return { category: 'mca_payment', source: funderName() };
-    if (src && src.kind !== 'network' && /\b(cap|capital)\b/i.test(org) && !/\bcapital\s*one\b|\bcapture\b/i.test(org)) return { category: 'mca_payment', source: src.name + ' Capital' };
+    if (src && src.kind !== 'network' && PROCESSOR_CAPITAL.test(org)) return { category: 'mca_payment', source: src.name + ' Capital' };
+    if (PAYROLL.test(org)) return { category: 'other_debit', source: null };   // "SQUARE PAYROLL FEE" is payroll, not card processing
     if (SOFTWARE_FEES.test(org)) return { category: 'software_fee', source: src ? src.name : titleCase(SOFTWARE_FEES.exec(org)[0].toUpperCase()) };
     if (src && src.kind !== 'network' && /\bequip\w*\s*(lease|leasing|rent\w*|fin\w*)\b/i.test(org)) return { category: 'software_fee', source: src.name };   // the processor's own terminal rental
     if (src && (src.kind === 'acquirer' || BANK_FEE_WORDS.test(desc))) return { category: 'processing_fee', source: src.name };
@@ -823,8 +828,8 @@
     return out;
   }
   const DATE_ONLY = /^(\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?)$/;
-  const COL_CREDIT = /^(deposits?|credits?|additions?|deposits?\s*\/\s*credits?|credits?\s*\/\s*deposits?|deposits?\s*(and|&)\s*(other\s+)?credits?|amount\s+credited|money\s+in|paid\s+in)$/i;
-  const COL_DEBIT = /^(withdrawals?|debits?|subtractions?|withdrawals?\s*\/\s*debits?|debits?\s*\/\s*withdrawals?|(checks|withdrawals?)\s*(and|&)\s*(other\s+)?debits?|amount\s+debited|charges?|money\s+out|paid\s+out)$/i;
+  const COL_CREDIT = /^(deposits?|credits?|additions?|receipts?|(deposits?|credits?|additions?)\s*(\/|and|&)\s*(other\s+)?(deposits?|credits?|additions?)|amount\s+credited|money\s+in|paid\s+in)$/i;
+  const COL_DEBIT = /^(withdrawals?|debits?|subtractions?|deductions?|payments?|(checks|withdrawals?|debits?|subtractions?|deductions?)\s*(\/|and|&)\s*(other\s+)?(debits?|withdrawals?|subtractions?|deductions?)|amount\s+debited|charges?|money\s+out|paid\s+out)$/i;
   // "Debits (-)", "Deposit Amount", "Credits ($)" → the bare label
   const colLabel = t => t.replace(/\(\s*[-+$]\s*\)/g, ' ').replace(/\s+amount$|^amount\s+/i, '').replace(/\s+/g, ' ').trim();
   const segRight = s => (s.x2 != null ? s.x2 : s.x);
@@ -842,7 +847,7 @@
     let pend = [];                      // description lines printed above the first row after a header
     let descCol = null;                 // x of the register's Description column
     // several PDFs in one upload, or several statements in one PDF: each starts fresh
-    const startPages = new Set(doc.all.filter(l => l.page > 0 && /\bpage\s*:?\s*\|?\s*1\s*(of|\/)\s*\d+\b/i.test(l.text)).map(l => l.page));
+    const startPages = new Set(doc.all.filter(l => l.page > 0 && FIRST_PAGE.test(l.text)).map(l => l.page));
     let curDoc = doc.all.length ? doc.all[0].doc : undefined, curPage = -1;
     for (let i = 0; i < doc.all.length; i++) {
       const l = doc.all[i];
@@ -862,7 +867,7 @@
       if (segs.length >= 4 && segs.every(sg => /^(date|balance|amount)$/i.test(sg.t.trim())) && segs.filter(sg => /balance/i.test(sg.t)).length >= 2) { skip = true; cols = null; last = null; continue; }
       const cred = segs.find(s => COL_CREDIT.test(colLabel(s.t))), deb = segs.find(s => COL_DEBIT.test(colLabel(s.t)));
       // a register's column header has no amounts; an account-summary header ("Beginning Balance | Deposits/Credits | …") is not one
-      if (cred && deb && !tokens(l.text).some(t => t.k === 'money') && !/beginning|ending|previous|opening|closing/i.test(l.text)) {
+      if (cred && deb && !tokens(l.text).some(t => t.k === 'money') && !/beginning|ending|previous|opening|closing|last\s+statement|this\s+statement|balance\s+forward/i.test(l.text)) {
         if (descSeg) descCol = descSeg.x;
         const bal = segs.find(s => s !== cred && s !== deb && /balance/i.test(s.t));
         cols = { credit: segRight(cred), debit: segRight(deb), balance: bal ? segRight(bal) : null };
@@ -871,7 +876,7 @@
       if (descSeg && segs.length >= 2 && !tokens(l.text).some(t => t.k === 'money')) descCol = descSeg.x;
       let text = fixMinus(l.text).replace(/^((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?)\s*\|\s*(\d{1,2}\b)/i, '$1 $2')
         .replace(/^([A-Za-z0-9.=]+?(?:\s[A-Za-z0-9.]*=[A-Za-z0-9.=]*?)?)((?:1[0-2]|0?[1-9])\/(?:3[01]|[12]\d|0?[1-9])(?:\/\d{2,4})?)(?=\s|\||$)/,
-          (all, pre, d) => (/\d/.test(pre) && /[A-Za-z]/.test(pre) ? d : all))   // printer margin codes glued onto the date ("6250TEXAS12/08/23", "26FDP2/14")
+          (all, pre, d) => (/\d/.test(pre) && /[A-Za-z]/.test(pre) ? d : all))   // printer margin codes glued onto the date ("9999SAMPLE12/08/23", "12ABC2/14")
         .replace(/(\d\.\d{2}-?)(?:SC|OD|NSF)\b/g, '$1');                          // "5.60-SC": a code after the amount
       // the posting date in its own column after the description: read the row as if the date came first
       if (midDate != null && !TX_DATE.test(text)) {
@@ -897,7 +902,7 @@
         let kind = money.length ? (BALANCE_HEAD.test(headText(first)) ? 'balance' : null) : headKind(segs);
         // a lone heading-like word lined up under the descriptions ("Purchases") is part of a description
         const alignX = descCol != null ? descCol : last && last.descX;
-        if (kind && alignX != null && segs[0] && Math.abs(segs[0].x - alignX) < 12 && headText(segs.map(sg => sg.t).join(' ')).split(' ').length === 1) kind = null;
+        if (kind && midDate == null && alignX != null && segs[0] && Math.abs(segs[0].x - alignX) < 12 && headText(segs.map(sg => sg.t).join(' ')).split(' ').length === 1) kind = null;
         if (kind === 'balance') { skip = true; cols = null; last = null; midDate = null; grid = false; continue; }
         if (kind) { dir = kind; sec++; skip = false; cols = null; last = null; midDate = null; grid = false; pend = []; feeSec = kind === 'debit' && /\b(fees|service\s+charges?)\b/i.test(headText(segs.map(sg => sg.t).join(' '))); continue; }
         if (/^(total|subtotal|ending|beginning|opening|closing|daily|page\b|continued|itemization|summary\s+of)/i.test(headText(segs.map(sg => sg.t).join(' ')).replace(/^[-–—|\s]+/, ''))) { last = null; continue; }
@@ -950,10 +955,10 @@
         }
       }
       if (/^(beginning|ending|opening|closing|previous|new|starting)\s+(ledger\s+|statement\s+)?balance\b|^balance\s+(forward|brought|carried)/i.test(tx.desc)) { last = null; continue; }
-      // a check listed with the date written and the date paid ("29245 | 08/05 | 08/05 | 395.00")
+      // a check listed with the date written and the date paid ("1234 | 08/05 | 08/05 | 250.00")
       if (date[1] && money.length && /^(\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?\s*)+$/.test(tx.desc)) tx.desc = '';
       if (!/[A-Za-z]{2}/.test(tx.desc) && /\d{1,2}[\/-]\d{1,2}/.test(tx.desc)) { last = null; continue; }   // date / balance or check-number grids
-      if (date[1] && !/[A-Za-z]{2}/.test(tx.desc)) tx.desc = ('Check ' + date[1] + ' ' + tx.desc).trim();          // "1052 ^ | 08/05 | 685.00" (check number first)
+      if (date[1] && !/[A-Za-z]{2}/.test(tx.desc)) tx.desc = ('Check ' + date[1] + ' ' + tx.desc).trim();          // "3101 ^ | 08/05 | 120.00" (check number first)
       if (money.length) setAmount(tx, segs.map(sg => ({ t: fixMinus(sg.t), x: sg.x, x2: sg.x2 })), money);
       tx.base = tx.desc;
       txs.push(tx); last = prevTx = tx;
@@ -969,9 +974,9 @@
             .map(c => ({ col: c[0], d: Math.abs(r - c[1]) })).sort((a, b) => a.d - b.d)[0];
           if (cand && cand.col !== 'balance' && cand.d < 70 && !best) best = { v: m[m.length - 1].v, col: cand.col };
         });
-        if (best) { tx.amount = Math.abs(best.v); tx.dir = best.col; tx.byCol = true; return; }
+        if (best) { tx.amount = Math.abs(best.v); tx.dir = best.v < 0 ? 'debit' : best.col; tx.byCol = true; return; }
       }
-      // an amount on its own (the amount column) beats one inside the description ("Fee For A $45.00 Card Purchase")
+      // an amount on its own (the amount column) beats one inside the description ("Fee For A $52.00 Card Purchase")
       const alone = segs.map(s => tokens(s.t)).filter(ts => ts.length === 1 && ts[0].k === 'money');
       const v = alone.length ? alone[0][0].v : money[0].v;
       tx.amount = Math.abs(v);
@@ -1011,10 +1016,10 @@
     return m ? titleCase(m[1].replace(/\s+(OF|of)$/, '').trim()) : null;
   }
 
-  // Statement periods printed on the statement ("03/01/2026 - 03/31/2026", "July 9, 2026 through August 12, 2026").
-  // Returns how many months they cover, or 0 when none is printed. A range that contains another one (year to date) is left out.
+  // Statement periods printed on the statement ("03/01/2026 - 03/31/2026", "July 1, 2026 through July 31, 2026").
+  // Returns the periods as [first day, last day], or none when none is printed. A range that contains another one (year to date) is left out.
   const MONTHS_AT = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
-  function statementMonths(full) {
+  function statementRanges(full) {
     const D1 = '(\\d{1,2})[\\/-](\\d{1,2})[\\/-](\\d{2,4})', D2 = '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s+(\\d{1,2}),?\\s+(\\d{4})';
     const SEP = '\\s*(?:-|–|—|to|thru|through)\\s*';
     const toDay = (y, m, d) => { y = +y; if (y < 100) y += 2000; const t = Date.UTC(y, m, +d); return isNaN(t) || m < 0 || m > 11 || +d < 1 || +d > 31 ? null : Math.round(t / 864e5); };
@@ -1033,8 +1038,22 @@
     while ((m = re4.exec(full))) { let y = +m[5]; if (y < 100) y += 2000; add(toDay(startYear(+m[1] - 1, +m[3] - 1, y), +m[1] - 1, m[2]), toDay(y, +m[3] - 1, m[4])); }
     const kept = ranges.filter(r => !ranges.some(o => o !== r && o[0] >= r[0] && o[1] <= r[1]));
     // periods a day or two apart describe the same statement
-    const uniq = kept.filter((r, i) => !kept.slice(0, i).some(o => Math.abs(o[1] - r[1]) <= 3));
-    return uniq.reduce((a, r) => a + Math.max(1, Math.round((r[1] - r[0] + 1) / 30.44)), 0);
+    return kept.filter((r, i) => !kept.slice(0, i).some(o => Math.abs(o[1] - r[1]) <= 3));
+  }
+  const rangeMonths = ranges => ranges.reduce((a, r) => a + Math.max(1, Math.round((r[1] - r[0] + 1) / 30.44)), 0);
+  const statementMonths = full => rangeMonths(statementRanges(full));
+  const FIRST_PAGE = /\bpage\s*:?\s*\|?\s*1\s*(of|\/)\s*\d+\b/i;
+  // Months an upload covers: the printed periods (the same period in two files counts once), plus one month — or one
+  // per "Page 1 of N" — for each file that prints no period
+  function uploadMonths(doc) {
+    let months = rangeMonths(statementRanges(doc.full));
+    const ids = Array.from(new Set(doc.all.map(l => l.doc)));
+    ids.forEach(id => {
+      const lines = doc.all.filter(l => l.doc === id);
+      if (statementRanges(lines.map(l => l.text).join('\n')).length) return;
+      months += Math.max(1, lines.filter(l => FIRST_PAGE.test(l.text)).length);
+    });
+    return Math.max(1, months);
   }
 
   function parseBankStatement(doc, result) {
@@ -1042,7 +1061,7 @@
     result.document_type = 'bank_statement';
     result.processor = bankName(doc);
     const txs = bankTransactions(doc).map(t => Object.assign(t, classifyBankTx(t.desc, t.dir)));
-    // the bank's own "FEES" section lists its charges without always saying "fee" ("Rtp/Same Day - High Value")
+    // the bank's own "FEES" section lists its charges without always saying "fee" ("Same Day Payment - Standard")
     txs.forEach(t => { if (t.feeSec && t.dir === 'debit' && t.category === 'other_debit') t.category = 'misc_fee'; });
     txs.forEach(t => { if (t.category === 'misc_fee' && !t.source) t.source = result.processor || 'The bank'; });
     // a payment rejected or returned and credited back is no cost: drop both sides
@@ -1055,16 +1074,26 @@
         (!cw.length || payeeWords(t.desc).some(w => cw.includes(w))));
       if (db) {
         if (db.category === 'mca_payment') result.warnings.push('A $' + db.amount.toFixed(2) + ' payment to ' + (db.source || 'a lender') + ' was returned unpaid, so it isn’t counted — but the merchant still owes that lender.');
-        db.reversed = true; db.category = 'other_debit';
+        db.reversed = true; db.category = 'other_debit'; cr.netted = true;
       }
     });
+    // A bank fee refunded as a lump ("NSF FEE REFUND" for two of three NSF fees) comes off the bank fees, when it names
+    // the kind of fee and this statement charged at least that much of it (a bare "FEE REVERSAL" may be last month's)
+    const feeKind = d => (d.toLowerCase().match(/\b(nsf|overdraft|od|service|maint\w*|wire|atm|return\w*|paper|stop|analysis|excess)\b/g) || []).map(w => w.replace(/^(return|maint)\w*/, '$1'));
+    txs.filter(t => t.dir === 'credit' && !t.netted && (BANK_FEES.test(t.desc) || STRONG_BANK_FEE.test(t.desc)) && !bankSource(t.desc) &&
+      (RETURNED_PAYMENT.test(t.desc) || /\b(rebate|waived?|courtesy)\b/i.test(t.desc))).forEach(cr => {
+      const kinds = feeKind(cr.desc);
+      const charged = txs.filter(t => t.dir === 'debit' && t.category === 'misc_fee' && feeKind(t.desc).some(k => kinds.includes(k))).reduce((a, t) => a + t.amount, 0);
+      if (kinds.length && charged >= cr.amount - 0.005) { cr.category = 'misc_fee'; cr.refund = true; cr.source = result.processor || 'The bank'; }
+    });
+    const months = uploadMonths(doc);
     const mer = extractMerchant(doc, 'bank');
     result.merchant_name = mer.name; result.legal_name = mer.legal_name; result.address = mer.address;
     // PayPal Business Loan: the same PayPal debit amount on a fixed schedule (purchases through PayPal vary)
     const pp = {};
-    txs.filter(t => t.dir === 'debit' && t.category === 'other_debit' && /\bpaypal\b/i.test(t.desc) && !/inst\s*xfer|purchase|\bpos\b|transfer|xfer|add\s*to\s*balance|echeck/i.test(t.desc) && t.amount >= 100)
+    txs.filter(t => t.dir === 'debit' && t.category === 'other_debit' && /\bpaypal\b/i.test(t.desc) && !OWN_CARD_PURCHASE.test(t.desc) && !/inst\s*xfer|purchase|\bpos\b|transfer|xfer|add\s*to\s*balance|echeck/i.test(t.desc) && t.amount >= 100)
       .forEach(t => (pp[t.amount.toFixed(2)] = pp[t.amount.toFixed(2)] || []).push(t));
-    Object.values(pp).filter(list => list.length >= 2).forEach(list => list.forEach(t => { t.category = 'mca_payment'; t.source = 'PayPal (recurring loan payment)'; }));
+    Object.values(pp).filter(list => list.length >= 2 * months).forEach(list => list.forEach(t => { t.category = 'mca_payment'; t.source = 'PayPal (recurring loan payment)'; }));
     // Settlements some processors send under the merchant's own name ("SAMPLE BISTRO/1234567890 F0000…"): credits almost
     // every business day, of varying amounts, whose originator is the account holder itself
     const own = (result.merchant_name || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\b(llc|inc|corp|co|ltd|dba|the)\b/g, ' ').split(/\s+/).filter(Boolean).slice(0, 2).join(' ');
@@ -1077,16 +1106,13 @@
         result.warnings.push('Card settlements here arrive under the business’s own name, not a processor’s (' + mine.length + ' near-daily credits). They were counted as card deposits — confirm with the merchant.');
       }
     }
-    // Statements covered: each has one beginning-balance line with an amount
-    const begins = new Set(doc.all.filter(l => /^(beginning|opening|previous|starting)\s+(ledger\s+|statement\s+)?balance/i.test(l.text))
-      .map(l => (tokens(l.text).find(t => t.k === 'money') || {}).v).filter(v => v != null));
-    const starts = doc.all.filter(l => /\bpage\s*:?\s*\|?\s*1\s*(of|\/)\s*\d+\b/i.test(l.text)).length;
-    const months = Math.max(1, statementMonths(doc.full) || starts);
     const group = cat => {
       const list = txs.filter(t => t.category === cat);
       const by = {};
-      list.forEach(t => { const k = t.source || 'Other'; (by[k] = by[k] || { name: k, total: 0, count: 0 }).total += t.amount; by[k].count++; });
-      return { total: r2(list.reduce((a, t) => a + t.amount, 0)), count: list.length, sources: Object.values(by).map(x => Object.assign(x, { total: r2(x.total) })).sort((a, b) => b.total - a.total) };
+      const amt = t => (t.refund ? -t.amount : t.amount);   // refunds count against the fees they refund
+      list.forEach(t => { const k = t.source || 'Other'; (by[k] = by[k] || { name: k, total: 0, count: 0 }).total += amt(t); if (!t.refund) by[k].count++; });
+      return { total: Math.max(0, r2(list.reduce((a, t) => a + amt(t), 0))), count: list.filter(t => !t.refund).length,
+        sources: Object.values(by).filter(x => x.count).map(x => Object.assign(x, { total: Math.max(0, r2(x.total)) })).sort((a, b) => b.total - a.total) };
     };
     const bank = {
       months,
@@ -1119,7 +1145,7 @@
     const dep = valueAfterLabel(doc, /^(total\s+)?(deposits?|credits?)\s*(and|&|\/)\s*(other\s+)?(credits?|additions?)\b|^total\s+(deposits|credits|additions)\b/i, { nextLine: false })[0];
     bank.statement_credits = dep ? dep.value : null;
     // beginning + credits − debits should land on the ending balance (one account, one statement)
-    const balOf = l => (tokens(l.text.replace(/(\d\.\d{2})\s+-(?=\s|\||$)/g, '$1-')).find(t => t.k === 'money') || {}).v;   // "$1,058.00 -" is negative
+    const balOf = l => (tokens(l.text.replace(/(\d\.\d{2})\s+-(?=\s|\||$)/g, '$1-')).find(t => t.k === 'money') || {}).v;   // "$1,000.00 -" is negative
     const endLine = doc.all.filter(l => /^(ending|closing|new)\s+(ledger\s+|statement\s+)?balance\b/i.test(l.text)).map(balOf).filter(v => v != null);
     const begin1 = doc.all.filter(l => /^(beginning|opening|previous|starting)\s+(ledger\s+|statement\s+)?balance/i.test(l.text)).map(balOf).filter(v => v != null);
     bank.reconcile_gap = new Set(begin1).size === 1 && new Set(endLine).size === 1 && months === 1 ? r2(begin1[0] + bank.credits_total - bank.debits_total - endLine[0]) : null;
@@ -1127,7 +1153,7 @@
     w.push('Read from a bank statement: volume is the card-processor deposits' + (months > 1 ? ' (monthly average of ' + months + ' statements)' : '') + '. Bank statements don’t show the number of card transactions — enter it from the processing statement or the POS.');
     if (!bank.card_deposits.count) w.push('No card-processor deposits were found on this bank statement.');
     else if (!bank.processing_fees.count) w.push('No separate processing-fee debits were found, so the processor probably takes its fees out of each deposit. The deposits are then net of fees and actual card sales were higher — use the processing statement for exact fees.');
-    // the statement's own totals are a check on every amount read (a scan can turn 105.25 into 1056.25)
+    // the statement's own totals are a check on every amount read (a scan can read an extra digit into an amount)
     const credGap = dep && months === 1 ? r2(bank.credits_total - dep.value) : null;
     if (credGap != null && Math.abs(credGap) > 1) w.push('The deposits read add up to $' + bank.credits_total.toFixed(2) + ', but the statement’s total is $' + dep.value.toFixed(2) + '. Some amounts may be misread or missed — check them against the statement.');
     else if (bank.reconcile_gap != null && Math.abs(bank.reconcile_gap) > 1) w.push('The transactions read are $' + Math.abs(bank.reconcile_gap).toFixed(2) + ' off from the statement’s beginning and ending balances. Some amounts may be misread or missed — check them against the statement.');
@@ -1444,6 +1470,32 @@
   // ───────────────────────── Main entry ─────────────────────────
   function parseStatement(pages, opts) {
     opts = opts || {};
+    // A processing statement uploaded with the merchant's bank statement: each is read as what it is. The processing
+    // statement gives the volume, fees and transactions; the bank statement's costs come along for the review.
+    const ids = Array.from(new Set(pages.map(p => p.doc)));
+    if (ids.length > 1 && !opts.single) {
+      const textOf = ps => makeDoc(ps).full;
+      const kind = {};
+      ids.forEach(id => { const t = textOf(pages.filter(p => p.doc === id)); kind[id] = t.replace(/\s/g, '').length < 80 ? 'none' : isBankStatement(t) ? 'bank' : 'other'; });
+      const bankIds = ids.filter(id => kind[id] === 'bank'), otherIds = ids.filter(id => kind[id] === 'other');
+      if (bankIds.length && otherIds.length) {
+        const sub = list => parseStatement(pages.filter(p => list.indexOf(p.doc) >= 0), Object.assign({}, opts, { single: true }));
+        const proc = sub(otherIds);
+        const bankRes = proc.volume > 0 ? sub(bankIds.concat(ids.filter(id => kind[id] === 'none'))) : null;
+        if (bankRes && bankRes.bank) {
+          proc.bank = Object.assign({}, bankRes.bank, { companion: true, bank_name: bankRes.processor });
+          if (!proc.merchant_name) { proc.merchant_name = bankRes.merchant_name; proc.legal_name = bankRes.legal_name; }
+          if (!proc.address) proc.address = bankRes.address;
+          proc.warnings = proc.warnings.filter(w => !/^Could not find the merchant (name|address)/.test(w) || !(/name/.test(w) ? proc.merchant_name : proc.address));
+          const b = bankRes.bank, per = v => r2(v / b.months);
+          proc.warnings.push('A bank statement was uploaded too. Volume, fees and transactions come from the processing statement; the bank statement’s costs are listed above' +
+            (b.months > 1 ? ' (monthly average of ' + b.months + ' statements)' : '') + ' — check a row to add it to Total Monthly Fees.');
+          if (b.mca_payments.count) proc.warnings.push('The bank statement shows cash advance / loan payments of $' + per(b.mca_payments.total).toFixed(2) + ' a month to ' + b.mca_payments.sources.map(x => x.name).join(', ') + '.');
+          return proc;
+        }
+        // not a readable processing statement after all: read everything together, as one bank statement upload
+      }
+    }
     const doc = makeDoc(pages);
     const textChars = doc.full.replace(/\s/g, '').length;
     const result = {
