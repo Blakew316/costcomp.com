@@ -209,7 +209,7 @@ test('rows printed with the date centered on a two- or three-line description', 
 test('mainframe layout: description | date | amount rows, a deposit grid, and dashed headings', () => {
   const r = Core.parseStatement([page([
     ...header,
-    [[330, 'LAST STATEMENT 07/03/26'], R(570, '50.00')], [[330, '5 CREDITS'], R(570, '1,353.00')], [[330, '2 DEBITS'], R(570, '364.20')], [[330, 'THIS STATEMENT 08/14/26'], R(570, '1,038.80')],
+    [[330, 'LAST STATEMENT 07/03/26'], R(570, '50.00')], [[330, '5 CREDITS'], R(570, '1,352.00')], [[330, '2 DEBITS'], R(570, '364.20')], [[330, 'THIS STATEMENT 08/14/26'], R(570, '1,037.80')],
     [[40, 'MINIMUM BALANCE'], R(300, '55.00')],
     [[180, '- - - - - - - DEPOSITS - - - - - - -']],
     [[40, 'REF #.....DATE......AMOUNT REF #.....DATE......AMOUNT']],
@@ -217,14 +217,14 @@ test('mainframe layout: description | date | amount rows, a deposit grid, and da
     [[110, '07/21'], R(220, '215.00'), [320, '08/05'], R(430, '75.00')],
     [[180, '- - - - - - OTHER CREDITS - - - - - -']],
     [[40, 'DESCRIPTION'], [470, 'DATE'], R(570, 'AMOUNT')],
-    [[40, 'eStatement Credit'], [470, '08/12'], R(570, '3.00')],
+    [[40, 'eStatement Credit'], [470, '08/12'], R(570, '2.00')],
     [[180, '- - - - - - OTHER DEBITS - - - - - -']],
     [[40, 'DESCRIPTION'], [470, 'DATE'], R(570, 'AMOUNT')],
-    [[40, 'XX9999 PIN PURCHASE 07/10 12:55 SAMPLE MART'], [470, '07/10'], R(570, '64.20')], [[60, '00000000 111111']],
-    [[40, 'XX9999 WITHDRAWAL 07/10 09:06 SAMPLE BANK'], [470, '07/10'], R(570, '300.00')],
+    [[40, 'XX9999 PIN PURCHASE 07/10 11:11 SAMPLE MART'], [470, '07/10'], R(570, '64.20')], [[60, '00000000 111111']],
+    [[40, 'XX9999 WITHDRAWAL 07/10 10:10 SAMPLE BANK'], [470, '07/10'], R(570, '300.00')],
   ])], {});
   assert.equal(r.document_type, 'bank_statement');
-  assert.equal(r.bank.credits_total, 1353);
+  assert.equal(r.bank.credits_total, 1352);
   assert.equal(r.bank.debits_total, 364.2);
   assert.equal(r.bank.months, 1);
 });
@@ -302,13 +302,13 @@ test('statement-wide patterns: PayPal loan debits, settlements under the busines
     [[40, '08/04'], [90, 'Business to Business ACH Debit - Paypal Debit R0001'], R(570, '612.40-')],
     [[40, '08/11'], [90, 'Business to Business ACH Debit - Paypal Debit R0002'], R(570, '612.40-')],
     [[40, '08/12'], [90, 'Paypal Inst Xfer Sample Supplies'], R(570, '154.20-')],
-    [[20, '6250SAMPLE08/15/26 OVERDRAFT ITEM FEE']], [[560, '20.00-']],
-    [[40, '08/31/26 Service Charge'], R(570, '5.60-SC')],
+    [[20, '9999SAMPLE08/15/26 OVERDRAFT ITEM FEE']], [[560, '20.00-']],
+    [[40, '08/31/26 Service Charge'], R(570, '4.25-SC')],
   ])], {});
   assert.equal(r.bank.card_deposits.count, rows.length);
   assert.ok(r.warnings.some(w => /business’s own name/.test(w)));
   assert.equal(r.bank.mca_payments.total, 1224.8);
-  assert.equal(r.bank.misc_fees.total, 25.6);
+  assert.equal(r.bank.misc_fees.total, 24.25);
 });
 
 test('Chase-style scan details: fees section, processor capital, check lists, OCR headings', () => {
@@ -600,4 +600,47 @@ test('second review: PayPal subscriptions, more column labels, summary headers, 
   assert.equal(mid.bank.card_deposits.total, 2000);
   assert.equal(mid.bank.processing_fees.total, 60);
   assert.equal(mid.bank.debits_total, 60);
+});
+
+test('third review: holder names, entry descriptions, refunds and gateways', () => {
+  const c = (d, dir) => Core.classifyBankTx(d, dir).category;
+  assert.equal(c('BANKCARD 0000 BTOT DEP 260801 123456789 PAYROLL PLUS LLC', 'credit'), 'card_deposit');   // a holder name, not payroll
+  assert.equal(c('BANKCARD 0000 MTOT DISC 260801 123456789 GUSTO BISTRO', 'debit'), 'processing_fee');
+  assert.equal(c('SQUARE INC DES:CAPITAL ID:0000', 'debit'), 'mca_payment');
+  assert.equal(c('360 PAYMENTS DES:CAPITAL ID:0000', 'debit'), 'mca_payment');
+  assert.equal(c('SAMPLE GATEWAY SERVICE LLC', 'debit'), 'other_debit');
+  assert.equal(c('PAYMENT GATEWAY FEE', 'debit'), 'software_fee');
+  const r = Core.parseStatement([page([
+    ...header, ...summary('$1,000.00', '470.00', '$1,365.00'),
+    [[40, 'Deposits and Other Credits']],
+    [[40, '08/12'], [90, 'ACH RETURN NSF SAMPLE SUPPLY CO'], R(570, '400.00')],              // a vendor payment that bounced, not a fee refund
+    [[40, '08/20'], [90, 'INSUFFICIENT FUNDS FEE REFUND'], R(570, '70.00')],
+    [[40, 'Withdrawals and Other Debits']],
+    [[40, '08/03'], [90, 'NSF FEE'], R(570, '35.00')], [[40, '08/09'], [90, 'NSF FEE'], R(570, '35.00')], [[40, '08/15'], [90, 'NSF FEE'], R(570, '35.00')],
+  ])], {});
+  assert.equal(r.bank.misc_fees.total, 35);
+});
+
+test('third review: extra files add no months, and the bank flags survive a mixed upload', () => {
+  const bank = doc => Object.assign(page([
+    ...header, ...summary('$1,000.00', '10,000.00', '$10,000.00'),
+    [[40, 'Deposits and Other Credits']], [[40, '08/03'], [90, 'BANKCARD 0000 BTOT DEP'], R(570, '10,000.00')],
+    [[40, 'Withdrawals and Other Debits']], ...Array.from({ length: 20 }, (_, d) => [[40, '08/' + String(d + 1).padStart(2, '0')], [90, 'ACH DEBIT QUICKSILVER CAP LLC'], R(570, '50.00')]),
+  ]), { doc });
+  const checks = Object.assign(page([[[40, 'CHECK IMAGES']], [[40, 'Check 1001 Amount $250.00 Date 08/05/2026']], [[40, 'Check 1002 Amount $120.00 Date 08/12/2026']]]), { doc: 1 });
+  const r = Core.parseStatement([bank(0), checks], {});
+  assert.equal(r.bank.months, 1);
+  assert.equal(r.volume, 10000);
+  // a disclosure insert that restarts its own "Page 1 of 2" is not another month
+  const insert = page([[[400, 'Page 1 of 2'], [440, 'Important Information About Your Account']], [[40, 'SAMPLE BANK']]]);
+  const withInsert = Core.parseStatement([Object.assign(page([[[400, 'Page 1 of 3']], ...header.filter(h => !/Statement Period/.test(h[0][1])), ...summary('$1,000.00', '10,000.00', '$11,000.00'),
+    [[40, 'Deposits and Other Credits']], [[40, '08/03'], [90, 'BANKCARD 0000 BTOT DEP'], R(570, '10,000.00')]])), insert], {});
+  assert.equal(withInsert.bank.months, 1);
+  const proc = Object.assign(page([
+    [[40, 'YOUR CARD PROCESSING STATEMENT']], [[40, 'SAMPLE BISTRO LLC']], [[40, '12 ELM ST']], [[40, 'SPRINGFIELD, TX 75001']],
+    [[40, 'Total Amount Submitted'], [400, '$12,000.00']], [[40, 'Total Fees Charged'], [400, '$360.00']],
+  ]), { doc: 2 });
+  const mixed = Core.parseStatement([bank(0), proc], {});
+  assert.equal(mixed.document_type, 'processing_statement');
+  assert.ok(mixed.warnings.some(w => /^Bank statement: Repeating debit to Quicksilver Cap LLC/.test(w)), mixed.warnings.join(' | '));
 });

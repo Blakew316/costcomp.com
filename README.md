@@ -56,7 +56,7 @@ From a bank statement it fills in:
   | Processing fees | The processor's fee debits (discount, monthly, PCI, statement fees) | Yes |
   | POS software & equipment | POS subscriptions, app market, gateways, and terminal leases or rentals. Payroll, bookkeeping, website, and other general software doesn't count. | Yes |
   | Bank fees | Service charges, NSF and overdraft fees, returned-item and wire fees, less refunds of those fees | No |
-  | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans), SBA loans, and daily or weekly debits to an unnamed "… Funding" payee | No |
+  | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans), SBA loans, and payment debits to an unnamed "… Funding" payee | No |
 
 - **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate, in the review and on the Overview, waits for that number.
 
@@ -66,11 +66,11 @@ The review also points out:
 - **Possible cash advances.** Repeating identical debits to an unknown payee are flagged.
 - **Returned payments.** A payment that was returned unpaid isn't counted as a cost. If it was a lender's payment, the review says so.
 - **Settlements under the merchant's own name.** Some processors send deposits under the business's own name; these are counted as card deposits and flagged for the agent to confirm.
-- **Totals that don't add up.** The amounts read are checked against the statement's own deposit total and its beginning and ending balances. If they don't match (for example, a scan misread a digit), the review asks the agent to compare them with the statement.
+- **Totals that don't add up.** For a single statement, the amounts read are checked against the statement's own deposit total and its beginning and ending balances. If they don't match (for example, a scan misread a digit), the review asks the agent to compare them with the statement.
 
-When several monthly statements are uploaded together, the figures are averaged per month. The months come from the statement periods; the same period in two files (checking and savings) counts once, and a file that prints no period counts as one month. The AI reader follows the same rules.
+When several monthly statements are uploaded together, the figures are averaged per month. The months come from the statement periods; the same period in two files (checking and savings) counts once, and a bank statement file that prints no period counts as one month (or one per statement in it). Other files uploaded along with it, such as check images, add no months. The AI reader follows the same rules.
 
-A processing statement uploaded together with the bank statement is read as a processing statement. Volume, fees, and transactions come from it, and the bank statement's software, bank-fee, and cash-advance rows are listed underneath, unchecked. Checking a row adds it to Total Monthly Fees.
+A processing statement uploaded together with the bank statement, as a separate PDF, is read as a processing statement. Volume, fees, and transactions come from it, and the bank statement's software, bank-fee, and cash-advance rows are listed underneath, unchecked. Checking a row adds it to Total Monthly Fees. The bank statement's own flags (possible cash advances, returned lender payments, totals that don't add up) still show, marked "Bank statement:".
 
 **Bank statement accuracy.** Measured on 37 real bank statements (29 text PDFs, 8 scanned), against an answer key built by two independent readers and reconciled where they disagreed:
 
@@ -83,7 +83,7 @@ A processing statement uploaded together with the bank statement is read as a pr
 | Bank fees | 29 of 29 | 6 of 8 |
 | Cash advance / loan payments | 28 of 29 | 7 of 8 |
 
-The text-PDF misses are judgment calls: an equipment lease from an unnamed lessor, and two debits returned unpaid that the key counted anyway. On every text PDF that prints its balances, the transactions read reconcile to the cent. The scanned misses:
+The text-PDF misses are judgment calls: an equipment lease from an unnamed lessor, and two debits returned unpaid that the key counted anyway. On every text PDF whose beginning and ending balances the reader recognizes, the transactions read reconcile to the cent. The scanned misses:
 
 - A small fee printed too faintly to read.
 - Bank fees counted after the bank's refunds, which matches that statement's own service-charge total. The key counted them before the refunds.

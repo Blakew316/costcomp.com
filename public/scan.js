@@ -358,7 +358,8 @@
     ['merchant_name', 'legal_name', 'address', 'mid', 'processor', 'statement_period', 'volume', 'transactions', 'total_fees'].forEach(k => { if (out[k] == null || out[k] === '') out[k] = dev[k]; });
     if (!out.card_mix || !out.card_mix.length) out.card_mix = dev.card_mix;
     if (!out.interchange_lines || !out.interchange_lines.length) out.interchange_lines = dev.interchange_lines;
-    if (!out.bank && dev.bank && out.document_type === dev.document_type) out.bank = dev.bank;
+    // the on-device bank table stands in when the AI returned none; its volume and fees go with it, so the rows add up
+    if (!out.bank && dev.bank && out.document_type === dev.document_type) { out.bank = dev.bank; if (dev.document_type === 'bank_statement') { out.volume = dev.volume; out.total_fees = dev.total_fees; } }
     // Only show the on-device "Found:" line where both readers agree on the value
     out.evidence = {};
     const ev = dev.evidence || {};
@@ -412,7 +413,9 @@
     }
     if (!live()) return;
     // 1) Text PDFs: the on-device reader is instant and exact when it finds everything
-    const devUsable = dev && dev.textChars >= 80 && !images.length && !pdfErrors.length;
+    // several PDFs where one is a scan: the text read alone would leave that statement out
+    const scannedPdf = pdfReads.length > 1 && pdfReads.some(r => r.pages.every(pg => pageChars(pg) < 80));
+    const devUsable = dev && dev.textChars >= 80 && !images.length && !pdfErrors.length && !scannedPdf;
     if (devUsable && !opts.forceAi && !assess(dev).needsAi) {
       const canRecheck = await aiReady;
       if (live()) showReview(dev, files, { canRecheck });
@@ -622,10 +625,16 @@
       $('#scanMarkup', m).textContent = mk ? money(mk.markup) + '/mo' : '—';
       $('#scanMarkupSub', m).textContent = mk ? pct(mk.markupPct) + ' of volume · ' + (mk.mode === 'itemized' ? 'itemized' : 'estimated') : V > 0 && F != null && !(T > 0) ? 'Enter # of transactions' : 'vs. Appendix G cost';
     };
-    Object.values(inputs).forEach(i => i.addEventListener('input', () => { i.classList.remove('missing'); update(); }));
+    // Total Monthly Fees = a base (the statement's figure, or what the agent typed) + the checked bank rows
+    const checkedSum = () => Array.from(m.querySelectorAll('input[data-bank]:checked')).reduce((a, c) => a + perMonth((bank[c.dataset.bank] || {}).total), 0);
+    let feeBase = bank ? (num(inputs.fees.value) || 0) - checkedSum() : 0;
+    Object.values(inputs).forEach(i => i.addEventListener('input', () => {
+      i.classList.remove('missing');
+      if (i === inputs.fees && bank) feeBase = (num(i.value) || 0) - checkedSum();
+      update();
+    }));
     m.querySelectorAll('input[data-bank]').forEach(cb => cb.addEventListener('change', () => {
-      const delta = perMonth((bank[cb.dataset.bank] || {}).total) * (cb.checked ? 1 : -1);
-      const next = Math.max(0, (num(inputs.fees.value) || 0) + delta);
+      const next = Math.max(0, feeBase + checkedSum());
       inputs.fees.value = (Math.round(next * 100) / 100).toFixed(2); inputs.fees.classList.remove('missing'); update();
     }));
     loadTable().then(update).catch(update);
@@ -643,10 +652,11 @@
   function apply(r, v) {
     D.merchantName = v.name || '';
     D.address = v.address || '';
-    if (v.volume != null) D.volume = Math.round(v.volume * 100) / 100;
-    if (v.transactions != null) D.transactions = Math.round(v.transactions);
-    else { D.transactions = 0; D.avgTicket = 0; }   // not the previous merchant's count
-    if (v.fees != null) D.statementFees = Math.round(v.fees * 100) / 100;
+    // a field left blank starts this merchant at zero rather than keeping the previous merchant's figure
+    D.volume = v.volume > 0 ? Math.round(v.volume * 100) / 100 : 0;
+    if (v.transactions > 0) D.transactions = Math.round(v.transactions);
+    else { D.transactions = 0; D.avgTicket = 0; }
+    D.statementFees = v.fees > 0 ? Math.round(v.fees * 100) / 100 : 0;
     state.scan = { source: r.source, processor: r.processor, period: r.statement_period, card_mix: r.card_mix || [], interchange_lines: r.interchange_lines || [] };
     tray.length = 0;
     state.overrides = {};

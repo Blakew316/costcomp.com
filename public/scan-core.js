@@ -521,7 +521,7 @@
       return null;
     };
 
-    // 1) Fiserv mailing block: "[owner] / COLR637F 1101 8888 124<BUSINESS or STREET> / street / city" + "Location:" block
+    // 1) Fiserv mailing block: "[owner] / COLR000F 0000 0000 000<BUSINESS or STREET> / street / city" + "Location:" block
     if (fam === 'fiserv') {
       const ci = stream.findIndex(s => /^COLR\w*/i.test(s.raw));
       if (ci >= 0) {
@@ -630,7 +630,7 @@
       else if (below && /^United States$/i.test(below.raw) && !names.length) score -= 6;
       blocks.push({ score, street: stream[k].t, city, names, idx: i });
     }
-    // Inline "Address: 150 BENITO ST, SOLEDAD CA 93960"
+    // Inline "Address: 12 ELM ST, SPRINGFIELD TX 75001"
     stream.forEach((s, i) => {
       const inline = /^(?:Merchant )?Address\s*:\s*(.+)$/i.exec(s.raw);
       const labelOnly = /^(?:Merchant )?Address\s*:?$/i.test(s.raw);
@@ -714,12 +714,13 @@
   const CAPITAL_PROGRAMS = /\b(sq(uare)?\s*cap(ital)?|sq\s*cap\d+|(square|sq|toast|paypal|stripe|shopify|clover|spoton|amazon)\b[^|]{0,40}\b(loan\s*(pmt|payment|repay\w*)|capital\s*(rpmt|repay\w*|pmt|payment)|cap\s*(rpmt|repay\w*|pmt))|capital\s*(rpmt|repaymt|repayment)|sba\b[^|]{0,20}\bloan|eidl|toast\s*(cap(ital)?|loan)|paypal\s*(working\s*cap\w*|wc|loan|bus\w*\s*loan)|ppwc|shopify\s*cap(ital)?|stripe\s*(cap(ital)?|loan)|amazon\s*lending|clover\s*cap(ital)?|spoton\s*cap\w*|(sba|business|commercial\s*(bus\w*)?)\s*loan)\b/i;
   // a processor's own lending program: the capital word right after its name ("360 PAYMENTS CAPITAL"), not a
   // business name that happens to contain it ("BANKCARD-0000 MTOT DISC … CAPITAL PLUMBING")
-  const PROCESSOR_CAPITAL = /\b(square|sq|toast|clover|stripe|shopify|spoton|paypal|360\s*payments|heartland|intuit|quickbooks|elavon|fiserv|first\s*data|worldpay|payroc|shift\s*4|tekmetric)\s*(cap|capital)\b/i;
-  const PAYROLL = /\b(payroll|gusto|paychex|adp\s*(payroll|wage|tax))\b/i;
+  const PROCESSOR_CAPITAL = /\b(square|sq|toast|clover|stripe|shopify|spoton|paypal|360\s*payments|heartland|intuit|quickbooks|elavon|fiserv|first\s*data|worldpay|payroc|shift\s*4|tekmetric)\s*(inc\s+)?(cap|capital)\b|\b(des|descr)\s*:\s*(sq\s*|loan\s*)?(cap|capital)\b/i;
+  // a processor's payroll product ("SQUARE PAYROLL FEE", "Square Inc Sq260801 Payroll"), not a holder name that contains "Payroll"
+  const PAYROLL = /\b(square|sq|intuit|quickbooks|qb|heartland|toast|clover|spoton|shopify)(\s+inc)?(\s+(des\s*:?|sq\d{6}|co\s*entry\s*descr\s*:?))?\s*:?\s*payroll\b/i;
   const GENERIC_FUNDER = /\b(funding|fundng|fnd|fndg)\b|\b(merchant|business)\s+(advance|funding)\b|\bcap(ital)?\s+(funding|advance)\b/i;
   const FUNDER_PAYMENT = /\b(daily|weekly|dly|wkly|pmt|payment|pymt|debit|remit\w*|ach)\b/i;
   const NOT_FUNDER = /\b(payroll|adp|gusto|paychex|intuit|tax|irs|401k|retirement|insurance|refund|mtg|mortgage|home\s*loan|student|fingerhut|auto\s*loan)\b/i;
-  const SOFTWARE_FEES = /\b((toast|clover|square|sq|spoton|shift\s*4|heartland|skytab|harbortouch|lightspeed|shopify|stripe|paypal|ncr|aloha|revel|touchbistro|upserve|lavu|shopkeep|linga|epos\s*now|posist|mindbody|vagaro|clover\s*go)\b[^|]{0,30}\b(subscr\w*|software|saas|app|apps|plan|pos|monthly|service\s*plan|hardware)|app\s*market|toast\s*subscr\w*|tekmetric|shopmonkey|shop[-\s]?ware|mitchell\s*1|clover\s*(app|plan|software|service\s*plan|fees?)|lightspeed|revel\s*systems|touchbistro|upserve|lavu|shopkeep|stripe\s*billing|sq\s*subscr\w*|authorize\.?net|authnet|usa\s*e\s*pay|nmi\s*(gateway|fee|billing)|network\s*merchants|bambora|payeezy|payjunction|cybersource|(payment\s*)?gateway\s*(fees?|monthly|billing|svc|service)|(pos|terminal|card\s*machine|credit\s*card|merchant)\s*(equip\w*\s*)?(rent\w*|lease|leasing)|northern\s*leasing|timepayment\w*|time\s*payment\s*corp|leaf\s*(fin\w*|comm\w*|cap\w*)|first\s*data\s*global\s*leas\w*|fdgl|ctc\s*leasing|global\s*leasing|merchant\s*leasing|pos\s*lease)\b/i;
+  const SOFTWARE_FEES = /\b((toast|clover|square|sq|spoton|shift\s*4|heartland|skytab|harbortouch|lightspeed|shopify|stripe|paypal|ncr|aloha|revel|touchbistro|upserve|lavu|shopkeep|linga|epos\s*now|posist|mindbody|vagaro|clover\s*go)\b[^|]{0,30}\b(subscr\w*|software|saas|app|apps|plan|pos|monthly|service\s*plan|hardware)|app\s*market|toast\s*subscr\w*|tekmetric|shopmonkey|shop[-\s]?ware|mitchell\s*1|clover\s*(app|plan|software|service\s*plan|fees?)|lightspeed|revel\s*systems|touchbistro|upserve|lavu|shopkeep|stripe\s*billing|sq\s*subscr\w*|authorize\.?net|authnet|usa\s*e\s*pay|nmi\s*(gateway|fee|billing)|network\s*merchants|bambora|payeezy|payjunction|cybersource|payment\s*gateway|gateway\s*fees?|(pos|terminal|card\s*machine|credit\s*card|merchant)\s*(equip\w*\s*)?(rent\w*|lease|leasing)|northern\s*leasing|timepayment\w*|time\s*payment\s*corp|leaf\s*(fin\w*|comm\w*|cap\w*)|first\s*data\s*global\s*leas\w*|fdgl|ctc\s*leasing|global\s*leasing|merchant\s*leasing|pos\s*lease)\b/i;
   const BANK_FEES = /\b(service\s*(charge|fee)s?|maint(enance)?\s*fee|monthly\s*(service\s*|maint\w*\s*|account\s*)?fee|account\s*(analysis\s*)?fee|analysis\s*(fee|charge|service)|nsf|non[-\s]?sufficient|insufficient\s*funds|overdraft|od\s*(fee|charge)|returned?\s*(deposit(ed)?\s*)?item\s*(fee|charge)|wire\s*(transfer\s*)?fee|(incoming|outgoing|domestic|intl|international)\s*wire\s*(transfer\s*)?(fee|charge)|atm\s*(fee|surcharge)|\batm\b[^|]{0,50}\bfee\b|stop\s*pay(ment)?|paper\s*statement\s*fee|cash\s*(handling|deposit|processing)\s*fee|cash\s*deposit\s*processing\s*fee|transactions?\s+fee|excess\s*(item|transaction|deposit)s?\s*fee|foreign\s*transaction\s*fee|foreign\s*atm|(atm|withdrawal|inquiry|transfer|xfer|deposit|item)\s+(fee|charge)|(od|overdraft|nsf)\s*(item\s*)?(fee|charge)|paid\s*item\s*fee|continuous\s*overdraft|extended\s*overdraft|item\s+returned\s+(fee|charge)|(svc|serv)\.?\s*(charge|chg|fee)s?)\b/i;
   // the bank's own fee even when the item it's charged on came from a processor ("OVERDRAFT ITEM FEE ... STRIPE TRANSFER")
   const STRONG_BANK_FEE = /\b(overdraft|od|nsf|non[-\s]?sufficient|insufficient\s+funds|return(ed)?\s+(deposit(ed)?\s+)?item|deposit(ed)?\s+item\s+return\w*|paid\s+item|item\s+returned)\b[^|]{0,30}\b(fee|charge|chg)\b|^\s*(monthly\s+)?(service|maintenance|maint)\s+(fee|charge)/i;
@@ -876,8 +877,8 @@
       if (descSeg && segs.length >= 2 && !tokens(l.text).some(t => t.k === 'money')) descCol = descSeg.x;
       let text = fixMinus(l.text).replace(/^((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?)\s*\|\s*(\d{1,2}\b)/i, '$1 $2')
         .replace(/^([A-Za-z0-9.=]+?(?:\s[A-Za-z0-9.]*=[A-Za-z0-9.=]*?)?)((?:1[0-2]|0?[1-9])\/(?:3[01]|[12]\d|0?[1-9])(?:\/\d{2,4})?)(?=\s|\||$)/,
-          (all, pre, d) => (/\d/.test(pre) && /[A-Za-z]/.test(pre) ? d : all))   // printer margin codes glued onto the date ("9999SAMPLE12/08/23", "12ABC2/14")
-        .replace(/(\d\.\d{2}-?)(?:SC|OD|NSF)\b/g, '$1');                          // "5.60-SC": a code after the amount
+          (all, pre, d) => (/\d/.test(pre) && /[A-Za-z]/.test(pre) ? d : all))   // printer margin codes glued onto the date ("9999SAMPLE01/02/24", "12ABC2/14")
+        .replace(/(\d\.\d{2}-?)(?:SC|OD|NSF)\b/g, '$1');                          // "4.25-SC": a code after the amount
       // the posting date in its own column after the description: read the row as if the date came first
       if (midDate != null && !TX_DATE.test(text)) {
         // OCR of typewriter fonts: "87/25" or "a7/31" for 07/.., and "33 28" for 33.28 in the amount column
@@ -1049,9 +1050,11 @@
     let months = rangeMonths(statementRanges(doc.full));
     const ids = Array.from(new Set(doc.all.map(l => l.doc)));
     ids.forEach(id => {
-      const lines = doc.all.filter(l => l.doc === id);
-      if (statementRanges(lines.map(l => l.text).join('\n')).length) return;
-      months += Math.max(1, lines.filter(l => FIRST_PAGE.test(l.text)).length);
+      const lines = doc.all.filter(l => l.doc === id), text = lines.map(l => l.text).join('\n');
+      if (statementRanges(text).length || !isBankStatement(text)) return;   // an extra non-statement file (check images, a fax) adds no month
+      // a "Page 1 of N" starts another statement only on a page that shows a balance (not a disclosure insert)
+      const starts = new Set(lines.filter(l => FIRST_PAGE.test(l.text)).map(l => l.page).filter(pg => lines.some(l => l.page === pg && BANK_MARKERS[0].test(l.text) || l.page === pg && BANK_MARKERS[1].test(l.text))));
+      months += Math.max(1, starts.size);
     });
     return Math.max(1, months);
   }
@@ -1079,9 +1082,11 @@
     });
     // A bank fee refunded as a lump ("NSF FEE REFUND" for two of three NSF fees) comes off the bank fees, when it names
     // the kind of fee and this statement charged at least that much of it (a bare "FEE REVERSAL" may be last month's)
-    const feeKind = d => (d.toLowerCase().match(/\b(nsf|overdraft|od|service|maint\w*|wire|atm|return\w*|paper|stop|analysis|excess)\b/g) || []).map(w => w.replace(/^(return|maint)\w*/, '$1'));
-    txs.filter(t => t.dir === 'credit' && !t.netted && (BANK_FEES.test(t.desc) || STRONG_BANK_FEE.test(t.desc)) && !bankSource(t.desc) &&
-      (RETURNED_PAYMENT.test(t.desc) || /\b(rebate|waived?|courtesy)\b/i.test(t.desc))).forEach(cr => {
+    const KIND = { od: 'overdraft', insufficient: 'nsf', 'non-sufficient': 'nsf', nonsufficient: 'nsf', maint: 'service', maintenance: 'service' };
+    const feeKind = d => (d.toLowerCase().match(/\b(nsf|non-?sufficient|insufficient|overdraft|od|service|maint(enance)?|wire|atm|returned?\s+(deposit(ed)?\s+)?item|paper|stop|analysis|excess)\b/g) || [])
+      .map(w => KIND[w] || (/^return/.test(w) ? 'returned item' : w));
+    const FEE_REFUND = /\b(fees?|charges?|chg|svc)\b[^|]{0,20}\b(refund\w*|reversal|revers\w*|rebate|waived?|credit)\b|\b(refund|reversal|rebate)\s+(of\s+)?[^|]{0,20}\b(fees?|charges?)\b/i;
+    txs.filter(t => t.dir === 'credit' && !t.netted && FEE_REFUND.test(t.desc) && !bankSource(t.desc)).forEach(cr => {
       const kinds = feeKind(cr.desc);
       const charged = txs.filter(t => t.dir === 'debit' && t.category === 'misc_fee' && feeKind(t.desc).some(k => kinds.includes(k))).reduce((a, t) => a + t.amount, 0);
       if (kinds.length && charged >= cr.amount - 0.005) { cr.category = 'misc_fee'; cr.refund = true; cr.source = result.processor || 'The bank'; }
@@ -1491,6 +1496,8 @@
           proc.warnings.push('A bank statement was uploaded too. Volume, fees and transactions come from the processing statement; the bank statement’s costs are listed above' +
             (b.months > 1 ? ' (monthly average of ' + b.months + ' statements)' : '') + ' — check a row to add it to Total Monthly Fees.');
           if (b.mca_payments.count) proc.warnings.push('The bank statement shows cash advance / loan payments of $' + per(b.mca_payments.total).toFixed(2) + ' a month to ' + b.mca_payments.sources.map(x => x.name).join(', ') + '.');
+          // the bank statement's own flags still apply: possible advances, returned lender payments, totals that don't add up, own-name settlements
+          bankRes.warnings.filter(w => /may be a cash advance|returned unpaid|misread|business’s own name/.test(w)).forEach(w => proc.warnings.push('Bank statement: ' + w));
           return proc;
         }
         // not a readable processing statement after all: read everything together, as one bank statement upload
