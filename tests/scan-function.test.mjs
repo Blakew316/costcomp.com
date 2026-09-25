@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 
 const EXTRACTED = {
-  merchant_name: 'Sample Cafe', legal_name: 'Sample Holdings LLC',
+  is_statement: true, merchant_name: 'Sample Cafe', legal_name: 'Sample Holdings LLC',
   address: { street: '100 Main St', city: 'Austin', state: 'TX', zip: '78701' },
   mid: '5544000000000000', processor: 'Example Processor', statement_period: '07/01/26 - 07/31/26',
   volume: 25000, refunds: 0, transactions: 500, transactions_derived: false, total_fees: 780.5,

@@ -4,16 +4,36 @@ The cost comparison tool deployed at wpicostcomp.com. Site files live in `public
 
 ## Scan Statement
 
-Agents click **Scan Statement** in the header (or drag a PDF onto the page), pick the merchant's statement, review what was read, and click **Apply & Generate Analysis**. The merchant name, address, monthly volume, transaction count, and total fees are filled in, and the Overview, Proposal, and Equipment tabs update automatically. On phones the button offers the camera, so a paper statement can be photographed page by page.
+Agents click **Scan Statement** in the header and choose how the statement arrived:
 
-Two readers are built in:
+- **PDF Statement**: the PDF the merchant downloaded or emailed (text or scanned).
+- **Statement Photos**: phone photos of the paper statement, one per page. Select all the pages at once. A page tray shows thumbnails so the agent can put the summary page first, remove a bad shot, or add a missed page before reading.
+- **Take Photos** (phones and tablets): opens the back camera, one page at a time, into the same tray.
+
+PDFs or photos can also be dragged onto the page. After reading, a review window shows what was found (with the photos alongside, tap one to compare), and **Apply & Generate Analysis** fills in the merchant name, address, monthly volume, transaction count, and total fees. The Overview, Proposal, and Equipment tabs then update automatically.
+
+Three readers are built in:
 
 | Reader | Handles | Needs |
 | --- | --- | --- |
-| On-device (`public/scan-core.js`) | Downloaded or emailed PDF statements that contain text. Instant, free, and the statement never leaves the device. Tested on 87 real statements from Payroc, Fiserv/First Data (Clover, CardPointe, eCrypt, AppStar), North, TSYS/Paysafe, Clover billing, Toast, SpotOn, Shift4, and U.S. Bank. | Nothing |
-| AI (`netlify/functions/scan-statement.mts`) | Photos, scanned (image-only) PDFs, and any layout the on-device reader can't fully read. Uses Claude via the Anthropic API. | `ANTHROPIC_API_KEY` set in Netlify |
+| On-device text reader (`public/scan-core.js`) | Downloaded or emailed PDF statements that contain text. Instant and exact. Tested on 87 real statements from Payroc, Fiserv/First Data (Clover, CardPointe, eCrypt, AppStar), North, TSYS/Paysafe, Clover billing, Toast, SpotOn, Shift4, and U.S. Bank. | Nothing |
+| On-device photo reader (Tesseract.js OCR in `public/scan.js`) | Photos and scanned (image-only) PDFs, read in the browser. Straightens tilted photos and turns sideways or upside-down pages. Also reads Worldpay, Worldpay Integrated Payments, and Square sales summaries. The first use downloads about 3 MB from jsDelivr; after that it's cached. | Nothing |
+| AI reader (`netlify/functions/scan-statement.mts`) | Photos, scans, and any layout the on-device readers can't fully read. Uses Claude via the Anthropic API. Recognizes uploads that aren't statements (an ID, a check) and never transcribes personal identifiers. | `ANTHROPIC_API_KEY` set in Netlify |
 
-The page reads PDFs on-device first and only calls the AI reader when a photo or scan is uploaded or the on-device read is incomplete. When the AI reader is configured, the review window also offers **Double-check with AI**. If the AI reader is unavailable, the page keeps working with the on-device reader.
+How a scan is routed:
+
+1. A text PDF that the on-device reader reads completely is shown right away. When the AI reader is configured, the review also offers **Double-check with AI**.
+2. Photos, scans, and incomplete reads go to the AI reader when the site has one.
+3. Otherwise, or if the AI reader fails, the on-device photo reader handles them. The review then says the numbers were read from photos and asks the agent to compare them with the photos before applying.
+
+Photos that aren't a statement are rejected with a clear message. So are statements too blurry or low-resolution to read, with a note to retake the photos or rescan at 200 dpi or higher.
+
+**Photo accuracy (on-device, no AI).** Tested on the sample photo sets and scanned PDFs, 35 uploads in all:
+
+- Fully legible uploads (every statement page, in focus) read correctly or within a few cents. Examples: Fiserv, TSYS, Toast, Worldpay, Worldpay Integrated Payments (a 9-page statement), Shift4, Clover billing, U.S. Bank, and Square.
+- Partial uploads (only a fees page, a cropped screenshot) and very low-resolution faxes can't be read on-device. The agent is told so and can enter the numbers or use the AI reader.
+
+For the most reliable photo reads, turn on the AI reader (see below).
 
 ## Markup vs. Appendix G
 
@@ -37,15 +57,15 @@ The site was previously deployed by drag-and-drop, which serves static files onl
 
 Netlify functions stop after 60 seconds, so the AI reader asks for compact output and gives up at 50 seconds. On a timeout, the page falls back to the on-device reader, or asks for just the summary pages.
 
-Drag-and-drop deploys still work: drag the `public` folder. The on-device reader and markup analysis work there; photos and scanned PDFs need the AI reader.
+Drag-and-drop deploys still work: drag the `public` folder. Both on-device readers and the markup analysis work there. Only the AI reader needs the Git-linked deploy.
 
-**Privacy:** the on-device reader never uploads the statement. The AI reader sends the statement through the Netlify Function to the Anthropic API for that one request; nothing is stored by the site.
+**Privacy:** the on-device readers, including the photo reader, never upload the statement; photos are read in the browser. The AI reader sends the statement through the Netlify Function to the Anthropic API for that one request. The site stores nothing.
 
 ## Development
 
 ```bash
 npm install
-npm test        # parser, Appendix G matching, markup math, and the function (against a mock API)
+npm test        # parser, OCR line building, Appendix G matching, markup math, and the function (against a mock API)
 ```
 
 Serve `public/` with any static server for the on-device reader, or use `netlify dev` to run the function locally.

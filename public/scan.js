@@ -4,17 +4,26 @@
    the numbers, fills the comparison, and shows the current processor's
    markup against the Appendix G interchange schedule.
    Engines:  on-device (PDF.js text + ScanCore parser, instant, free)
-             AI (/api/scan-statement Netlify Function, photos & scans)
+             on-device OCR (Tesseract.js) for photos and scanned PDFs
+             AI (/api/scan-statement Netlify Function), preferred for photos when configured
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
   const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/';
+  const TESS = {
+    script: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+    workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+    corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',
+    langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int'
+  };
+  const OCR_LONG_EDGE = 2400;      // ~300 dpi for a letter page
+  const OCR_MAX_PAGES = 12;
   const API = '/api/scan-statement';
   const UPLOAD_BUDGET = 4200000;   // raw bytes; base64 inflates ~33% and Netlify accepts ~6 MB
   const AI_TIMEOUT_MS = 58000;
 
   const state = { scan: null, overrides: {}, table: null, signature: '' };
-  let pdfjsPromise = null, tablePromise = null, aiPromise = null;
+  let pdfjsPromise = null, tablePromise = null, aiPromise = null, tessPromise = null;
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -109,6 +118,151 @@
     return canvasToJpeg(c, quality);
   }
 
+  // ───────────── On-device OCR (photos & scanned PDFs) ─────────────
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const el = document.createElement('script');
+      el.src = src; el.async = true;
+      el.onload = resolve; el.onerror = () => reject(new Error('Could not load ' + src));
+      document.head.appendChild(el);
+    });
+  }
+  function loadTesseract() {
+    if (!tessPromise) {
+      tessPromise = (window.Tesseract ? Promise.resolve() : loadScript(TESS.script)).then(() => window.Tesseract)
+        .catch(err => { tessPromise = null; throw err; });
+    }
+    return tessPromise;
+  }
+  async function createOcrWorker(onProgress) {
+    const T = await loadTesseract();
+    const worker = await T.createWorker('eng', 1, {
+      workerPath: TESS.workerPath, corePath: TESS.corePath, langPath: TESS.langPath,
+      logger: m => { if (onProgress && m && m.status === 'recognizing text') onProgress(m.progress || 0); }
+    });
+    // Sparse-text mode finds table cells and shaded rows that page layout analysis skips
+    await worker.setParameters({ tessedit_pageseg_mode: '11', preserve_interword_spaces: '1', user_defined_dpi: '300' });
+    return worker;
+  }
+  function decodeImage(file) {
+    const url = URL.createObjectURL(file);
+    return new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve({ img: i, url });
+      i.onerror = () => { URL.revokeObjectURL(url); reject(Object.assign(new Error('This browser could not open ' + file.name + (/\.hei[cf]$/i.test(file.name) ? ' (HEIC photo). Save it as JPEG, or use Safari.' : '.')), { code: 'decode' })); };
+      i.src = url;
+    });
+  }
+  // Scale to ~300 dpi and convert to "brightest channel" gray: colored highlight rows turn light, ink stays dark
+  function ocrCanvas(source, w, h) {
+    const scale = Math.min(3, OCR_LONG_EDGE / Math.max(w, h));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * scale)); c.height = Math.max(1, Math.round(h * scale));
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source, 0, 0, c.width, c.height);
+    const im = ctx.getImageData(0, 0, c.width, c.height), d = im.data;
+    for (let i = 0; i < d.length; i += 4) { const v = Math.max(d[i], d[i + 1], d[i + 2]); d[i] = d[i + 1] = d[i + 2] = v; }
+    ctx.putImageData(im, 0, 0);
+    return c;
+  }
+  async function pdfPageCanvas(pdf, n) {
+    const page = await pdf.getPage(n);
+    const vp1 = page.getViewport({ scale: 1 });
+    const scale = OCR_LONG_EDGE / Math.max(vp1.width, vp1.height);
+    const vp = page.getViewport({ scale });
+    const c = document.createElement('canvas');
+    c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    return ocrCanvas(c, c.width, c.height);
+  }
+  function rotateCanvas(src, deg) {
+    const c = document.createElement('canvas');
+    const quarter = deg % 180 !== 0;
+    c.width = quarter ? src.height : src.width; c.height = quarter ? src.width : src.height;
+    const ctx = c.getContext('2d');
+    ctx.translate(c.width / 2, c.height / 2);
+    ctx.rotate(deg * Math.PI / 180);
+    ctx.drawImage(src, -src.width / 2, -src.height / 2);
+    return c;
+  }
+  async function recognizePage(worker, canvas) {
+    const { data } = await worker.recognize(canvas, {}, { blocks: true });
+    const lines = [];
+    (data.blocks || []).forEach(b => (b.paragraphs || []).forEach(p => (p.lines || []).forEach(l => lines.push({
+      baseline: l.baseline, words: (l.words || []).map(w => ({ t: w.text, b: w.bbox, c: w.confidence }))
+    }))));
+    const ocr = { width: canvas.width, height: canvas.height, conf: data.confidence, lines };
+    ocr.quality = ScanCore.ocrQuality(ocr);
+    return ocr;
+  }
+  // OCR one page; if it reads like noise, the page is probably upside down (scanners) or sideways (photos)
+  const weakRead = q => q.all >= 20 && q.ratio < 0.5;
+  async function ocrPage(worker, canvas, onRotate) {
+    let best = await recognizePage(worker, canvas);
+    if (!weakRead(best.quality)) return best;
+    for (const deg of [180, 90, 270]) {
+      if (onRotate) onRotate();
+      const r = await recognizePage(worker, rotateCanvas(canvas, deg));
+      if (r.quality.good > Math.max(10, best.quality.good * 1.5)) best = r;
+      if (!weakRead(best.quality) && best.quality.good >= 25) break;
+    }
+    return best;
+  }
+  // Read photos and scanned PDF pages on this device
+  async function ocrFiles(files, pdfReads, live, onStatus) {
+    const jobs = [];
+    files.forEach(f => {
+      if (isPdf(f)) {
+        const read = pdfReads.find(r => r.file === f);
+        if (!read) return;
+        for (let p = 1; p <= read.pdf.numPages; p++) {
+          // Pages that already carry text are used as-is; only image pages are OCR'd
+          const pg = read.pages[p - 1];
+          const chars = pg ? pg.lines.reduce((a, l) => a + l.text.replace(/[\s|]/g, '').length, 0) : 0;
+          jobs.push(chars >= 80 ? { text: pg } : { pdf: read.pdf, page: p });
+        }
+      } else jobs.push({ file: f });
+    });
+    const textJobs = jobs.filter(j => j.text).length;
+    const total = Math.min(jobs.length - textJobs, OCR_MAX_PAGES);
+    let current = 0, rotating = false;
+    onStatus(0, total, 0);
+    const worker = total ? await createOcrWorker(p => onStatus(current, total, p, rotating)) : null;
+    const pages = [];
+    try {
+      let n = 0;
+      for (const job of jobs) {
+        if (!live()) break;
+        if (job.text) { pages.push(job.text); continue; }
+        if (n >= total) continue;
+        current = ++n; rotating = false;
+        onStatus(current, total, 0);
+        let canvas;
+        if (job.pdf) canvas = await pdfPageCanvas(job.pdf, job.page);
+        else {
+          const { img, url } = await decodeImage(job.file);
+          try { canvas = ocrCanvas(img, img.naturalWidth, img.naturalHeight); } finally { URL.revokeObjectURL(url); }
+        }
+        const ocr = await ocrPage(worker, canvas, () => { rotating = true; onStatus(current, total, 0, true); });
+        pages.push(ScanCore.buildPageLinesFromOcr(ocr));
+      }
+    } finally { if (worker) worker.terminate().catch(() => null); }
+    const r = ScanCore.parseStatement(pages, { table: await loadTable().catch(() => null) });
+    r.source = 'ocr';
+    // statement vocabulary, to tell an unreadable statement from a photo of something else
+    const words = pages.map(pg => pg.lines.map(l => l.text).join(' ')).join(' ').match(/\b(merchant|statement|visa|mastercard|discover|amex|deposits?|interchange|fees|chargebacks?|batch|processing)\b/gi) || [];
+    r.vocab = new Set(words.map(w => w.toLowerCase().replace(/s$/, ''))).size;
+    if (jobs.length - textJobs > OCR_MAX_PAGES) r.warnings.push('Only the first ' + OCR_MAX_PAGES + ' pages were read.');
+    return r;
+  }
+  function looksLikeStatement(r) {
+    return Boolean(r && (r.volume > 0 || r.total_fees > 0 || (r.card_mix || []).length || (r.family && r.family !== 'generic')));
+  }
+
   // Build the upload for the AI reader within the request budget
   async function buildUpload(files, pdfReads) {
     const out = [];
@@ -187,11 +341,14 @@
     });
   }
 
+  let scanSeq = 0;   // bumped by every new scan and by Cancel, so a stale scan never reopens a window
   async function scanFiles(fileList, opts) {
     opts = opts || {};
+    const my = ++scanSeq, live = () => my === scanSeq;
     const files = Array.from(fileList || []).filter(f => isPdf(f) || isImage(f));
     if (!files.length) { showError('Choose a PDF statement or photos of the statement pages.'); return; }
-    showProgress('Reading statement…', files.length > 1 ? files.length + ' files' : files[0].name);
+    const images = files.filter(f => !isPdf(f));
+    showProgress(images.length ? 'Preparing ' + (images.length === 1 ? 'photo' : images.length + ' photos') + '…' : 'Reading statement…', files.length > 1 ? files.length + ' files' : files[0].name);
     const aiReady = aiAvailable();
     loadTable().catch(() => null);
     let dev = null, pdfReads = [];
@@ -205,34 +362,59 @@
     } catch (err) {
       console.warn('On-device read failed', err);
     }
-    const hasImages = files.some(f => !isPdf(f));
-    const devUsable = dev && dev.textChars >= 80 && !hasImages;
-    const check = devUsable ? assess(dev) : { needsAi: true, missing: [] };
-    const useAi = opts.forceAi || check.needsAi;
-    if (!useAi) { showReview(dev, files, { canRecheck: await aiReady }); return; }
-
-    if (!(await aiReady)) {
-      if (devUsable) {
-        dev.warnings.unshift('Some details could not be read automatically — please fill in any highlighted fields.');
-        showReview(dev, files, { canRecheck: false });
-      } else {
-        showError(hasImages
-          ? 'Reading photos needs the AI reader, which is not set up on this site yet. Upload the statement PDF instead, or enter the numbers by hand.'
-          : 'This PDF is a scanned image with no readable text. The AI reader can read it once it is set up on this site — until then, enter the numbers by hand.', { files });
-      }
+    if (!live()) return;
+    // 1) Text PDFs: the on-device reader is instant and exact when it finds everything
+    const devUsable = dev && dev.textChars >= 80 && !images.length;
+    if (devUsable && !opts.forceAi && !assess(dev).needsAi) {
+      const canRecheck = await aiReady;
+      if (live()) showReview(dev, files, { canRecheck });
       return;
     }
-    showProgress('Analyzing statement with AI…', 'Reading every page — this usually takes 15–40 seconds.');
+
+    // 2) AI reader (preferred for photos, scans, and incomplete reads) when this site has it
+    let aiError = null;
+    if (await aiReady) {
+      if (!live()) return;
+      showProgress('Analyzing ' + (images.length ? (images.length === 1 ? 'photo' : images.length + ' photos') : 'statement') + ' with AI…', 'Reading every page — this usually takes 15–40 seconds.');
+      try {
+        const upload = await buildUpload(files, pdfReads);
+        const raw = await callAi(upload);
+        if (!live()) return;
+        if (raw && raw.is_statement === false) { showNotStatement(files, (raw.notes || []).join(' ')); return; }
+        showReview(merge(fromAi(raw), devUsable ? dev : null), files, { canRecheck: false });
+        return;
+      } catch (err) {
+        console.warn('AI read failed', err);
+        aiError = err;
+      }
+      if (!live()) return;
+    }
+    if (devUsable) {
+      dev.warnings.unshift(aiError ? 'AI reader unavailable (' + aiError.message + ') — showing on-device results.' : 'Some details could not be read automatically — please fill in any highlighted fields.');
+      showReview(dev, files, { canRecheck: false });
+      return;
+    }
+
+    // 3) On-device OCR for photos and scanned PDFs
+    const kind = images.length ? 'photo' : 'page';
     try {
-      const upload = await buildUpload(files, pdfReads);
-      const ai = fromAi(await callAi(upload));
-      showReview(merge(ai, devUsable ? dev : null), files, { canRecheck: false });
+      const r = await ocrFiles(files, pdfReads, live, (i, n, p, rotating) => {
+        if (!live()) return;
+        const msg = i === 0 ? 'Loading the on-device reader…' : rotating ? kind[0].toUpperCase() + kind.slice(1) + ' ' + i + ' looks rotated — turning it upright…' : 'Reading ' + kind + ' ' + i + ' of ' + n + ' on this device… ' + Math.round(p * 100) + '%';
+        setProgress(msg, i === 0 ? 'First use downloads about 3 MB; after that it works offline.' : 'Photos are read in your browser — nothing is uploaded.');
+      });
+      if (!live()) return;
+      if (!looksLikeStatement(r)) {
+        if (r.vocab >= 2) showError('This looks like a statement, but the totals could not be read on this device. ' + (images.length ? 'Retake the photos flat, in focus, and well lit, with the summary page included' : 'The scan is too low-resolution; rescan it at 200 dpi or higher') + ' — or enter the numbers manually.', { files });
+        else showNotStatement(files, '');
+        return;
+      }
+      r.warnings.unshift('Read from ' + (images.length ? 'photos' : 'a scanned PDF') + ' on this device. Compare the numbers with the ' + (images.length ? 'photos' : 'statement') + ' before applying' + (aiError ? ' (AI reader unavailable: ' + aiError.message + ')' : '') + '.');
+      showReview(r, files, { canRecheck: false });
     } catch (err) {
-      console.warn('AI read failed', err);
-      if (devUsable) {
-        dev.warnings.unshift('AI reader unavailable (' + err.message + ') — showing on-device results.');
-        showReview(dev, files, { canRecheck: false });
-      } else showError(err.message || 'Could not read this statement.', { files });
+      console.warn('On-device OCR failed', err);
+      if (!live()) return;
+      showError((aiError ? aiError.message + ' ' : '') + (err.code === 'decode' ? err.message : 'The on-device reader could not read these ' + kind + 's (' + err.message + ').'), { files });
     }
   }
 
@@ -249,22 +431,55 @@
     return overlay.firstChild;
   }
   function closeModal() {
-    if (overlay) { overlay.remove(); overlay = null; }
+    if (overlay) { (overlay._urls || []).forEach(u => URL.revokeObjectURL(u)); overlay.remove(); overlay = null; }
+    const lb = document.querySelector('.scan-lightbox'); if (lb) lb.remove();
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) { /* ignore */ } }
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay && !overlay.dataset.busy) closeModal(); });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const lb = document.querySelector('.scan-lightbox');
+    if (lb) { lb.remove(); return; }
+    if (overlay && !overlay.dataset.busy) closeModal();
+  });
+  // Full-size photo on top of the review window, to check numbers against the page
+  function showPhoto(url, n) {
+    const lb = document.createElement('div');
+    lb.className = 'scan-lightbox';
+    lb.innerHTML = '<div class="scan-lightbox-bar"><span>Page ' + n + '</span><button type="button" aria-label="Close photo">&times;</button></div><img alt="Statement page ' + n + '">';
+    lb.querySelector('img').src = url;
+    lb.addEventListener('click', e => { if (e.target === lb || e.target.closest('button')) lb.remove(); });
+    document.body.appendChild(lb);
+  }
 
   function showProgress(msg, sub) {
-    const m = openModal('<h2 id="scanTitle" style="text-align:center">Scan Statement</h2><div class="scan-progress"><div class="scan-spinner"></div><div class="scan-progress-msg">' + esc(msg) + '</div><div class="scan-progress-sub">' + esc(sub || '') + '</div></div>');
+    const m = openModal('<h2 id="scanTitle" style="text-align:center">Scan Statement</h2><div class="scan-progress"><div class="scan-spinner"></div><div class="scan-progress-msg" role="status">' + esc(msg) + '</div><div class="scan-progress-sub">' + esc(sub || '') + '</div></div>' +
+      '<div class="scan-actions scan-actions-center"><button type="button" data-act="stop">Cancel</button></div>');
     overlay.dataset.busy = '1';
+    m.querySelector('[data-act="stop"]').onclick = () => { scanSeq++; closeModal(); };
     return m;
+  }
+  function setProgress(msg, sub) {
+    const m = overlay && overlay.querySelector('.scan-progress-msg');
+    if (!m) { showProgress(msg, sub); return; }
+    m.textContent = msg;
+    const s2 = overlay.querySelector('.scan-progress-sub'); if (s2 && sub != null) s2.textContent = sub;
   }
   function showError(msg, opts) {
     opts = opts || {};
     const m = openModal('<h2 id="scanTitle">Scan Statement</h2><div class="scan-error" style="margin-top:0.75rem">' + esc(msg) + '</div>' +
-      '<div class="scan-actions"><button type="button" data-act="manual">Enter Manually</button><button type="button" class="primary" data-act="retry">Choose Another File</button></div>');
+      '<div class="scan-actions"><button type="button" data-act="manual">Enter Manually</button><button type="button" class="primary" data-act="retry">Try Again</button></div>');
     m.querySelector('[data-act="manual"]').onclick = closeModal;
-    m.querySelector('[data-act="retry"]').onclick = () => { closeModal(); pickFiles(); };
+    const photos = (opts.files || []).some(f => !isPdf(f));
+    m.querySelector('[data-act="retry"]').onclick = () => (photos && tray.length ? openTray() : openChooser());
+  }
+  function showNotStatement(files, note) {
+    const photos = files.some(f => !isPdf(f));
+    const m = openModal('<h2 id="scanTitle">Scan Statement</h2><div class="scan-error" style="margin-top:0.75rem"><strong>This doesn\u2019t look like a merchant processing statement.</strong><br>' +
+      (note ? esc(note) + '<br>' : '') +
+      (photos ? 'Make sure each photo shows a full statement page — flat, in focus, and well lit — with the summary page included.' : 'Choose the merchant\u2019s card-processing statement.') + '</div>' +
+      '<div class="scan-actions"><button type="button" data-act="manual">Enter Manually</button><button type="button" class="primary" data-act="retry">Try Again</button></div>');
+    m.querySelector('[data-act="manual"]').onclick = closeModal;
+    m.querySelector('[data-act="retry"]').onclick = () => (photos ? openTray() : openChooser());
   }
 
   const BRAND = { visa: 'Visa', mastercard: 'Mastercard', discover: 'Discover', amex: 'American Express', pin_debit: 'PIN Debit', ebt: 'EBT', other: 'Other', visa_mc_discover: 'Visa / MC / Discover' };
@@ -287,11 +502,16 @@
       '<div class="table-container" style="margin-top:0.4rem"><table><thead><tr><th>Card</th><th style="text-align:right">Volume</th><th style="text-align:right">Txns</th></tr></thead><tbody>' +
       mix.map(x => '<tr><td>' + esc((BRAND[x.brand] || x.brand) + (x.type && x.type !== 'unknown' && x.brand !== 'pin_debit' && x.brand !== 'ebt' ? ' ' + x.type : '')) + '</td><td class="num">' + money(x.volume) + '</td><td class="num">' + (x.count != null ? Number(x.count).toLocaleString('en-US') : '—') + '</td></tr>').join('') +
       '</tbody></table></div></details>' : '';
-    const src = r.source === 'ai' ? '<span class="scan-badge ai">Read by AI</span>' : '<span class="scan-badge">Read on-device</span>';
+    const src = r.source === 'ai' ? '<span class="scan-badge ai">Read by AI</span>'
+      : r.source === 'ocr' ? '<span class="scan-badge ocr">Read from ' + (files.some(f => !isPdf(f)) ? 'photos' : 'scan') + ' on-device</span>'
+      : '<span class="scan-badge">Read on-device</span>';
+    const photoFiles = files.filter(f => !isPdf(f));
+    const thumbs = photoFiles.length ? '<div class="scan-thumbs" aria-label="Statement photos">' + photoFiles.map((f, i) =>
+      '<a href="#" data-photo="' + i + '" title="Open page ' + (i + 1) + ' to compare"><img alt="Page ' + (i + 1) + '" data-thumb="' + i + '"><span>' + (i + 1) + '</span></a>').join('') + '<span class="scan-thumbs-hint">Tap a page to compare</span></div>' : '';
     const sub = [r.processor, r.statement_period, files.length === 1 ? files[0].name : files.length + ' files'].filter(Boolean).map(esc).join(' · ');
     const m = openModal(
       '<h2 id="scanTitle">Review Scanned Statement</h2>' +
-      '<div class="scan-sub">' + src + '<span>' + sub + '</span></div>' +
+      '<div class="scan-sub">' + src + '<span>' + sub + '</span></div>' + thumbs +
       '<div class="scan-fields">' +
       field('scanName', 'Merchant', name, { full: true, extra: legal ? '<div class="scan-alt">Legal name: ' + esc(legal) + ' · <button type="button" data-use="' + esc(legal) + '">use this</button></div>' : '' }) +
       field('scanAddr', 'Address', r.address || '', { full: true }) +
@@ -308,6 +528,13 @@
       '<span class="spacer"></span><button type="button" data-act="cancel">Cancel</button><button type="button" class="primary" data-act="apply">Apply &amp; Generate Analysis</button></div>'
     );
     const inputs = { name: $('#scanName', m), addr: $('#scanAddr', m), vol: $('#scanVol', m), txn: $('#scanTxn', m), fees: $('#scanFees', m) };
+    if (photoFiles.length) {
+      const urls = photoFiles.map(f => URL.createObjectURL(f));
+      m.querySelectorAll('img[data-thumb]').forEach(img => { img.src = urls[+img.dataset.thumb]; });
+      m.querySelectorAll('a[data-photo]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); showPhoto(urls[+a.dataset.photo], +a.dataset.photo + 1); }));
+      overlay.dataset.urls = '1';
+      overlay._urls = urls;
+    }
     const altBtn = m.querySelector('[data-use]');
     if (altBtn) altBtn.onclick = () => { inputs.name.value = altBtn.dataset.use; inputs.name.classList.remove('missing'); };
     const update = () => {
@@ -338,6 +565,7 @@
     if (v.transactions != null) D.transactions = Math.round(v.transactions);
     if (v.fees != null) D.statementFees = Math.round(v.fees * 100) / 100;
     state.scan = { source: r.source, processor: r.processor, period: r.statement_period, card_mix: r.card_mix || [], interchange_lines: r.interchange_lines || [] };
+    tray.length = 0;
     state.overrides = {};
     state.signature = '';
     closeModal();
@@ -443,20 +671,94 @@
     document.getElementById('mkNotes').textContent = notes.join(' ');
   }
 
-  // ───────────── Entry points ─────────────
-  let input = null;
-  function pickFiles() {
-    if (!input) {
-      input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/pdf,.pdf,image/*';
-      input.multiple = true;
-      input.style.display = 'none';
-      input.addEventListener('change', () => { const f = Array.from(input.files || []); input.value = ''; if (f.length) scanFiles(f); });
-      document.body.appendChild(input);
+  // ───────────── Entry points: choose PDF or photos ─────────────
+  const ICON = {
+    pdf: '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>',
+    photos: '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>',
+    camera: '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg>'
+  };
+  const touch = () => window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  const tray = [];   // photos collected for one statement, in page order
+
+  const inputs = {};
+  function picker(kind) {
+    if (!inputs[kind]) {
+      const el = document.createElement('input');
+      el.type = 'file';
+      el.style.display = 'none';
+      if (kind === 'pdf') { el.accept = 'application/pdf,.pdf'; el.multiple = true; }
+      if (kind === 'photos') { el.accept = 'image/*'; el.multiple = true; }
+      if (kind === 'camera') { el.accept = 'image/*'; el.setAttribute('capture', 'environment'); }
+      el.addEventListener('change', () => {
+        const f = Array.from(el.files || []); el.value = '';
+        if (!f.length) return;
+        if (kind === 'pdf') scanFiles(f);
+        else { addToTray(f); openTray(); }
+      });
+      document.body.appendChild(el);
+      inputs[kind] = el;
     }
-    input.click();
+    inputs[kind].click();
   }
+
+  function openChooser() {
+    const opt = (kind, title, desc, cls) => '<button type="button" class="scan-option' + (cls ? ' ' + cls : '') + '" data-pick="' + kind + '">' + ICON[kind] +
+      '<span><strong>' + title + '</strong><small>' + desc + '</small></span></button>';
+    const m = openModal('<h2 id="scanTitle">Scan Statement</h2>' +
+      '<div class="scan-sub">Read the merchant\u2019s processing statement to fill in this comparison.</div>' +
+      '<div class="scan-options">' +
+      opt('pdf', 'PDF Statement', 'Upload the statement PDF the merchant downloaded or emailed.') +
+      opt('photos', 'Statement Photos', 'Upload photos of each page \u2014 select all the pages at once.') +
+      (touch() ? opt('camera', 'Take Photos', 'Use the camera to photograph each page.') : '') +
+      '</div>' +
+      '<div class="scan-tip">' + (touch() ? 'Photograph pages flat and in good light, with the summary page first.' : 'Tip: you can also drag a PDF or photos onto this page.') + '</div>' +
+      '<div class="scan-actions"><button type="button" data-act="cancel">Cancel</button></div>');
+    m.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => picker(b.dataset.pick)));
+    m.querySelector('[data-act="cancel"]').onclick = closeModal;
+    setTimeout(() => { const b = m.querySelector('[data-pick]'); if (b) b.focus(); }, 30);
+  }
+
+  function addToTray(files) {
+    files.filter(isImage).forEach(f => {
+      if (!tray.some(t => t.name === f.name && t.size === f.size && t.lastModified === f.lastModified)) tray.push(f);
+    });
+  }
+  function openTray() {
+    if (!tray.length) { openChooser(); return; }
+    const n = tray.length;
+    const m = openModal('<h2 id="scanTitle">Statement Photos</h2>' +
+      '<div class="scan-sub">' + n + (n === 1 ? ' page' : ' pages') + ' \u00b7 put the summary page (page 1) first</div>' +
+      '<div class="scan-tray">' + tray.map((f, i) =>
+        '<figure class="scan-page"><div class="scan-page-img"><img alt="Page ' + (i + 1) + '" data-i="' + i + '"></div>' +
+        '<figcaption>Page ' + (i + 1) + '</figcaption>' +
+        '<div class="scan-page-tools"><button type="button" data-move="-1" data-i="' + i + '" aria-label="Move page ' + (i + 1) + ' earlier"' + (i === 0 ? ' disabled' : '') + '>&#8249;</button>' +
+        '<button type="button" data-remove="' + i + '" aria-label="Remove page ' + (i + 1) + '">&times;</button>' +
+        '<button type="button" data-move="1" data-i="' + i + '" aria-label="Move page ' + (i + 1) + ' later"' + (i === n - 1 ? ' disabled' : '') + '>&#8250;</button></div></figure>').join('') +
+      '<div class="scan-add-col"><button type="button" class="scan-add" data-add="photos">' + ICON.photos + '<span>Add photos</span></button>' +
+      (touch() ? '<button type="button" class="scan-add" data-add="camera">' + ICON.camera + '<span>Take photo</span></button>' : '') + '</div></div>' +
+      '<div class="scan-tip">Include every page that shows totals or fees. Retake pages that are blurry or cut off.</div>' +
+      '<div class="scan-actions"><button type="button" data-act="clear">Start Over</button><span class="spacer"></span><button type="button" data-act="cancel">Cancel</button>' +
+      '<button type="button" class="primary" data-act="read">Read ' + n + (n === 1 ? ' Page' : ' Pages') + '</button></div>');
+    const urls = tray.map(f => URL.createObjectURL(f));
+    overlay._urls = urls;
+    m.querySelectorAll('img[data-i]').forEach(img => {
+      img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), { className: 'scan-page-noimg', textContent: tray[+img.dataset.i].name })); };
+      img.src = urls[+img.dataset.i];
+    });
+    m.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => {
+      const i = +b.dataset.i, j = i + (+b.dataset.move);
+      if (j < 0 || j >= tray.length) return;
+      const t = tray[i]; tray[i] = tray[j]; tray[j] = t; openTray();
+    }));
+    m.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => { tray.splice(+b.dataset.remove, 1); tray.length ? openTray() : openChooser(); }));
+    m.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => picker(b.dataset.add)));
+    m.querySelector('[data-act="clear"]').onclick = () => { tray.length = 0; openChooser(); };
+    m.querySelector('[data-act="cancel"]').onclick = closeModal;
+    m.querySelector('[data-act="read"]').onclick = () => scanFiles(tray.slice());
+    setTimeout(() => m.querySelector('[data-act="read"]').focus(), 30);
+  }
+  // Kept for callers that just want a file dialog
+  function pickFiles() { openChooser(); }
 
   function init() {
     // Assumption defaults used by the markup card (editable like every other field)
@@ -466,19 +768,25 @@
     if (D.amexRate == null) D.amexRate = A.amexRate;
     if (D.amexItem == null) D.amexItem = A.amexItem;
     const btn = document.getElementById('scanBtn');
-    if (btn) btn.addEventListener('click', pickFiles);
+    if (btn) btn.addEventListener('click', openChooser);
     // Drag & drop a statement anywhere on the page (desktop)
     const drop = document.createElement('div');
-    drop.className = 'scan-drop'; drop.textContent = 'Drop the merchant statement to scan it';
+    drop.className = 'scan-drop'; drop.textContent = 'Drop the statement PDF or photos to scan them';
     document.body.appendChild(drop);
     let depth = 0;
     const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') >= 0;
     window.addEventListener('dragenter', e => { if (!hasFiles(e)) return; depth++; drop.classList.add('show'); });
     window.addEventListener('dragleave', e => { if (!hasFiles(e)) return; depth = Math.max(0, depth - 1); if (!depth) drop.classList.remove('show'); });
     window.addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault(); });
-    window.addEventListener('drop', e => { if (!hasFiles(e)) return; e.preventDefault(); depth = 0; drop.classList.remove('show'); scanFiles(e.dataTransfer.files); });
+    window.addEventListener('drop', e => {
+      if (!hasFiles(e)) return;
+      e.preventDefault(); depth = 0; drop.classList.remove('show');
+      const files = Array.from(e.dataTransfer.files || []);
+      if (files.length && files.every(isImage)) { addToTray(files); openTray(); }   // photos: review page order first
+      else scanFiles(files);
+    });
   }
 
-  window.ScanUI = { scanFiles, pickFiles, refresh, _state: state };
+  window.ScanUI = { scanFiles, pickFiles, openChooser, openTray, addToTray, refresh, _state: state, _tray: tray };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

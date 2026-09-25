@@ -26,10 +26,11 @@ const STATEMENT_SCHEMA = {
   type: "object",
   additionalProperties: false,
   required: [
-    "merchant_name", "legal_name", "address", "mid", "processor", "statement_period", "volume", "refunds",
+    "is_statement", "merchant_name", "legal_name", "address", "mid", "processor", "statement_period", "volume", "refunds",
     "transactions", "transactions_derived", "total_fees", "fee_breakdown", "card_mix", "interchange_lines", "notes", "confidence",
   ],
   properties: {
+    is_statement: { type: "boolean", description: "False when the files are not a merchant card-processing statement (e.g. an ID, a check, a receipt, a bank statement)." },
     merchant_name: { ...str, description: "Business/DBA name customers know. Never the owner's personal name or the processor." },
     legal_name: { ...str, description: "Legal entity name when different from merchant_name (e.g. an LLC)." },
     address: {
@@ -106,7 +107,9 @@ How to read the key totals:
 
 Merchant identity: merchant_name is the business the customer knows (the DBA or location name). Statements often print an owner or contact person above or below the business name — never use a person's name as merchant_name. The address is the merchant's business location; prefer a "Location" address over a mailing address or PO box when both appear, and never use the processor's or ISO's address.
 
-Several files, or several photos, are pages of one statement: combine them. Photos can be skewed or partly cut off; read what is legible and lower confidence if key totals are hard to read.`;
+Several files, or several photos, are pages of one statement: combine them. Agents often photograph pages with a phone, so photos can be skewed, shaded, out of order, or include the same page twice — combine them without double counting, read what is legible, and lower confidence if a key total is hard to read or its page is missing. Report only what the pages show; if the summary page was not photographed, leave those totals null rather than rebuilding them from partial detail.
+
+If the files are not a merchant card-processing statement (for example a driver's license, a check, a receipt, or a bank statement), set is_statement to false, leave every other field null or empty, and name the kind of document in notes. Never transcribe personal identifiers such as license, account, routing, or Social Security numbers.`;
 
 type IncomingFile = { name?: string; media_type?: string; data?: string };
 

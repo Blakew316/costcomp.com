@@ -49,6 +49,67 @@
     };
   }
 
+  // ───────────────────────── OCR (photos & scanned PDFs) ─────────────────────────
+  // Fix the digit confusions OCR makes inside money/number tokens.
+  function normalizeOcrWord(raw) {
+    let s = String(raw || '').replace(/[“”]/g, '"').replace(/[‘’`´]/g, "'").replace(/[—–]/g, '-').trim();
+    s = s.replace(/^[»«¥£€•·*~_=|]+|[»«¥£€•·*~_=|]+$/g, '');
+    if (!s) return s;
+    // stray quote/comma specks next to a number: "12,345.67 → 12,345.67
+    const bare = s.replace(/^["',:;]+|["',:;]+$/g, '');
+    if (bare !== s && /\d.*\d/.test(bare) && /^[-(]?[$S§]?[-(]?[\dOoIl|,.]+[)%-]?$/.test(bare)) s = bare;
+    const digits = (s.match(/\d/g) || []).length;
+    if (digits >= 2 && /^[-(]?[$S§]?[-(]?[\dOoIl|,.]+[)%-]?$/.test(s)) {
+      s = s.replace(/^([-(]?)[S§](?=[-(]?[\dOoIl])/, '$1$').replace(/[Oo]/g, '0').replace(/[Il|]/g, '1');
+      if (/^[-(]?\$?-?\d{1,3}(\.\d{3})+\.\d{2}[)-]?$/.test(s)) s = s.replace(/\.(?=\d{3}[.,])/g, ',');          // 1.234.56 → 1,234.56
+      if (/^[-(]?\$?-?\d{1,3}(,\d{3})*,\d{2}[)-]?$/.test(s)) s = s.replace(/,(\d{2})([)-]?)$/, '.$1$2');          // 1,234,56 → 1,234.56
+    }
+    return s;
+  }
+
+  // How readable an OCR pass was: confident real words. A sideways or upside-down page scores near zero.
+  function ocrQuality(ocr) {
+    let good = 0, all = 0;
+    (ocr.lines || []).forEach(l => (l.words || []).forEach(w => {
+      all++;
+      if (w.c >= 70 && /[A-Za-z]{3,}|\d{2,}/.test(w.t || '')) good++;
+    }));
+    return { good, all, ratio: all ? good / all : 0 };
+  }
+
+  // Tesseract result {width, height, lines:[{baseline, words:[{t, b:{x0,y0,x1,y1}, c}]}]}
+  // → the same page shape buildPageLines produces for PDF text (612-wide user space, y up).
+  function buildPageLinesFromOcr(ocr) {
+    const W = ocr.width, H = ocr.height;
+    // Straighten tilted photos using the slope of the longer text baselines. Phone photos are rarely flat
+    // (perspective, curled paper), so each word uses the median slope of the baselines near its own height.
+    const base = [];
+    (ocr.lines || []).forEach(l => {
+      const b = l.baseline;
+      if (!b || !(l.words || []).length || l.words.length < 2 || b.x1 - b.x0 < W * 0.08) return;
+      base.push({ y: (b.y0 + b.y1) / 2, k: (b.y1 - b.y0) / (b.x1 - b.x0) });
+    });
+    const median = arr => { const v = arr.slice().sort((a, b) => a - b); return v[Math.floor(v.length / 2)]; };
+    const slope = base.length >= 3 ? median(base.map(g => g.k)) : 0;
+    const slopeNear = y => {
+      if (base.length < 3) return slope;
+      const near = base.filter(g => Math.abs(g.y - y) < H * 0.06).map(g => g.k);
+      return near.length >= 3 ? median(near) : slope;
+    };
+    const s = 612 / W;
+    const items = [];
+    (ocr.lines || []).forEach(l => (l.words || []).forEach(w => {
+      const t = normalizeOcrWord(w.t);
+      if (!t || (w.c != null && w.c < 20 && !/[A-Za-z0-9]{2}/.test(t))) return;
+      const b = w.b;
+      const cy = (b.y0 + b.y1) / 2 - slopeNear((b.y0 + b.y1) / 2) * ((b.x0 + b.x1) / 2 - W / 2);
+      items.push({ str: t, x: b.x0 * s, y: (H - cy) * s, w: (b.x1 - b.x0) * s, h: (b.y1 - b.y0) * s });
+    }));
+    const page = buildPageLines(items, 612);
+    page.ocr = { conf: ocr.conf, skew: slope };
+    return page;
+  }
+
   // ───────────────────────── Tokens ─────────────────────────
   const MONEY_TOKEN = /^\(?[-–]?\$?\(?[-–]?(?:\d{1,3}(?:,\d{3})+|\d*)\.\d{2}\)?-?$/;
   const INT_TOKEN = /^(?:\d{1,3}(?:,\d{3})+|\d+)$/;
@@ -102,7 +163,7 @@
   // ───────────────────────── Document model ─────────────────────────
   function makeDoc(pages) {
     const all = [];
-    pages.forEach((p, pi) => (p.lines || []).forEach((l, li) => all.push({ page: pi, idx: li, text: l.text, segs: l.segs || [{ t: l.text, x: 0 }], width: p.width || 612 })));
+    pages.forEach((p, pi) => (p.lines || []).forEach((l, li) => all.push({ page: pi, idx: li, y: l.y, text: l.text, segs: l.segs || [{ t: l.text, x: 0 }], width: p.width || 612 })));
     const full = all.map(l => l.text).join('\n');
     return { pages, all, full };
   }
@@ -140,6 +201,40 @@
     return hits;
   }
 
+  // TSYS plan summary whose "**" total label was lost (common in scans): the first row after the
+  // plan-code rows that starts with a count and totals at least as much as any single plan
+  function unlabeledPlanTotal(doc) {
+    for (let i = 0; i < doc.all.length; i++) {
+      if (!/Plan Summary/i.test(doc.all[i].text)) continue;
+      let plans = 0, maxAmt = 0;
+      for (let j = i + 1; j < Math.min(doc.all.length, i + 25); j++) {
+        const t = doc.all[j].text, first = t.split(' | ')[0];
+        if (/^[A-Za-z$§]{1,3}$/.test(first)) {
+          const ca = countAndAmount(tokens(t.slice(first.length)));
+          plans++; if (ca && ca.amount > maxAmt) maxAmt = ca.amount;
+          continue;
+        }
+        if (plans >= 2 && /^\d[\d,]*$/.test(first)) {
+          const ca = countAndAmount(tokens(t));
+          if (ca && ca.amount >= maxAmt && maxAmt > 0) return Object.assign(ca, { line: j, src: t });
+        }
+        if (plans >= 2) break;
+      }
+    }
+    return null;
+  }
+
+  // Worldpay Integrated Payments card-type summary total. OCR often reads the count "12,345" as "12.345",
+  // so a count cell with a 3-digit fraction right before the amount is read as thousands.
+  function worldpayIpTotal(doc) {
+    const hit = totalRowAfter(doc, /^Card Type\b/i, /^Total\b/i, 30);
+    if (!hit) return null;
+    const segs = hit.src.split(' | ');
+    const ai = segs.findIndex(x => { const t = tokens(x); return t.length === 1 && t[0].k === 'money' && Math.abs(t[0].v - hit.amount) < 0.005; });
+    if (ai > 0 && /^\d{1,3}[.,]\d{3}$/.test(segs[ai - 1].trim())) hit.count = +segs[ai - 1].replace(/\D/g, '');
+    return hit;
+  }
+
   // First "total" style row after an anchor line → {count, amount}
   function totalRowAfter(doc, anchorRe, rowRe, maxLines) {
     for (let i = 0; i < doc.all.length; i++) {
@@ -163,9 +258,12 @@
     if (/YOUR CARD PROCESSING STATEMENT/i.test(full)) return 'fiserv';
     if (/Plan Summary/i.test(full) || /Discount Due/i.test(full)) return 'tsys';
     if (/Card Processing - Visa/i.test(full) || /\bToast\b/i.test(full)) return 'toast';
+    if (/Total Fees For Billing Period/i.test(full) || (/worldpay/i.test(full) && /Merchant Billing Statement/i.test(full))) return 'worldpay';
+    if (/Interchange (&|and) Worldpay Fees/i.test(full) || (/Worldpay Integrated/i.test(full) && /MERCHANT STATEMENT|DEPOSIT SUMM/i.test(full))) return 'worldpay_ip';
     if (/Merchant Billing Statement/i.test(full)) return 'usbank';
     if (/spoton/i.test(full)) return 'spoton';
-    if (/shift4/i.test(full)) return 'shift4';
+    if (/Sales Summary/i.test(full) && /Total Collected/i.test(full) && /Net Total/i.test(full)) return 'square';   // Square dashboard sales report
+    if (/shift4/i.test(full) || /TOTAL PROCESSING SERVICE FEES APPLIED/i.test(full)) return 'shift4';
     return 'generic';
   }
   const PROCESSOR_NAMES = [
@@ -211,16 +309,23 @@
         break;
       }
     }
-    if (fam === 'clover_billing') valueAfterLabel(doc, /^Total Sales\b/i, { stackedCount: true }).forEach(h => add(98, h, 'Total sales'));
+    if (fam === 'clover_billing') valueAfterLabel(doc, /^Total Sales\b/i, { stackedCount: true, lookahead: 2 }).forEach(h => add(98, h, 'Total sales'));
     if (fam === 'tsys') {
       add(97, totalRowAfter(doc, /Plan Summary/i, /^(\*\*|Totals?)\b\s*/i, 25), 'Plan summary total');
+      add(93, unlabeledPlanTotal(doc), 'Plan summary total');
       add(80, totalRowAfter(doc, /./, /^Deposit Totals\b/i, 100000), 'Deposit totals');
     }
     if (fam === 'toast') add(97, totalRowAfter(doc, /Card Processing/i, /^Total\b/i, 25), 'Card processing total');
     if (fam === 'usbank') {
       doc.all.forEach((l, i) => { const m = /^(Total Sales|Sales)\s*\|/i.exec(l.text); if (m) { const ca = countAndAmount(tokens(l.text.slice(m[0].length))); if (ca) add(/^Total/i.test(m[1]) ? 95 : 90, Object.assign(ca, { line: i, src: l.text }), m[1]); } });
     }
+    if (fam === 'worldpay') {
+      const hit = totalRowAfter(doc, /^Card Fees\b/i, /^Totals?\b/i, 25);
+      if (hit) { const t = tokens(hit.src); add(97, { amount: firstOf(t, 'money'), count: firstOf(t, 'int'), line: hit.line, src: hit.src }, 'Card fees total'); }
+    }
+    if (fam === 'worldpay_ip') add(96, worldpayIpTotal(doc), 'Card type summary total');
     if (fam === 'spoton') add(96, totalRowAfter(doc, /ACTIVITY SUMMARY/i, /^TOTAL\b/i, 20), 'Activity summary total');
+    if (fam === 'square') valueAfterLabel(doc, /^Card \|/i, { nextLine: false }).forEach(h => add(96, h, 'Card payments'));
     if (fam === 'shift4') {
       doc.all.forEach((l, i) => { if (/^ACTIVITY TOTAL/i.test(l.text)) { const t = tokens(l.text); const amt = firstOf(t, 'money'); const ints = t.filter(x => x.k === 'int' && x.v > 0); add(96, { amount: amt, count: ints.length ? ints[0].v : null, line: i, src: l.text }, 'Activity total'); } });
     }
@@ -248,6 +353,8 @@
       const disc = valueAfterLabel(doc, /^(Total )?Discount Due\b:?/i, { notRe: /Net Discount/i })[0];
       const fees = valueAfterLabel(doc, /^(Total )?Fees Due\b:?/i, { notRe: /Net Fees/i })[0];
       if (fees) add(disc ? 100 : 92, { value: (disc ? disc.value : 0) + fees.value, line: fees.line, src: (disc ? disc.src + ' + ' : '') + fees.src }, 'Discount due + fees due');
+      // Only the summary page (e.g. one photo): the month-end deduction, which includes a monthly-billed discount
+      lab(/^(Amount )?Deducted:?(\s*\||$)/i, 70, { lookahead: 2 });
     }
     if (fam === 'payroc') lab(/Total Monthly Fees\b/i, 100);
     if (fam === 'fiserv') {
@@ -277,14 +384,28 @@
       }
     }
     if (fam === 'usbank') lab(/Total Charges and Fees\b/i, 100);
+    if (fam === 'worldpay') lab(/Total Fees For Billing Period/i, 100);
+    if (fam === 'worldpay_ip') {
+      // Total fees = interchange & Worldpay fees + other fees + discount + the card-type processing fees
+      const one = re => valueAfterLabel(doc, re, { nextLine: false })[0];
+      const ic = one(/^Total Interchange and Worldpay Fees\b/i), other = one(/^Total Other \S+ \|/i), disc = one(/^Discount Collected\b/i);
+      const row = worldpayIpTotal(doc);
+      const proc = row ? tokens(row.src).filter(t => t.k === 'money').pop() : null;
+      const comp = ic && other ? r2(ic.value + other.value + (disc ? disc.value : 0) + (proc && proc.v !== row.amount ? proc.v : 0)) : null;
+      const total = one(/^Total Fees \|/i);
+      if (total && (comp == null || Math.abs(total.value - comp) <= comp * 0.005)) add(100, total, 'Total fees');
+      else if (total) add(90, total, 'Total fees');
+      if (comp != null) add(98, { value: comp, line: ic.line, src: [ic.src, other.src, disc && disc.src, proc && row.src].filter(Boolean).join(' + ') }, 'Fee section totals');
+    }
     if (fam === 'spoton') lab(/^TOTAL FEES\b/i, 100);
+    if (fam === 'square') lab(/^Fees \|/i, 100, { nextLine: false });
     if (fam === 'shift4') {
       const a = valueAfterLabel(doc, /TOTAL PROCESSING SERVICE FEES APPLIED/i)[0];
       const b = valueAfterLabel(doc, /ADDITIONAL SERVICES FEE TOTAL/i)[0];
       if (a) add(100, { value: a.value + (b ? b.value : 0), line: a.line, src: a.src + (b ? ' + ' + b.src : '') }, 'Processing + additional services fees');
     }
     [
-      [/Total Monthly Fees\b/i, 85], [/Total Card Fees\b/i, 84], [/Total Charges and Fees\b/i, 84], [/\bTotal Fees( Charged| Paid| Assessed)?\b(?! Due)/i, 80],
+      [/Total Monthly Fees\b/i, 85], [/Total Fees For Billing Period/i, 85], [/Total Card Fees\b/i, 84], [/Total Charges and Fees\b/i, 84], [/\bTotal Fees( Charged| Paid| Assessed)?\b(?! Due)/i, 80],
       [/\bFees Charged\b/i, 78], [/Total (Processing )?Charges\b/i, 70], [/Amount Total:/i, 70], [/Total Amount (Deducted|Charged)/i, 55], [/Amount Deducted\b/i, 45]
     ].forEach(([re, sc]) => lab(re, sc, { lookahead: 1, notRe: /Net Fees|Fees Due|pending/i }));
     return c;
@@ -312,10 +433,12 @@
   }
 
   // ───────────────────────── Merchant name & address ─────────────────────────
-  const CITY_RE = /^([A-Za-z][A-Za-z .'\-]{1,40}?),?\s+([A-Z]{2}),?\s+(\d{5})(?:-{1,2}\d{0,4})?\b/;
+  const STATES = { alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA', colorado: 'CO', connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA', hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA', kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD', massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS', missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK', oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC', 'south dakota': 'SD', tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT', virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY' };
+  const STATE_NAMES = Object.keys(STATES).sort((a, b) => b.length - a.length).join('|');
+  const CITY_RE = new RegExp("^([A-Za-z][A-Za-z .'\\-]{1,40}?),?\\s+([A-Z]{2}|" + STATE_NAMES + "),?\\s+(\\d{5})(?:-{1,2}\\d{0,4})?\\b", 'i');
+  const stateAbbr = s => (s.length === 2 ? s.toUpperCase() : STATES[s.toLowerCase()] || s);
   const STREET_RE = /^(\d{1,6}[A-Z]?\s+[A-Za-z0-9#.,'\- ]{2,60}|P\.?\s?O\.?\s+BOX\s+\d+.*)$/i;
-  const PROC_WORDS = /payroc|paysafe|fiserv|first data|\bclover\b|\btoast\b|spoton|shift4|commerce ?control|ecrypt|wholesale payments|elavon|\bus bank|u\.s\. bank|worldpay|heartland|global payments|\btsys\b|\bsquare\b|\bstripe\b|merchant one|merchant services|appstar|bancard|payments inc|c\/o |\bbank\b|customer service|www\.|\.com\b|p\.?o\.? box \d+ (charlotte|pmb)|remit/i;
-  const LABEL_WORDS = /^(statement|page|merchant (number|#|id)|location|address|dba|attn|customer|phone|summary|processing|bank number|routing|deposit|association|amount|bill to|details|period|issue|payment|billing|product|account|client|store|chain|cycle|parent|principal|month|this is|your|website|united states|details)\b/i;
+  const PROC_WORDS = /payroc|paysafe|fiserv|first data|\bclover\b|\btoast\b|spoton|shift4|commerce ?control|ecrypt|wholesale payments|merchant servic|elavon|\bus bank|u\.s\. bank|worldpay|heartland|global payments|\btsys\b|\bsquare\b|\bstripe\b|merchant one|appstar|bancard|payments inc|c\/o |\bbank\b|customer service|www\.|\.com\b|p\.?o\.? box \d+ (charlotte|pmb)|remit/i;
   const PERSONISH = /^[A-Z][A-Za-z'.-]+(\s+[A-Z]\.?)?\s+[A-Z][A-Za-z'.-]+$/;
   const BIZ_WORDS = /\b(inc|llc|l\.l\.c|corp|co|company|ltd|group|store|shop|cafe|café|restaurant|grill|bar|auto|market|supply|services?|repair|towing|furniture|salon|spa|smoke|vape|liquor|wine|meat|grocery|bbq|pizza|taco|trailers?|gallery|gifts?|souvenirs|wash|gardens?|pool|tan|trucks?|outfitters|zone|packing|discounts?|stereo|wheels|general|squared|inspections|cantina|hookah|appliances)\b/i;
 
@@ -332,7 +455,8 @@
       .replace(/'S\b/g, "'s").replace(/\b(Llc|Inc|Dba|Usa|Ii|Iii|Bbq|Po|Tx|Fm)\b/g, m => m.toUpperCase());
   }
   const titleCaseKeep = s => (/[a-z]/.test(s) ? s : titleCase(s));
-  const STOP_LINE = /^(statement|page\b|merchant (number|#|id)|customer service|phone|www\.|https?:|summary|processing|bank number|routing|deposit|association|amount|details|period|issue|payment|billing|product|account|client|store|chain|cycle|parent|principal|month|this is|your|website|united states|have a question|open a|or call|\$|\(?\d{3}\)?[ .-]\d{3}-\d{4})/i;
+  // label lines (OCR often drops the space: "CustomerService", "MerchantNumber")
+  const STOP_LINE = /^(statement|page\b|\w?erchant ?(number|nbr|#|id)|customer ?service|phone|www\.|https?:|summary|processing|bank ?number|routing|deposit|association|amount|details|period|issue|payment|billing|product|account|client|store|chain|cycle|parent|principal|month|this ?is|your|website|united states|have a question|open a|or call|\$|\(?\d{3}\)?[ .-]\d{3}-\d{4})/i;
   const isPerson = t => PERSONISH.test(t) && !BIZ_WORDS.test(t);
   const isStreet = t => STREET_RE.test(t) && !CITY_RE.test(t) && !/^\d+\s*(of|\/)\s*\d+$/i.test(t) && !/^\d{1,2}\/\d{1,2}/.test(t) &&
     !/^\d[\d\s,.$%-]*$/.test(t) && !/\bPAGE\b|\bOF\s+\d/i.test(t) && !/\d{5,}\s+\d{5,}/.test(t) && /[A-Za-z]{2,}/.test(t.replace(/^\d+\s*/, ''));
@@ -343,12 +467,22 @@
     let lines = pageLines(0);
     if (lines.length < 12 || !lines.some(l => CITY_RE.test(l.segs[0] ? l.segs[0].t : ''))) lines = lines.concat(pageLines(1));
     const stream = [];
-    lines.forEach((l, li) => l.segs.forEach((s, si) => stream.push({ t: cleanName(s.t) || s.t, raw: s.t, x: s.x, li, si, w: l.width })));
+    lines.forEach((l, li) => l.segs.forEach((s, si) => stream.push({ t: cleanName(s.t) || s.t, raw: s.t, x: s.x, y: l.y, pg: l.page, li, si, w: l.width })));
+    // A suite number wrapped onto the city line ("…Main St Suite" / "#200 Springfield, TX 75001") belongs to the street
+    stream.forEach((sg, i) => {
+      const m = /^(#\s?\w+|(?:Suite|Ste|Unit|Apt)\.?\s+#?\w+),?\s+(.+)$/i.exec(sg.t);
+      if (!m || !CITY_RE.test(m[2])) return;
+      for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
+        if (!isStreet(stream[j].t)) continue;
+        stream[j].t += ' ' + m[1]; sg.t = m[2];
+        break;
+      }
+    });
     const left = stream.filter(s => s.x < s.w * 0.58);
     const fmtAddr = (street, city) => titleCaseKeep(street.replace(/,\s*$/, '')) + ', ' + city;
     const cityOf = (seg, prev) => {
       let m = CITY_RE.exec(seg.t);
-      if (m) return titleCaseKeep(m[1].trim()) + ', ' + m[2] + ' ' + m[3];
+      if (m && (m[2].length > 2 || m[2] === m[2].toUpperCase())) return titleCaseKeep(m[1].trim()) + ', ' + stateAbbr(m[2]) + ' ' + m[3];
       m = /^([A-Z]{2}),?\s+(\d{5})(?:-\d{4})?$/.exec(seg.t);
       if (m && prev && /^[A-Za-z][A-Za-z .'-]{2,30}$/.test(prev.t) && !STOP_LINE.test(prev.t)) return titleCaseKeep(prev.t) + ', ' + m[1] + ' ' + m[2];
       return null;
@@ -444,24 +578,30 @@
       if (k == null) continue;
       const names = [];
       let procAbove = false;
+      // the name lines sit right above the street; a big vertical gap means a logo or header, not the name
+      const lineGap = Math.abs(stream[k].y - stream[cityIdx].y);
+      let prevY = stream[k].y;
       for (const n of aligned(k, stream[k].x, 5)) {
         const t = stream[n].t;
         if (names.length >= 3) break;
+        if (lineGap > 0 && stream[n].pg === stream[k].pg && stream[n].y - prevY > lineGap * 2.6) break;
+        prevY = stream[n].y;
         if (SKIP_LABEL.test(t) || (isStreet(t) && t === stream[k].t)) continue;
         if (!t || cityOf(stream[n], null) || STOP_LINE.test(t) || /:$/.test(t) || !/[A-Za-z]{2}/.test(t) || /^\d{1,2}\/\d{1,2}/.test(t)) break;
-        if (PROC_WORDS.test(t)) { if (!names.length) procAbove = true; break; }
+        if (PROC_WORDS.test(t)) { procAbove = true; break; }
         names.push({ t });
       }
       const near = [stream[k].t, stream[cityIdx].t, names[0] ? names[0].t : ''].join(' ');
       let score = 10;
-      if (PROC_WORDS.test(near) || procAbove) score -= 25;
+      if (PROC_WORDS.test(near) || (procAbove && names.length < 2)) score -= 25;
       if (/^p\.?\s?o\.?\s+box/i.test(stream[k].t) && /(charlotte|pmb)/i.test(near)) score -= 20;
       const ctxAbove = aligned(k, stream[k].x, 3).map(j => stream[j].raw).join(' ');
       if (/Location|Bill to|Merchant Address|Address:|DBA/i.test(ctxAbove)) score += 8;
       if (names.some(n => BIZ_WORDS.test(n.t))) score += 5;
       if (names.length) score += 3;
       const below = stream.find(s => s.li > stream[i].li && Math.abs(s.x - stream[i].x) < 28);
-      if (below && /^\(?\d{3}\)?[ .-]?\d{3}-\d{4}|^United States$|^Customer Service/i.test(below.raw) && !names.length) score -= 6;
+      if (below && /^\(?\d{3}\)?[ .-]?\d{3}-\d{4}|^Customer Service/i.test(below.raw)) score -= 12;   // processor/ISO header: phone right under the address
+      else if (below && /^United States$/i.test(below.raw) && !names.length) score -= 6;
       blocks.push({ score, street: stream[k].t, city, names, idx: i });
     }
     // Inline "Address: 150 BENITO ST, SOLEDAD CA 93960"
@@ -809,7 +949,7 @@
     if (textChars < 80) { result.warnings.push('No readable text in this file (it looks like a scan or photo).'); return result; }
     const fam = detectFamily(doc.full);
     result.family = fam;
-    result.processor = detectProcessor(doc.full);
+    result.processor = detectProcessor(doc.full) || (fam === 'square' ? 'Square' : null);
 
     const volC = extractVolume(doc, fam);
     const feeC = extractFees(doc, fam);
@@ -850,7 +990,7 @@
   }
 
   return {
-    buildPageLines, tokens, parseMoney, parseStatement, detectFamily,
+    buildPageLines, buildPageLinesFromOcr, ocrQuality, normalizeOcrWord, tokens, parseMoney, parseStatement, detectFamily,
     loadTable, normName, matchProgram, similarity, computeMarkup, defaultProgram, programOptions, bucketLabel, titleCase: titleCaseKeep,
     DEFAULT_ASSUMPTIONS, DEFAULT_PROGRAMS
   };

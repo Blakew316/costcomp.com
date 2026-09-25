@@ -47,6 +47,43 @@
 @keyframes scanFlash{0%{box-shadow:0 0 0 0 rgba(27,117,187,0.55)}100%{box-shadow:0 0 0 10px rgba(27,117,187,0)}}
 .scan-flash{animation:scanFlash 1.2s ease-out 2}
 
+/* Chooser: PDF statement / statement photos / take photos */
+.scan-options{display:grid;gap:0.6rem}
+.scan-option{display:flex;align-items:center;gap:0.85rem;text-align:left;width:100%;padding:0.85rem 1rem;border:1px solid var(--border-color);border-radius:var(--radius);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font:inherit;transition:var(--transition)}
+.scan-option:hover{background:var(--bg-section);border-color:rgba(27,117,187,0.45)}
+.scan-option:focus-visible{outline:2px solid rgba(0,122,255,0.5);outline-offset:1px}
+.scan-option svg{flex-shrink:0;color:var(--brand-blue)}
+.scan-option strong{display:block;font-size:0.92rem;font-weight:700}
+.scan-option small{display:block;font-size:0.74rem;color:var(--text-muted);margin-top:0.1rem;line-height:1.4}
+.scan-tip{margin-top:0.85rem;font-size:0.74rem;color:var(--text-muted);line-height:1.5}
+.scan-badge.ocr{background:rgba(0,168,168,0.1);border-color:rgba(0,168,168,0.35)}
+
+/* Photo page tray */
+.scan-tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:0.7rem;max-height:52vh;overflow-y:auto;padding:0.15rem}
+.scan-page{margin:0;display:flex;flex-direction:column;gap:0.3rem}
+.scan-page-img{aspect-ratio:3/4;border:1px solid var(--border-color);border-radius:var(--radius-sm);background:var(--bg-section);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.scan-page-img img{width:100%;height:100%;object-fit:cover;object-position:top}
+.scan-page-noimg{font-size:0.66rem;color:var(--text-muted);padding:0.4rem;text-align:center;word-break:break-all}
+.scan-page figcaption{font-size:0.7rem;font-weight:700;text-align:center}
+.scan-page-tools{display:flex;justify-content:center;gap:0.3rem}
+.scan-page-tools button{width:30px;height:28px;border:1px solid var(--border-color);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font-size:1rem;line-height:1;padding:0}
+.scan-page-tools button:disabled{opacity:0.35;cursor:default}
+.scan-add-col{display:flex;flex-direction:column;gap:0.5rem}
+.scan-add{flex:1;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;border:1.5px dashed var(--border-color);border-radius:var(--radius-sm);background:none;color:var(--text-primary);font:inherit;font-size:0.74rem;font-weight:600;cursor:pointer}
+.scan-add:hover{border-color:var(--brand-blue);color:var(--brand-blue)}
+.scan-add svg{width:22px;height:22px}
+
+/* Thumbnails in the review window + full-size viewer */
+.scan-thumbs{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin:-0.4rem 0 0.9rem}
+.scan-thumbs a{position:relative;display:block;width:38px;height:50px;border:1px solid var(--border-color);border-radius:4px;overflow:hidden;background:var(--bg-section)}
+.scan-thumbs img{width:100%;height:100%;object-fit:cover;object-position:top}
+.scan-thumbs a span{position:absolute;right:2px;bottom:1px;font-size:0.6rem;font-weight:700;background:rgba(0,0,0,0.6);color:#fff;border-radius:3px;padding:0 3px}
+.scan-thumbs-hint{font-size:0.68rem;color:var(--text-muted)}
+.scan-lightbox{position:fixed;inset:0;z-index:1002;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;overflow:auto;padding:0.5rem}
+.scan-lightbox-bar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:1000px;color:#fff;font-size:0.85rem;font-weight:600;padding:0.25rem 0.25rem 0.5rem}
+.scan-lightbox-bar button{background:none;border:none;color:#fff;font-size:1.6rem;line-height:1;cursor:pointer;padding:0 0.4rem}
+.scan-lightbox img{max-width:min(1000px,100%);height:auto;background:#fff}
+
 /* Markup card (Overview) */
 .markup-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;margin-bottom:1rem}
 .markup-kpis .kpi{box-shadow:none;background:var(--bg-section)}
@@ -66,6 +103,8 @@ body.dark .scan-toast{background:#f5f5f7;color:#1c1c1e}
 body.dark .markup-notes .editable{color:#f5f5f7}
 
 @media(max-width:600px){
+  .scan-tray{grid-template-columns:repeat(3,1fr);gap:0.5rem}
+  .scan-option{padding:0.75rem 0.8rem}
   .scan-overlay{padding:0.75rem 0.5rem}
   .scan-modal{padding:1rem 0.85rem 0.85rem}
   .scan-fields{grid-template-columns:1fr}
@@ -73,3 +112,4 @@ body.dark .markup-notes .editable{color:#f5f5f7}
   .scan-field input{font-size:16px}
   .markup-table-wrap select.ic-text-input{width:150px}
 }
+.scan-actions-center{justify-content:center}
