@@ -11,6 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="scan.css?v=20260925">
 <title>Wholesale Payments | Cost Comparison</title>
 <style>
 :root {
@@ -414,6 +415,10 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
     </div>
     <div class="header-bottom"><span class="logo-sub">Cost Comparison</span></div>
     <div class="header-btn" style="display:flex;align-items:center;gap:0.5rem;">
+      <button type="button" class="scan-btn" id="scanBtn" title="Scan or upload a merchant statement to fill in this comparison">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+        <span class="scan-label-full">Scan Statement</span><span class="scan-label-short">Scan</span>
+      </button>
       <button onclick="emailPDF()" style="display:flex;align-items:center;gap:0.4rem;background:var(--brand-blue);color:#fff;border:none;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;transition:var(--transition);letter-spacing:0.01em;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         Email as PDF
@@ -1134,6 +1139,8 @@ function recalcAll() {
 
   // Summary Numbers section removed — interchange detail now in Overview
 
+  // Scanned-statement markup card (scan.js)
+  if (window.ScanUI) window.ScanUI.refresh();
 }
 
 
@@ -1497,5 +1504,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 window.addEventListener('online',()=>document.getElementById('offlineBar').classList.remove('show'));
 window.addEventListener('offline',()=>document.getElementById('offlineBar').classList.add('show'));
 </script>
+<script src="scan-core.js?v=20260925"></script>
+<script src="scan.js?v=20260925"></script>
 </body>
 </html>

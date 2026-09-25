@@ -1,0 +1,14 @@
+{
+  "name": "wpi-cost-comp",
+  "private": true,
+  "description": "Wholesale Payments cost comparison tool with merchant statement scanning",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^6.0.0"
+  }
+}

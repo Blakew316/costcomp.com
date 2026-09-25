@@ -1,13 +1,11 @@
-const CACHE_NAME = 'wpi-cost-comp-v4';
+const CACHE_NAME = 'wpi-cost-comp-v5';
 const ASSETS = [
   '/',
   '/index.html',
-  '/wp-logo.svg',
   '/wp-logo-clean.png',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
@@ -31,6 +29,10 @@ self.addEventListener('activate', event => {
 
 // Fetch — network-first for navigation, cache-first for assets
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  // Never cache API calls (statement scanning) or non-GET requests
+  if (event.request.method !== 'GET' || (url.origin === self.location.origin && url.pathname.startsWith('/api/'))) return;
+
   // Navigation requests — network first, fallback to cache
   if (event.request.mode === 'navigate') {
     event.respondWith(
