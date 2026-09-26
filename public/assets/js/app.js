@@ -51,10 +51,13 @@
   }
 
   const $ = (s, r=document) => r.querySelector(s);
-  /* cost comp: the app's sections live in #raMain (the Equipment tab), its quote tools in #raProp (the Proposal tab),
-     and its pop-ups in #raLayer */
+  /* cost comp: the app's equipment sections live in #raMain (the Equipment tab: Flyers, Installation, Troubleshooting),
+     its tools, quote builders and Compare in #raProp (the Proposal tab), and its pop-ups in #raLayer */
   const raLayer = () => document.getElementById("raLayer") || document.body;
   const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);
+  /* cost comp: the quote builders and Compare open in the Proposal tab in place of its tools, with a way back */
+  const raQuotePage = () => { const hub = document.getElementById("raHome"), q = document.getElementById("raQuote"); if (!hub || !q) return null; hub.hidden = true; q.hidden = false; return q; };
+  const raBack = () => `<div class="wrap"><section class="sec-head"><a class="back" href="#/">${ic("arrowL")} Proposal</a></section></div>`;
   const app = $("#app");
   const money = n => "$" + Number(n).toLocaleString("en-US");
   const money2 = n => "$" + Number(n).toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2});
@@ -170,24 +173,15 @@
 
   function render(){
     const {sec,id,id2} = parseHash();
-    /* cost comp: Home's quote tools sit at the top of the Proposal tab (#raHome) and the Basil and Genius quotes open
-       there (#raQuote); the equipment sections are the Equipment tab, where #/pricing is the cost comparison's own
-       equipment pricing, which feeds the proposal */
-    const hub = document.getElementById("raHome"), quotes = document.getElementById("raQuote"), pricing = document.getElementById("eqPricing");
-    if (hub && quotes && (sec === "home" || sec === "basil" || sec === "genius")){
-      hub.hidden = sec !== "home"; quotes.hidden = sec === "home";
-      const back = `<div class="wrap"><section class="sec-head"><a class="back" href="#/">${ic("arrowL")} Proposal</a></section></div>`;
-      if (sec === "basil"){ quotes.innerHTML = back + basilView(); wireBasil(); }
-      else if (sec === "genius"){ quotes.innerHTML = back + geniusView(); wireGenius(); }
-      else quotes.innerHTML = "";
+    setTabs(sec);
+    if (sec==="home"){
+      /* cost comp: Home is the Proposal tab's tool row (renderTools); a page opened from it closes */
+      const hub = document.getElementById("raHome"), q = document.getElementById("raQuote");
+      if (hub && q){ hub.hidden = false; q.hidden = true; q.innerHTML = ""; } else app.innerHTML = homeView();
       window.scrollTo(0,0); closeSheet(true); return;
     }
-    if (pricing){ pricing.hidden = sec !== "pricing"; app.hidden = sec === "pricing"; }
-    if (sec === "pricing"){ setTabs(sec); closeSheet(true); return; }
-    setTabs(sec);
-    if (sec==="home"){ app.innerHTML = homeView(); window.scrollTo(0,0); closeSheet(true); return; }
-    if (sec==="basil"){ app.innerHTML = basilView(); wireBasil(); window.scrollTo(0,0); closeSheet(true); return; }
-    if (sec==="genius"){ app.innerHTML = geniusView(); wireGenius(); window.scrollTo(0,0); closeSheet(true); return; }
+    if (sec==="basil"){ { const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + basilView(); } wireBasil(); window.scrollTo(0,0); closeSheet(true); return; }
+    if (sec==="genius"){ { const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + geniusView(); } wireGenius(); window.scrollTo(0,0); closeSheet(true); return; }
     if (sec==="compare"){
       /* #/compare/<a>/<b> preselects the pair — the Compare button on a device
          sheet arrives this way. The ids are consumed once and dropped from the
@@ -200,7 +194,7 @@
         else if (cmpState.b === cmpState.a) cmpState.b = (cmpPool(cmpState.ind).find(d => d.id !== id) || {}).id || cmpState.b;
         try { history.replaceState(null, "", "#/compare"); } catch(e){}
       }
-      app.innerHTML = compareView(); wireCompare(); window.scrollTo(0,0); closeSheet(true); return;
+      { const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + compareView(); } wireCompare(); window.scrollTo(0,0); closeSheet(true); return;
     }
     if (SECTIONS[sec]){
       app.innerHTML = sectionView(sec);

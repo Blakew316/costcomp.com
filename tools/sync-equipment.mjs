@@ -40,10 +40,13 @@ const PATCHES = [
   ['helpers: the Equipment tab containers',
     `  const $ = (s, r=document) => r.querySelector(s);`,
     `  const $ = (s, r=document) => r.querySelector(s);
-  /* cost comp: the app's sections live in #raMain (the Equipment tab), its quote tools in #raProp (the Proposal tab),
-     and its pop-ups in #raLayer */
+  /* cost comp: the app's equipment sections live in #raMain (the Equipment tab: Flyers, Installation, Troubleshooting),
+     its tools, quote builders and Compare in #raProp (the Proposal tab), and its pop-ups in #raLayer */
   const raLayer = () => document.getElementById("raLayer") || document.body;
-  const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);`],
+  const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);
+  /* cost comp: the quote builders and Compare open in the Proposal tab in place of its tools, with a way back */
+  const raQuotePage = () => { const hub = document.getElementById("raHome"), q = document.getElementById("raQuote"); if (!hub || !q) return null; hub.hidden = true; q.hidden = false; return q; };
+  const raBack = () => \`<div class="wrap"><section class="sec-head"><a class="back" href="#/">\${ic("arrowL")} Proposal</a></section></div>\`;`],
   ['theme: follow the cost comparison’s light/dark switch (body.dark) instead of the app’s own', null, null, src => {
     const a = src.indexOf('  /* ------------------------------ theme ------------------------------ */');
     const b = src.indexOf('  /* ------------------------------ toast ------------------------------ */');
@@ -75,25 +78,23 @@ const PATCHES = [
     if (!n) throw new Error('no document.body.appendChild');
     return src.split('document.body.appendChild(').join('raLayer().appendChild(');
   }],
-  ['router: equipment sections in the Equipment tab (with #/pricing, the cost comparison\u2019s equipment pricing); Home\u2019s quote tools and the Basil and Genius quotes in the Proposal tab',
-    `    const {sec,id,id2} = parseHash();
-    setTabs(sec);`,
-    `    const {sec,id,id2} = parseHash();
-    /* cost comp: Home's quote tools sit at the top of the Proposal tab (#raHome) and the Basil and Genius quotes open
-       there (#raQuote); the equipment sections are the Equipment tab, where #/pricing is the cost comparison's own
-       equipment pricing, which feeds the proposal */
-    const hub = document.getElementById("raHome"), quotes = document.getElementById("raQuote"), pricing = document.getElementById("eqPricing");
-    if (hub && quotes && (sec === "home" || sec === "basil" || sec === "genius")){
-      hub.hidden = sec !== "home"; quotes.hidden = sec === "home";
-      const back = \`<div class="wrap"><section class="sec-head"><a class="back" href="#/">\${ic("arrowL")} Proposal</a></section></div>\`;
-      if (sec === "basil"){ quotes.innerHTML = back + basilView(); wireBasil(); }
-      else if (sec === "genius"){ quotes.innerHTML = back + geniusView(); wireGenius(); }
-      else quotes.innerHTML = "";
+  ['router: Home is the Proposal tab\u2019s tools', 
+    `    if (sec==="home"){ app.innerHTML = homeView(); window.scrollTo(0,0); closeSheet(true); return; }`,
+    `    if (sec==="home"){
+      /* cost comp: Home is the Proposal tab's tool row (renderTools); a page opened from it closes */
+      const hub = document.getElementById("raHome"), q = document.getElementById("raQuote");
+      if (hub && q){ hub.hidden = false; q.hidden = true; q.innerHTML = ""; } else app.innerHTML = homeView();
       window.scrollTo(0,0); closeSheet(true); return;
-    }
-    if (pricing){ pricing.hidden = sec !== "pricing"; app.hidden = sec === "pricing"; }
-    if (sec === "pricing"){ setTabs(sec); closeSheet(true); return; }
-    setTabs(sec);`],
+    }`],
+  ['router: the Basil quote opens in the Proposal tab',
+    `app.innerHTML = basilView(); wireBasil();`,
+    `{ const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + basilView(); } wireBasil();`],
+  ['router: the Genius quote opens in the Proposal tab',
+    `app.innerHTML = geniusView(); wireGenius();`,
+    `{ const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + geniusView(); } wireGenius();`],
+  ['router: Compare opens in the Proposal tab',
+    `app.innerHTML = compareView(); wireCompare();`,
+    `{ const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + compareView(); } wireCompare();`],
   ['Home: only its quote tools, in the Proposal tab; the equipment sections have the Equipment tab\u2019s tabs instead', null, null, src => {
     const from = `  function init(){ fillStaticIcons(); render(); registerSW(); }`;
     if (src.split(from).length !== 2) throw new Error('init not found');
