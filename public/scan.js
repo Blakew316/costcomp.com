@@ -669,7 +669,7 @@
     document.querySelectorAll('#tab-overview .merchant-info, #tab-overview .kpi-grid .kpi, #tab-overview .savings-card').forEach(el => {
       el.classList.remove('scan-flash'); void el.offsetWidth; el.classList.add('scan-flash');
     });
-    toast('Cost analysis generated' + (D.merchantName ? ' for ' + D.merchantName : '') + ' — review the Overview and Proposal tabs.');
+    toast('Cost analysis generated' + (D.merchantName ? ' for ' + D.merchantName : '') + ' — review the Analysis and Proposal tabs.');
   }
 
   function toast(msg) {
@@ -680,7 +680,7 @@
     setTimeout(() => t.remove(), 5200);
   }
 
-  // ───────────── Markup vs. Appendix G (Overview card) ─────────────
+  // ───────────── Markup vs. Appendix G (Analysis card) ─────────────
   function assumptions() {
     return { assessPct: D.assessPct, assessItem: D.assessItem, amexRate: D.amexRate, amexItem: D.amexItem };
   }

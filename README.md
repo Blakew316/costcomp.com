@@ -2,15 +2,21 @@
 
 The cost comparison tool deployed at wpicostcomp.com. Site files live in `public/`; the AI statement reader is a Netlify Function in `netlify/functions/`.
 
+## The page
+
+- **Header:** the logo and the light/dark switch.
+- **Tabs:** **Analysis**, **Proposal** and **Equipment**. Each has a ☰ menu on the left: on a computer it folds down to icons, on a phone it opens as a drawer.
+- **Analysis menu:** **Scan Statement**, **Email as PDF** and **Download PDF**.
+
 ## Scan Statement
 
-Agents click **Scan Statement** in the header and choose how the statement arrived. The statement can be the merchant's processing statement or bank statement (see [Bank statements](#bank-statements)):
+Agents click **Scan Statement** in the Analysis tab's ☰ menu and choose how the statement arrived. The statement can be the merchant's processing statement or bank statement (see [Bank statements](#bank-statements)):
 
 - **PDF Statement**: the PDF the merchant downloaded or emailed (text or scanned).
 - **Statement Photos**: phone photos of the paper statement, one per page. Select all the pages at once. A page tray shows thumbnails so the agent can put the summary page first, remove a bad shot, or add a missed page before reading.
 - **Take Photos** (phones and tablets): opens the back camera, one page at a time, into the same tray.
 
-PDFs or photos can also be dragged onto the page. After reading, a review window shows what was found (with the photos alongside, tap one to compare), and **Apply & Generate Analysis** fills in the merchant name, address, monthly volume, transaction count, and total fees. The Overview, Proposal, and Equipment tabs then update automatically.
+PDFs or photos can also be dragged onto the page. After reading, a review window shows what was found (with the photos alongside, tap one to compare), and **Apply & Generate Analysis** fills in the merchant name, address, monthly volume, transaction count, and total fees. The Analysis, Proposal, and Equipment tabs then update automatically.
 
 Three readers are built in:
 
@@ -58,7 +64,7 @@ From a bank statement it fills in:
   | Bank fees | Service charges, NSF and overdraft fees, returned-item and wire fees, less refunds of those fees | No |
   | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans), SBA loans, and payment debits to an unnamed "… Funding" payee | No |
 
-- **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate, in the review and on the Overview, waits for that number.
+- **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate, in the review and on the Analysis tab, waits for that number.
 
 The review also points out:
 
@@ -94,7 +100,7 @@ Six synthetic statements in other bank layouts (Chase, Bank of America, Wells Fa
 
 ## Markup vs. Appendix G
 
-After a scan, the Overview tab shows **Current Processor Markup vs. Appendix G Wholesale Cost**:
+After a scan, the Analysis tab shows **Current Processor Markup vs. Appendix G Wholesale Cost**:
 
 - **True wholesale cost** = interchange at the Appendix G rates (`public/data/appendix-g.json`, parsed from the Appendix G Interchange Rate/Fee Schedule) + estimated card-brand assessments + estimated American Express cost.
 - **Processor markup** = the statement's total fees − true wholesale cost, shown per month, per year, as a percentage of volume, and as a share of the fees.
@@ -121,7 +127,7 @@ The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequip
 
 In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp** and its icon is the Wholesale Payments logo. It opens full screen with no browser bar, so it brings its own navigation:
 
-- **Tab bar** at the bottom on phones: **Overview**, **Proposal**, **Equipment**, **Scan** (the statement chooser) and **Email PDF**.
+- **Tab bar** at the bottom on phones: **Analysis**, **Proposal** and **Equipment**.
   - Each tab keeps its place on the page. Tapping the tab that's open scrolls it to the top.
   - On Proposal, tapping it again at the top closes an open quote.
   - On iPad and in Safari itself, the usual tabs at the top stay.
