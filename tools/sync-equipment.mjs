@@ -9,11 +9,14 @@
 //   public/assets/css/equipment.css           the app's stylesheet, scoped to where the app shows (the Equipment tab,
 //                                             the Proposal tab's quote tools, pop-ups) so its look is kept exactly and
 //                                             the cost comparison's styles can't reach it
-// and points the ?v= of those three files in public/index.html at the repequipment commit.
+// and stamps the ?v= of those three files in public/index.html with a hash of each file's content.
+// Re-run it after changing index.html's <style> or scan.css too: equipment.css cancels those styles inside the app
+// (npm test fails until it's re-run).
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { costCompCss, fingerprint, STAMPED, stamp } from './cost-comp-css.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REP = path.resolve(process.argv[2] || path.join(ROOT, '..', 'repequipment'));
@@ -104,7 +107,7 @@ const PATCHES = [
     const from = `  function init(){ fillStaticIcons(); render(); registerSW(); }`;
     if (src.split(from).length !== 2) throw new Error('init not found');
     return src.replace(from, () => `  function init(){ fillStaticIcons(); renderTools(); render(); registerSW(); }
-  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's left-hand tools menu */
+  /* cost comp: Home's quick links (quotes first) as the Proposal tab's left-hand tools menu; the equipment sections are the Equipment tab's */
   function renderTools(){
     const hub = document.getElementById("raHome"); if (!hub) return;
     const t = document.createElement("div"); t.innerHTML = homeView();
@@ -113,8 +116,6 @@ const PATCHES = [
     row.style.setProperty("--i", "0");
     const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\\/(basil|genius)$/.test(el.getAttribute("href") || ""));
     quote.reverse().forEach(el => row.prepend(el));
-    const fl = document.createElement("a"); fl.className = "qlink"; fl.href = "#/flyers"; fl.innerHTML = ic("flyer") + " Equipment Flyers";
-    (quote[0] || row.firstChild).after(fl);
     /* each label in its own span, so a folded menu can show just the icons */
     [...row.children].forEach(el => { [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const sp = document.createElement("span"); sp.className = "ra-label"; sp.textContent = n.textContent.trim(); n.replaceWith(sp); }); el.title = el.textContent.trim(); });
     const list = document.getElementById("raTools") || hub; list.innerHTML = ""; list.appendChild(row);
@@ -190,13 +191,27 @@ function scopeCss(css, inDarkMedia) {
         const inner = scopeCss(b.body, inDarkMedia || /prefers-color-scheme:\s*dark/i.test(b.prelude));
         return inner.trim() ? b.prelude + '{\n' + inner + '}\n' : '';
       }
-      return b.body == null ? b.prelude + ';\n' : b.prelude + '{' + b.body + '}\n';   // @keyframes and the like
+      if (/^@(-webkit-)?keyframes\b|^@font-face\b/i.test(b.prelude) && b.body != null) return b.prelude + '{' + b.body + '}\n';   // not selectors: as they are
+      if (/^@charset\b/i.test(b.prelude)) return '';
+      // @container, @layer, @scope, @import...: this tool doesn't scope them yet, and copied as they are they'd reach the cost comparison
+      throw new Error('The app stylesheet uses ' + b.prelude.split(/[\s{(]/)[0] + ', which tools/sync-equipment.mjs doesn\u2019t know how to scope: ' + b.prelude);
+    }
+    if (inDarkMedia) {   // dropped (see scopeSel), which is only right if the app's dark switch has the same rule
+      const miss = splitTop(b.prelude, ',').filter(s => !darkTwins.has(twinKey(':root[data-theme="dark"]' + s.slice(':root:not([data-theme="light"])'.length), b.body)));
+      if (miss.length) throw new Error('A prefers-color-scheme: dark rule has no :root[data-theme="dark"] twin, so the dark switch wouldn\u2019t apply it: ' + miss.join(', '));
     }
     const sels = splitTop(b.prelude, ',').map(s => scopeSel(s, inDarkMedia)).filter(Boolean);
     return sels.length ? sels.join(',\n') + '{' + b.body + '}\n' : '';
   }).join('');
 }
 const repCss = read(path.join(REP, 'assets/css/styles.css'));
+// every :root[data-theme="dark"] rule (selector + declarations), to check the prefers-color-scheme: dark rules against
+const twinKey = (sel, body) => sel.replace(/\s+/g, ' ').trim() + '{' + splitTop(body, ';').map(d => d.replace(/\s+/g, ' ').replace(/\s*:\s*/, ':')).sort().join(';') + '}';
+const darkTwins = new Set();
+(function walk(css, dark) { for (const b of blocks(css)) {
+  if (b.at) { if (b.body && /^@(media|supports)\b/i.test(b.prelude) && !/prefers-color-scheme/i.test(b.prelude)) walk(b.body); continue; }
+  splitTop(b.prelude, ',').filter(s => s.startsWith(':root[data-theme="dark"]')).forEach(s => darkTwins.add(twinKey(s, b.body)));
+} })(repCss);
 const scoped = scopeCss(repCss, false);
 if (/data-theme|:root\b/.test(scoped)) throw new Error('Unscoped theme selector left in the app stylesheet');
 
@@ -204,7 +219,10 @@ if (/data-theme|:root\b/.test(scoped)) throw new Error('Unscoped theme selector 
 // have (its own rules, or the browser default). :where() keeps these at the scope's weight, so every app rule, which
 // comes later and weighs at least as much, still wins.
 const index = read(path.join(PUB, 'index.html'));
-const ccCss = [...index.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m => m[1]).join('\n') + '\n' + read(path.join(PUB, 'scan.css'));
+const ccCss = costCompCss(PUB);
+// a ::-webkit-scrollbar rule can't be cancelled (any match turns on a custom scrollbar), so the cost comparison's must
+// leave the app out themselves
+const SB_GUARD = ':not(' + SCOPE + ',' + SCOPE + ' *)';
 const cancel = new Map();
 (function walk(css) {
   for (const b of blocks(css)) {
@@ -213,7 +231,11 @@ const cancel = new Map();
       .filter((p, k, all) => p && !p.startsWith('--') && /^[a-z-]+$/.test(p) && all.indexOf(p) === k);
     const important = new Set(splitTop(b.body, ';').filter(d => /!\s*important\s*$/i.test(d)).map(d => d.split(':')[0].trim().toLowerCase()));
     for (let s of splitTop(b.prelude, ',')) {
-      if (/-webkit-scrollbar|#raMain|#raLayer|#raHome|#raQuote|#raPropBar/.test(s)) continue;
+      if (/-webkit-scrollbar/.test(s)) {
+        if (!s.startsWith(SB_GUARD + '::-webkit-scrollbar')) throw new Error('The cost comparison\u2019s scrollbar rule "' + s + '" would reach inside the app: start it with ' + SB_GUARD);
+        continue;
+      }
+      if (/#raMain|#raLayer|#raHome|#raQuote|#raPropBar/.test(s)) continue;
       s = s.replace(/^(?:html|body)(?:[.:#[][^\s>+~]*)?\s*(?:>\s*)?/, '').trim();   // an ancestor outside the app
       if (!s || /^(?::root|html|body)$/.test(s)) continue;                      // the page itself
       const pe = /((?:::?(?:before|after|placeholder|selection|marker|first-line|first-letter))+)$/i.exec(s);
@@ -300,6 +322,13 @@ const integration = `
 /* a quote or Compare opens in the Proposal tab's main column, in place of the proposal */
 #raQuote{border:1px solid var(--border);border-radius:18px;padding-bottom:24px;margin-bottom:1.25rem}
 #tab-proposal:has(#raQuote:not([hidden])) .ra-content > :not(#raQuote){display:none}
+/* native control parts (date pickers, dropdown lists, scrollbars) follow the system setting, as the app's own page says */
+${SCOPE}{color-scheme:light dark}
+/* a quote's total bar is fixed to the bottom of the screen: the app's page ends in blank space for it, so the cost
+   comparison's footer steps aside while one is open instead of sitting under the bar */
+body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
+/* reduced motion: the app jumps to the top of a page instead of scrolling there (its html rule, on the page while it shows) */
+@media(prefers-reduced-motion:reduce){html:has(body.ra-tab){scroll-behavior:auto}}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */
 #raLayer{position:relative;z-index:1000;height:0;margin:0;padding:0;background:transparent}
 body:not(.ra-tab) #raLayer{display:none}
@@ -310,14 +339,19 @@ body.dark.ra-on{background:${bgDark}}
 
 fs.writeFileSync(path.join(PUB, 'assets/css/equipment.css'),
   '/* WPI Assist styles from github.com/Blakew316/repequipment @ ' + commit + ', scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */\n' +
+  '/* cost comparison styles: ' + fingerprint(ccCss) + ' */\n' +
   '/* 1. the cost comparison’s rules cancelled inside the app */\n' + cancelCss + '\n' +
   '/* 2. the page as the app’s own page starts: browser defaults for what the cost comparison sets on its page */\n' +
   SCOPE + '{' + reset.map(p => p + ':initial').concat(unset.map(v => v + ':initial')).join(';') + '}\n' +
   '/* 3. the app’s stylesheet */\n' + scoped + integration);
 
-// ─── 4. cache-busting ───
-const v = commit + '-' + Date.now().toString(36);
-const idx2 = index.replace(/(assets\/(?:js\/data\.js|js\/app\.js|css\/equipment\.css))\?v=[\w.-]+/g, '$1?v=' + v);
+// ─── 4. cache-busting: each file's ?v= is a hash of its content, so it changes exactly when the file does ───
+let idx2 = index;
+for (const f of STAMPED) {
+  const re = new RegExp(f.replace(/[.\/]/g, '\\$&') + '\\?v=[\\w.-]+', 'g');
+  if (!re.test(idx2)) throw new Error('index.html doesn\u2019t load ' + f + '?v=');
+  idx2 = idx2.replace(re, f + '?v=' + stamp(PUB, f));
+}
 if (idx2 !== index) fs.writeFileSync(path.join(PUB, 'index.html'), idx2);
-console.log('WPI Assist synced from', REP, '@', commit, '(v=' + v + ')');
+console.log('WPI Assist synced from', REP, '@', commit, '(' + STAMPED.map(f => path.basename(f) + '?v=' + stamp(PUB, f)).join(', ') + ')');
 console.log('  cancelled cost comparison selectors:', cancel.size, '· page styles reset:', reset.join(', ') || 'none', '· variables unset:', unset.join(', ') || 'none');
