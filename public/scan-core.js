@@ -692,7 +692,7 @@
     [/\bworldpay\b|\bvantiv\b/i, 'Worldpay', 'acquirer'],
     [/\bglobal\s*pay(ments)?\b|\btsys\b|\btransfirst\b|\btotal\s*system/i, 'Global Payments / TSYS', 'acquirer'],
     [/\belavon\b/i, 'Elavon', 'acquirer'],
-    [/\bfirst\s*data\b|\bfdms\b|\bfiserv\b|\bcardconnect\b|\bcardpointe\b|\bbankcard[-\s]?\d{4}\b|\bbankcard\b[^|]{0,80}?\b(btot|mtot|dep\w*|disc\w*|fees?|settle\w*|setl|stlmt|chg\w*|chbk|adj\w*)\b|\b(settle\w*|setl|stlmt|deposit|fees?|disc\w*)\s+bankcard\b|\bbnkcd\b|\bbkcd\b/i, 'Fiserv / First Data', 'acquirer'],
+    [/\bfirst\s*data\b|\bfdms\b|\bfiserv\b|\bcardconnect\b|\bcardpointe\b|\bbankcard[-\s]?\d{4}\b|\bbankcard\b[^|]{0,80}?\b(btot|mtot|mthly|monthly|dep\w*|disc\w*|fees?|settle\w*|setl|stlmt|chg\w*|chbk|adj\w*)\b|\b(settle\w*|setl|stlmt|deposit|fees?|disc\w*)\s+bankcard\b|\bbnkcd\b|\bbkcd\b/i, 'Fiserv / First Data', 'acquirer'],
     [/\bepx\b|\bnorth\s*american\s*proc/i, 'EPX', 'acquirer'],
     [/\bpaymentech\b|\bchase\s*merch/i, 'Chase Paymentech', 'acquirer'],
     [/\bpaysafe\b/i, 'Paysafe', 'acquirer'],
@@ -729,7 +729,7 @@
   const BILLPAY_FEE = /\b(paymentus|pmntus|convenience|conv\.?\s*fee|invoice\s*cloud|ici\s*fee|doxo|billmatrix)\b/i;   // charged by a biller, not the bank
   const RETURNED_PAYMENT = /\b(rejected|returned|return\s+of|return\s+item|reversal|reversed|refund|unpaid|rtn|ach\s+return)\b|\(rejected\)/i;
   const MONEY_MOVE = /^\s*(outgoing|incoming|online|domestic|international|intl|book|fed)?\s*(wire|fedwire|wt)\b|\bwire\s+(trans\w*\s+)?(to|from)\b|\bzelle\b|\bvenmo\b|\bcash\s*app\b|\bonline\s+(banking\s+)?transfer\b|\btransfer\s+(to|from)\s/i;
-  const BANK_FEE_WORDS = /\b(fees?|disc(ount|nt)?|mtot|interchange|assess\w*|monthly|pci|chg|charges?|dues|(monthly|annual|stmt|statement|pci|gateway|batch|txn|processing)fees?)\b/i;
+  const BANK_FEE_WORDS = /\b(fees?|disc(ount|nt)?|mtot|interchange|assess\w*|monthly|mthly|pci|chg|charges?|dues|(monthly|annual|stmt|statement|pci|gateway|batch|txn|processing)fees?)\b/i;
   const CHARGEBACKS = /\b(charge\s*back|chargeback|chg\s*[bh]\s*c?k|chbk|cbk|dispute)\b/i;   // OCR reads "Chgbck" as "Chghck"
   const NOT_SALES = /\b(refund|reversal|revers\w*|rev|rebate|adj|adjustment|fee\s*adj\w*|subscr\w*|hdwr|hardware|rf|charge\s*back|chargeback|chg\s*[bh]\s*c?k|chbk|dispute|return(ed)?|rtn|unpaid|rejected)\b/i;
 
@@ -740,7 +740,10 @@
     const before = desc.slice(0, m.index).replace(/^.*(name|co|ach\s+(debit|credit|withdrawal|deposit)|des|from|to)\s*[:#]?\s*/i, '').split(/\s+/).filter(w => /^[a-z&'.-]+$/i.test(w)).slice(-3);
     return titleCase((before.join(' ') + ' ' + m[0]).trim().toUpperCase());
   }
+  // Chase and others glue the ACH class code onto the memo ("Descr:Mthly Feessec:CCD"), which hides the memo's last word
+  const unglueSec = d => d.replace(/([a-z0-9])(sec\s*:\s*(?:ccd|ppd|web|ctx|tel|cie|pop|arc|boc|rck|iat)\b)/gi, '$1 $2');
   function classifyBankTx(desc, dir) {
+    desc = unglueSec(desc);
     const moved = MONEY_MOVE.test(desc);   // a wire, Zelle or transfer names whoever sent it, not a processor
     // "INDN:CAPITAL CITY DINER" / "Ind Name:…" is the account holder's own name, which says nothing about the payee
     const org = desc.replace(/\b(indn|ind\s*name|receiver|recv\s*name)\s*:.*$/i, '');
@@ -759,6 +762,8 @@
     if (dir === 'credit') {
       if (RETURNED_PAYMENT.test(desc)) return { category: 'other_deposit', source: null };   // money coming back is not sales or new funding
       if (funder) return { category: 'mca_funding', source: funderName() };
+      // a processor's own lending program paying out ("360 PAYMENTS CAP … 160,000.00") is an advance, not card sales
+      if (src && src.kind !== 'network' && PROCESSOR_CAPITAL.test(org)) return { category: 'mca_funding', source: src.name + ' Capital' };
       // a network name on a credit is a settlement only when it isn't the owner's own Discover/Amex savings or rewards
       if (src && src.kind === 'network' && /\b(transfer|xfer|p2p|savings|bank|cashback|reward|bonus)\b/i.test(desc)) return { category: 'other_deposit', source: null };
       if (src && !NOT_SALES.test(desc) && !PAYROLL.test(org)) return { category: 'card_deposit', source: src.name };
@@ -1059,6 +1064,16 @@
     return Math.max(1, months);
   }
 
+  // The company behind an ACH entry, when the bank names it: "Orig CO Name:Bankcard Orig ID:…" (Chase), "BANKCARD 8076
+  // DES:MTOT DEP …" (Bank of America), "Originator: …"; lowercased letters and digits only, so OCR spacing doesn't matter
+  function originKey(desc) {
+    const d = unglueSec(desc);
+    const m = /\b(?:orig(?:inator)?\s*)?co(?:mpany)?\s*name\s*:\s*(.+?)(?=\s+(?:orig\s*[i1l]*\s*d\b|desc\s*date|co\s+ent\w*|descr|sec\s*:|trace)|$)/i.exec(d)
+      || /\boriginator\s*:\s*(.+?)(?=\s+(?:id|descr?|sec|entry|trace)\b|$)/i.exec(d)
+      || /^(?:ach\s+(?:debit|credit|withdrawal|deposit)\s+)?([a-z][\w&'.\- ]{2,40}?)\s+des\s*:/i.exec(d);
+    const k = m ? m[1].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+    return k.length >= 4 ? k : null;
+  }
   function parseBankStatement(doc, result) {
     result.family = 'bank';
     result.document_type = 'bank_statement';
@@ -1066,6 +1081,16 @@
     const txs = bankTransactions(doc).map(t => Object.assign(t, classifyBankTx(t.desc, t.dir)));
     // the bank's own "FEES" section lists its charges without always saying "fee" ("Same Day Payment - Standard")
     txs.forEach(t => { if (t.feeSec && t.dir === 'debit' && t.category === 'other_debit') t.category = 'misc_fee'; });
+    // A debit from the same processor that sends the card deposits is it taking its fees, however the memo reads
+    // ("Orig CO Name:Bankcard … Descr:Settlement" in, "Orig CO Name:Bankcard … Descr:Mthly Fees" out). Acquirers only: a
+    // payment facilitator (Square, Stripe) nets its fees, so its plain debits are refunds, transfers or purchases.
+    const payers = {};
+    txs.filter(t => t.dir === 'credit' && t.category === 'card_deposit').forEach(t => {
+      const src = bankSource(unglueSec(t.desc)), k = originKey(t.desc);
+      if (k && src && src.kind === 'acquirer') payers[k] = t.source;
+    });
+    txs.filter(t => t.dir === 'debit' && t.category === 'other_debit' && !MONEY_MOVE.test(t.desc) && !CARD_BILL.test(t.desc) && !OWN_CARD_PURCHASE.test(t.desc) && !RETURNED_DEPOSIT.test(t.desc) && !PAYROLL.test(t.desc))
+      .forEach(t => { const k = originKey(t.desc); if (k && payers[k]) { t.category = 'processing_fee'; t.source = payers[k]; } });
     txs.forEach(t => { if (t.category === 'misc_fee' && !t.source) t.source = result.processor || 'The bank'; });
     // a payment rejected or returned and credited back is no cost: drop both sides
     // Only when it names the same payee, or names none ("RETURN OF POSTED CHECK / ITEM"): a vendor's refund of the same amount is unrelated.

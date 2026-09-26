@@ -72,6 +72,75 @@ test('section layout (deposits / withdrawals headings): card volume, fees, cash 
   assert.equal(r.total_fees, 165);
 });
 
+test('processor fee debits are found however the memo reads (Chase ACH, glued class codes, processor capital)', () => {
+  const c = (d, dir) => Core.classifyBankTx(d, dir);
+  // Chase glues the ACH class onto the memo: "Descr:Mthly Feessec:CCD" is Fiserv's monthly fee debit
+  assert.deepEqual(c('Orig CO Name:Bankcard Orig ID:1000000001 Desc Date:260531 CO Entry Descr:Mthly Feessec:CCD Trace#:1000000000001', 'debit'),
+    { category: 'processing_fee', source: 'Fiserv / First Data' });
+  assert.equal(c('Orig CO Name:Bankcard Orig ID:1000000001 Desc Date:260601 CO Entry Descr:Settlementsec:CCD', 'credit').category, 'card_deposit');
+  assert.equal(c('Orig CO Name:360Payments Orig ID:1000000002 Desc Date:260605 CO Entry Descr:8005550100Sec:CCD', 'debit').category, 'processing_fee');
+  // a processor's capital program: the advance is not card sales, the repayments are not processing fees
+  assert.deepEqual(c('Orig CO Name:360 Payments CAP Orig ID:1000000003 Desc Date:260604 CO Entry Descr:2026-06-04Sec:CCD', 'credit'),
+    { category: 'mca_funding', source: '360 Payments Capital' });
+  assert.equal(c('Orig CO Name:360 Payments CAP Orig ID:1000000004 Desc Date:260623 CO Entry Descr:2026-06-22Sec:CCD', 'debit').category, 'mca_payment');
+  // paying a credit card bill named Bankcard is still not a processing fee
+  assert.equal(c('FIRST BANKCARD ONLINE PMT', 'debit').category, 'other_debit');
+
+  const r = Core.parseStatement([page([
+    [[40, 'SAMPLE NATIONAL BANK']], [[40, 'SAMPLE AUTO REPAIR, INC.']], [[40, '100 MAIN ST']], [[40, 'SPRINGFIELD, CA 95000']],
+    [[40, 'May 30, 2026 through June 30, 2026']],
+    [[40, 'CHECKING SUMMARY']], [[40, 'Beginning Balance'], R(570, '$5,000.00')], [[40, 'Deposits and Additions'], R(570, '38,000.00')],
+    [[40, 'Electronic Withdrawals'], R(570, '-4,800.00')], [[40, 'Ending Balance'], R(570, '$38,200.00')],
+    [[40, 'DEPOSITS AND ADDITIONS']], [[40, 'DATE'], [90, 'DESCRIPTION'], R(570, 'AMOUNT')],
+    [[40, '06/01'], [90, 'Orig CO Name:Bankcard Orig ID:1000000001 Desc Date:260529 CO Entry'], R(570, '4,000.00')],
+    [[90, 'Descr:Settlementsec:CCD Trace#:1000000000011 Ind Name:Sample Auto Repair']],
+    [[40, '06/02'], [90, 'Orig CO Name:Bankcard Orig ID:1000000001 Desc Date:260601 CO Entry'], R(570, '6,000.00')],
+    [[90, 'Descr:Settlementsec:CCD Trace#:1000000000012 Ind Name:Sample Auto Repair']],
+    [[40, '06/04'], [90, 'Orig CO Name:360 Payments CAP Orig ID:1000000003 Desc Date:260604 CO Entry'], R(570, '25,000.00')],
+    [[90, 'Descr:2026-06-04Sec:CCD Trace#:1000000000013 Ind Name:Sample Auto Repair']],
+    [[40, '06/05'], [90, 'Remote Online Deposit'], R(570, '3,000.00')],
+    [[40, 'Total Deposits and Additions'], R(570, '$38,000.00')],
+    [[40, 'ELECTRONIC WITHDRAWALS']], [[40, 'DATE'], [90, 'DESCRIPTION'], R(570, 'AMOUNT')],
+    [[40, '06/01'], [90, 'Orig CO Name:Bankcard Orig ID:1000000001 Desc Date:260531 CO Entry'], R(570, '300.00')],
+    [[90, 'Descr:Mthly Feessec:CCD Trace#:1000000000021 Ind Name:Sample Auto Repair']],
+    [[40, '06/08'], [90, 'Orig CO Name:360Payments Orig ID:1000000002 Desc Date:260605 CO Entry'], R(570, '100.00')],
+    [[90, 'Descr:8005550100Sec:CCD Trace#:1000000000022 Ind Name:Sample Auto Repair']],
+    // the same company as the deposits, with a memo that names no fee: still the processor's fees
+    [[40, '06/15'], [90, 'Orig CO Name:Bankcard Orig ID:1000000001 Desc Date:260614 CO Entry'], R(570, '50.00')],
+    [[90, 'Descr:Billing 0614sec:CCD Trace#:1000000000023 Ind Name:Sample Auto Repair']],
+    [[40, '06/23'], [90, 'Orig CO Name:360 Payments CAP Orig ID:1000000004 Desc Date:260623 CO Entry'], R(570, '1,350.00')],
+    [[90, 'Descr:2026-06-22Sec:CCD Trace#:1000000000024 Ind Name:Sample Auto Repair']],
+    [[40, '06/25'], [90, 'Orig CO Name:Sample Parts Co Orig ID:1000000005 Desc Date:260625 CO Entry'], R(570, '3,000.00')],
+    [[90, 'Descr:Payment Sec:CCD Trace#:1000000000025 Ind Name:Sample Auto Repair']],
+    [[40, 'Total Electronic Withdrawals'], R(570, '$4,800.00')],
+  ])], {});
+  assert.equal(r.document_type, 'bank_statement');
+  assert.equal(r.bank.card_deposits.total, 10000);                                // the capital advance is not card sales
+  assert.deepEqual(r.bank.card_deposits.sources.map(s => s.name), ['Fiserv / First Data']);
+  assert.equal(r.bank.processing_fees.total, 450);                                // monthly fees + 360 Payments + the Bankcard billing debit
+  assert.deepEqual(r.bank.processing_fees.sources.map(s => [s.name, s.total]), [['Fiserv / First Data', 350], ['360 Payments', 100]]);
+  assert.equal(r.bank.mca_funding.total, 25000);
+  assert.equal(r.bank.mca_payments.total, 1350);
+  assert.equal(r.volume, 10000);
+  assert.equal(r.total_fees, 450);
+});
+
+test('a payment facilitator\u2019s plain debits stay out of processing fees (it nets its fees from each payout)', () => {
+  const r = Core.parseStatement([page([
+    ...header,
+    [[40, 'CHECKING SUMMARY']], [[40, 'Beginning Balance'], R(570, '$5,000.00')], [[40, 'Deposits and Additions'], R(570, '10,000.00')],
+    [[40, 'Electronic Withdrawals'], R(570, '-2,050.00')], [[40, 'Ending Balance'], R(570, '$12,950.00')],
+    [[40, 'DEPOSITS AND ADDITIONS']], [[40, 'DATE'], [90, 'DESCRIPTION'], R(570, 'AMOUNT')],
+    [[40, '08/03'], [90, 'Orig CO Name:Square Inc Orig ID:9000000002 CO Entry Descr:Sq260803 Sec:CCD'], R(570, '4,000.00')],
+    [[40, '08/10'], [90, 'Orig CO Name:Square Inc Orig ID:9000000002 CO Entry Descr:Sq260810 Sec:CCD'], R(570, '6,000.00')],
+    [[40, 'ELECTRONIC WITHDRAWALS']], [[40, 'DATE'], [90, 'DESCRIPTION'], R(570, 'AMOUNT')],
+    [[40, '08/12'], [90, 'Orig CO Name:Square Inc Orig ID:9000000002 CO Entry Descr:Transfer Sec:CCD'], R(570, '250.00')],
+    [[40, '08/14'], [90, 'Orig CO Name:Square Inc Orig ID:9000000002 CO Entry Descr:Payroll Sec:CCD'], R(570, '1,800.00')],
+  ])], {});
+  assert.equal(r.bank.card_deposits.total, 10000);
+  assert.equal(r.bank.processing_fees.total, 0);
+});
+
 test('column layout (Deposits/Credits and Withdrawals/Debits columns): direction comes from the column', () => {
   const r = Core.parseStatement([page([
     ...header,
