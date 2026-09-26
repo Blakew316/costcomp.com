@@ -291,8 +291,12 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 /* ─── Home-screen app (html.pwa): there's no browser bar, so the app brings its own navigation ─── */
 html.pwa .header{padding-top:calc(0.6rem + env(safe-area-inset-top))}
 /* iOS 26 and later frost the status bar and the band just below it (the header) unless a solid fixed box covers the
-   top edge, so the status bar gets one in the header's colour and everything scrolls under it, sharp */
-html.pwa body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--bg-white);z-index:2000;pointer-events:none}
+   top edge, so the status bar gets one in the header's colour and everything scrolls under it, sharp. It has to be a
+   real element: iOS finds it by hit-testing the top edge and a ::before resolves to its parent, so iOS never sees it */
+.status-cover{display:none}
+html.pwa .status-cover{display:block;position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--bg-white);z-index:2000;pointer-events:none}
+html.pwa .offline-bar{padding-top:calc(0.4rem + env(safe-area-inset-top))}
+html.pwa .offline-bar.show + .header{padding-top:0.6rem}
 html.pwa .scan-overlay{padding-top:calc(4vh + env(safe-area-inset-top))}
 html.pwa .scan-lightbox{padding-top:calc(0.5rem + env(safe-area-inset-top))}
 html.pwa .scan-lightbox-bar{top:env(safe-area-inset-top)}
@@ -465,9 +469,10 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=db6e13f8b1e3">
+<link rel="stylesheet" href="assets/css/equipment.css?v=1ee866da4209">
 </head>
 <body>
+<div class="status-cover" aria-hidden="true"></div>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
 
 <header class="header">
