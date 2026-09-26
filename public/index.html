@@ -158,14 +158,6 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .equip-card h4{font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--border-color);color:#000}
 .equip-row{display:flex;justify-content:space-between;padding:0.4rem 0;font-size:0.84rem;border-bottom:1px solid var(--border-light)}
 .equip-row:last-child{border-bottom:none}
-.equip-switch{display:inline-flex;gap:0.25rem;padding:0.25rem;margin-bottom:1.25rem;background:var(--bg-section);border:1px solid var(--border-color);border-radius:999px}
-.equip-switch-btn{background:none;border:none;border-radius:999px;padding:0.5rem 1.1rem;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:var(--transition);-webkit-tap-highlight-color:transparent}
-.equip-switch-btn:hover{color:var(--text-primary)}
-.equip-switch-btn.active{background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,0.12)}
-.equip-assist{margin-bottom:1.25rem}
-.equip-assist iframe{display:block;width:100%;height:calc(100vh - 220px);min-height:520px;border:1px solid var(--border-color);border-radius:var(--radius);background:var(--bg-card);box-shadow:var(--shadow-card)}
-.equip-assist-foot{display:flex;justify-content:flex-end;margin-top:0.5rem;font-size:0.78rem}
-.equip-assist-foot a{color:var(--text-muted)}
 .equip-label{color:var(--text-muted)}.equip-value{font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;letter-spacing:-0.01em}
 
 .residual-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
@@ -412,6 +404,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
+<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhmq8rh">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -507,6 +500,8 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- ──────── PROPOSAL TAB ──────── -->
 <section class="tab-panel" id="tab-proposal">
+  <!-- WPI Assist quote tools (Equipment, Basil POS, Genius POS quotes...); a Basil or Genius quote opens here -->
+  <div id="raProp"><div id="raHome"></div><div id="raQuote" hidden></div></div>
   <div class="merchant-info" id="propInfo">
     <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
     <div class="info-item"><span class="info-label">Address</span><span class="info-value editable" data-field="address" onclick="editField(this)">Enter address</span></div>
@@ -570,16 +565,23 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- ──────── EQUIPMENT TAB ──────── -->
 <section class="tab-panel" id="tab-equipment">
-  <div class="equip-switch" role="tablist" aria-label="Equipment views">
-    <button type="button" class="equip-switch-btn active" role="tab" aria-selected="true" aria-controls="eqAssist" data-eqview="assist">WPI Assist</button>
-    <button type="button" class="equip-switch-btn" role="tab" aria-selected="false" aria-controls="eqPricing" data-eqview="pricing">Pricing &amp; Proposal</button>
+  <!-- WPI Assist (github.com/Blakew316/repequipment), copied in by tools/sync-equipment.mjs; its styles are in assets/css/equipment.css -->
+  <div id="raMain">
+    <header class="hdr">
+      <div class="wrap">
+        <nav class="subnav" id="subnav" aria-label="Equipment sections">
+          <a class="tab" data-sec="flyers" data-icon="flyer" href="#/flyers">Equipment Flyers</a>
+          <a class="tab" data-sec="install" data-icon="install" href="#/install">Installation</a>
+          <a class="tab" data-sec="troubleshoot" data-icon="trouble" href="#/troubleshoot">Troubleshooting</a>
+          <a class="tab" data-sec="compare" data-icon="filter" href="#/compare">Compare</a>
+          <a class="tab" data-sec="pricing" data-icon="tag" href="#/pricing">Pricing &amp; Proposal</a>
+        </nav>
+      </div>
+    </header>
+    <div id="app" class="ra-main"></div>
   </div>
-  <!-- WPI ASSIST (github.com/Blakew316/repequipment, live at wpirepassist.com): flyers, installation, troubleshooting, compare -->
-  <div id="eqAssist" class="equip-assist" role="tabpanel">
-    <iframe id="eqAssistFrame" title="WPI Assist: equipment flyers, installation, troubleshooting and compare" allow="fullscreen; clipboard-write; web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-    <div class="equip-assist-foot"><a href="https://wpirepassist.com/" target="_blank" rel="noopener">Open WPI Assist in a new window</a></div>
-  </div>
-  <div id="eqPricing" role="tabpanel" hidden>
+  <!-- Pricing & Proposal: equipment pricing that feeds the Proposal tab and the PDF -->
+  <div id="eqPricing" hidden>
   <div class="merchant-info">
     <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
     <div class="info-item"><span class="info-label">Address</span><span class="info-value editable" data-field="address" onclick="editField(this)">Enter address</span></div>
@@ -1525,38 +1527,50 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 </script>
 <script src="scan-core.js?v=20260925-6"></script>
 <script src="scan.js?v=20260925-6"></script>
+<!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
+<div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
+<script src="assets/js/data.js?v=da9358e-muhmq8rh"></script>
+<script src="assets/js/app.js?v=da9358e-muhmq8rh"></script>
 <script>
-// Equipment tab: WPI Assist (the repequipment app, served from its own site so it runs exactly as it does there)
-// and the pricing view that feeds the proposal
+// WPI Assist's #/ routes: the equipment sections belong to the Equipment tab, the quote tools and the Basil and Genius
+// quotes (#/, #/basil, #/genius) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
+// while the rep is on another tab and comes back when they return.
 (function () {
-  var ASSIST_URL = 'https://wpirepassist.com/';
-  var tab = document.getElementById('tab-equipment');
-  var frame = document.getElementById('eqAssistFrame');
-  var views = { assist: document.getElementById('eqAssist'), pricing: document.getElementById('eqPricing') };
-  var btns = tab.querySelectorAll('[data-eqview]');
-  // fill the screen below the tabs; the app scrolls inside its own frame
-  function size() {
-    if (!frame.offsetParent) return;
-    var top = frame.getBoundingClientRect().top + window.scrollY;
-    frame.style.height = Math.max(520, window.innerHeight - Math.min(top, window.innerHeight * 0.45) - 40) + 'px';
+  var tabs = { equipment: document.getElementById('tab-equipment'), proposal: document.getElementById('tab-proposal') };
+  var saved = { equipment: '', proposal: '' };
+  function owner(h) {
+    var m = /^#\/([^\/]*)/.exec(h || '');
+    return !m ? null : /^(home|basil|genius)?$/.test(m[1]) ? 'proposal' : 'equipment';
   }
-  function load() {
-    if (!frame.getAttribute('src')) frame.setAttribute('src', ASSIST_URL);   // only once the view is first shown
-    size();
+  function current() { return tabs.equipment.classList.contains('active') ? 'equipment' : tabs.proposal.classList.contains('active') ? 'proposal' : null; }
+  function sync(fromLink) {
+    var tab = current(), own = owner(location.hash);
+    if (fromLink && own && own !== tab) { switchTab(own); return; }   // the tab observer runs sync again
+    if (own && own !== tab) {
+      saved[own] = location.hash;
+      history.replaceState(null, '', location.pathname + location.search);
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));   // close an open device sheet
+      own = null;
+    }
+    if (tab && !own) {
+      var back = saved[tab] || (tab === 'equipment' ? '#/flyers' : '');
+      if (back) {
+        history.replaceState(null, '', back);
+        // the Equipment tab's first visit: show its first section
+        if (tab === 'equipment' && !document.querySelector('#raMain #app').children.length) window.dispatchEvent(new HashChangeEvent('hashchange'));
+      }
+    }
+    if (tab && owner(location.hash) === tab) saved[tab] = location.hash;   // each tab remembers where the rep last was
+    document.body.classList.toggle('ra-tab', !!tab);
+    document.body.classList.toggle('ra-on', tab === 'equipment' && !/^#\/pricing\b/.test(location.hash));
   }
-  function show(view) {
-    Object.keys(views).forEach(function (k) { views[k].hidden = k !== view; });
-    btns.forEach(function (b) { var on = b.dataset.eqview === view; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
-    try { localStorage.setItem('wpiEquipView', view); } catch (e) { /* private mode */ }
-    if (view === 'assist' && tab.classList.contains('active')) load();
-  }
-  btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.eqview); }); });
-  var saved = null;
-  try { saved = localStorage.getItem('wpiEquipView'); } catch (e) { /* private mode */ }
-  show(saved === 'pricing' ? 'pricing' : 'assist');
-  // the tab itself is shown by switchTab(); load the app when it first becomes visible
-  new MutationObserver(function () { if (tab.classList.contains('active') && !views.assist.hidden) load(); }).observe(tab, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('resize', size);
+  var observe = function () { sync(false); };
+  new MutationObserver(observe).observe(tabs.equipment, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(observe).observe(tabs.proposal, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('hashchange', function () { sync(true); });
+  var own = owner(location.hash);
+  if (own && own !== 'proposal' || /^#\/(basil|genius)/.test(location.hash)) switchTab(own);
+  sync(false);
 })();
 </script>
 </body>

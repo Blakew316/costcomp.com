@@ -104,14 +104,17 @@ After a scan, the Overview tab shows **Current Processor Markup vs. Appendix G W
 
 The markup analysis is on-screen only; the emailed/downloaded proposal PDF is unchanged.
 
-## Equipment tab
+## Equipment tab and quote tools
 
-The Equipment tab has two views, switched at the top of the tab:
+The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequipment](https://github.com/Blakew316/repequipment), copied into this site. It runs exactly as it does on its own, with its own colors, shading and icons, and follows the cost comparison's light/dark switch.
 
-- **WPI Assist** (the default): the rep equipment field kit, with equipment flyers, installation guides, troubleshooting, and device comparisons. It is the [repequipment](https://github.com/Blakew316/repequipment) app, embedded from its live site, wpirepassist.com. It works exactly as it does there, and changes to that repository show up here as soon as that site deploys. It loads the first time the view opens, and **Open WPI Assist in a new window** opens it on its own.
-- **Pricing & Proposal**: the equipment pricing calculator. The equipment chosen here feeds the Proposal tab and the PDF.
-
-The tab remembers which view was open last.
+- **Equipment tab:** Equipment Flyers (where it opens), Installation, Troubleshooting, and Compare, with device sheets and flyer PDFs. **Pricing & Proposal**, the last section tab, is the cost comparison's equipment pricing calculator; the equipment chosen there feeds the Proposal tab and the PDF.
+- **Proposal tab:** the app's quote tools sit at the top: Equipment Quote, Basil POS Quote, Genius POS Quote, Equipment Flyers, the full pricing matrix, install videos, and Compare two devices.
+  - The Equipment Quote builder opens over the page.
+  - A Basil or Genius quote opens in the Proposal tab in place of the proposal. **← Proposal** returns to the proposal.
+- **Links:** `/#/flyers`, `/#/compare`, `/#/basil` and the like open straight to that section in its tab.
+- **Where it lives:** the app's images, flyers, guides and forms are in `public/assets/`. Its code is `public/assets/js/app.js` and `data.js`, and its styles are `public/assets/css/equipment.css`, scoped to where the app shows so that neither site's styles reach the other.
+- **Updating it:** make changes in the repequipment repo, then run `npm run sync-equipment -- <path to a repequipment checkout>`, test, and deploy. The tool copies the app over again, re-applies the few changes that let it live inside this page (listed at the top of `tools/sync-equipment.mjs`), and rebuilds the scoped styles.
 
 ## Deploying on Netlify
 
