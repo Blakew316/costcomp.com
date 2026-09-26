@@ -54,15 +54,15 @@ The same Scan Statement buttons also read a merchant's **bank statement**, as a 
 
 From a bank statement it fills in:
 
-- **Monthly Card Volume**: deposits from card processors, such as Square, Toast, Clover and Fiserv "Bankcard" deposits, Stripe, PayPal, Heartland, Worldpay, TSYS, Elavon, and Amex settlements. Cash and check deposits, transfers, Zelle, loan proceeds, refunds, and chargeback reversals don't count as card sales.
+- **Monthly Card Volume**: deposits from card processors, such as Square, Toast, Clover and Fiserv "Bankcard" deposits, Stripe, PayPal, Heartland, Worldpay, TSYS, Elavon, and Amex settlements. Cash and check deposits, transfers, Zelle, loan proceeds (including a processor's capital program paying out, such as "360 Payments CAP"), refunds, and chargeback reversals don't count as card sales.
 - **Total Monthly Fees**: processing fees plus POS software and equipment. The review lists each cost category per month, with who it was paid to. Checked rows add up to Total Monthly Fees:
 
   | Row | Counts | Checked by default |
   | --- | --- | --- |
-  | Processing fees | The processor's fee debits (discount, monthly, PCI, statement fees) | Yes |
+  | Processing fees | The processor's fee debits (discount, monthly, PCI, statement fees), however short the memo ("Orig CO Name:Bankcard … Descr:Mthly Fees", "BANKCARD 8076 MTOT DISC"). Any debit from the same company that sends the card deposits counts. | Yes |
   | POS software & equipment | POS subscriptions, app market, gateways, and terminal leases or rentals. Payroll, bookkeeping, website, and other general software doesn't count. | Yes |
   | Bank fees | Service charges, NSF and overdraft fees, returned-item and wire fees, less refunds of those fees | No |
-  | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans), SBA loans, and payment debits to an unnamed "… Funding" payee | No |
+  | Cash advance / loan payments | Merchant cash advance and business-loan payments: named funders, processor capital programs (Square Capital, Toast Capital, PayPal loans, 360 Payments CAP), SBA loans, and payment debits to an unnamed "… Funding" payee | No |
 
 - **# of Transactions** stays blank, because bank statements don't show card transaction counts. The agent enters it from the processing statement or the POS. The markup estimate, in the review and on the Analysis tab, waits for that number.
 

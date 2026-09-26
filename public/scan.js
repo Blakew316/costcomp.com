@@ -17,9 +17,9 @@
     langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int'
   };
   const OCR_LONG_EDGE = 2400;      // ~300 dpi for a letter page
-  const OCR_MAX_PAGES = 12;
+  const OCR_MAX_PAGES = 36;        // scanned pages per upload: three monthly bank statements of about 12 pages
   const OCR_START_TIMEOUT_MS = 120000;
-  const MAX_AI_FILES = 20;        // the function's per-request limit
+  const MAX_AI_FILES = 36;        // the function's per-request limit
   const API = '/api/scan-statement';
   const UPLOAD_BUDGET = 4200000;   // raw bytes; base64 inflates ~33% and Netlify accepts ~6 MB
   const AI_TIMEOUT_MS = 58000;
@@ -243,7 +243,18 @@
       } else jobs.push({ file: f, doc: 'photos' });
     });
     const textJobs = jobs.filter(j => j.text).length;
-    const total = Math.min(jobs.length - textJobs, OCR_MAX_PAGES);
+    // Over the page limit, later statements are left out whole (a statement cut off halfway would count as a full month
+    // with most of its withdrawals missing); only a first statement longer than the limit is read in part
+    const skipped = [];
+    let budget = OCR_MAX_PAGES;
+    [...new Set(jobs.map(j => j.doc))].forEach((d, i) => {
+      const imgs = jobs.filter(j => j.doc === d && !j.text).length;
+      if (imgs <= budget || i === 0) { budget -= Math.min(imgs, budget); return; }
+      jobs.forEach(j => { if (j.doc === d) j.skip = true; });
+      skipped.push(d === 'photos' ? 'the photos' : files[d].name);
+    });
+    const cutFirst = jobs.filter(j => !j.skip && !j.text).length > OCR_MAX_PAGES;
+    const total = Math.min(jobs.filter(j => !j.skip && !j.text).length, OCR_MAX_PAGES);
     let current = 0, rotating = false;
     onStatus(0, total, 0);
     const worker = total ? await createOcrWorker(p => onStatus(current, total, p, rotating)) : null;
@@ -252,6 +263,7 @@
       let n = 0;
       for (const job of jobs) {
         if (!live()) break;
+        if (job.skip) continue;
         if (job.text) { pages.push(Object.assign({}, job.text, { doc: job.doc })); continue; }
         if (n >= total) continue;
         current = ++n; rotating = false;
@@ -271,7 +283,8 @@
     // statement vocabulary, to tell an unreadable statement from a photo of something else
     const words = pages.map(pg => pg.lines.map(l => l.text).join(' ')).join(' ').match(/\b(merchant|statement|visa|mastercard|discover|amex|deposits?|interchange|fees|chargebacks?|batch|processing)\b/gi) || [];
     r.vocab = new Set(words.map(w => w.toLowerCase().replace(/s$/, ''))).size;
-    if (jobs.length - textJobs > OCR_MAX_PAGES) r.warnings.push('Only the first ' + OCR_MAX_PAGES + ' pages were read.');
+    if (skipped.length) r.warnings.push('Not read, to stay within ' + OCR_MAX_PAGES + ' scanned pages at once: ' + skipped.join(', ') + '. Scan ' + (skipped.length > 1 ? 'them' : 'it') + ' separately.');
+    if (cutFirst) r.warnings.push('Only the first ' + OCR_MAX_PAGES + ' pages were read.');
     return r;
   }
   function looksLikeStatement(r) {
@@ -288,16 +301,25 @@
       used += blob.size; out.push({ name, media_type: type, data: await blobToBase64(blob) });
     };
     let photosLeft = files.filter(f => !isPdf(f) && isImage(f)).length;
+    // pages of the scanned PDFs too large to send whole: each gets an even share of what's left of the budget
+    let pagesLeft = files.filter(isPdf).reduce((a, f) => { const rd = pdfReads.find(r => r.file === f); return a + (rd && f.size > UPLOAD_BUDGET ? rd.pdf.numPages : 0); }, 0);
     for (const f of files) {
       if (isPdf(f)) {
         const read = pdfReads.find(r => r.file === f);
         if (f.size <= UPLOAD_BUDGET - used) { await push(f.name, 'application/pdf', f); continue; }
         if (!read) throw new Error('Could not open ' + f.name);
-        // Large (usually scanned) PDF: send page images instead
-        for (let p = 1; p <= Math.min(read.pdf.numPages, 12); p++) {
-          let jpg = await pdfPageToJpeg(read.pdf, p, 1500, 0.72);
-          if (jpg.size > UPLOAD_BUDGET - used) jpg = await pdfPageToJpeg(read.pdf, p, 1100, 0.6);
-          if (jpg.size > UPLOAD_BUDGET - used) break;
+        // Large (usually scanned) PDF: send every page as an image, sized to its share of the budget (a bank statement's
+        // withdrawals, where the processor's fees are, come late in the statement); too many pages → read on this device
+        if (out.length + read.pdf.numPages > MAX_AI_FILES) throw tooLarge();
+        for (let p = 1; p <= read.pdf.numPages; p++) {
+          const target = (UPLOAD_BUDGET - used) / Math.max(1, pagesLeft + photosLeft);
+          let jpg = null;
+          for (const [dim, q] of [[1500, 0.72], [1300, 0.66], [1150, 0.6], [1000, 0.55]]) {
+            jpg = await pdfPageToJpeg(read.pdf, p, dim, q);
+            if (jpg.size <= target) break;
+          }
+          if (jpg.size > UPLOAD_BUDGET - used) throw tooLarge();
+          pagesLeft = Math.max(0, pagesLeft - 1);
           await push(f.name + ' p' + p, 'image/jpeg', jpg);
         }
       } else if (isImage(f)) {
