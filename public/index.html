@@ -404,7 +404,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhm2cth">
+<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhmq8rh">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -500,6 +500,8 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- ──────── PROPOSAL TAB ──────── -->
 <section class="tab-panel" id="tab-proposal">
+  <!-- WPI Assist quote tools (Equipment, Basil POS, Genius POS quotes...); a Basil or Genius quote opens here -->
+  <div id="raProp"><div id="raHome"></div><div id="raQuote" hidden></div></div>
   <div class="merchant-info" id="propInfo">
     <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
     <div class="info-item"><span class="info-label">Address</span><span class="info-value editable" data-field="address" onclick="editField(this)">Enter address</span></div>
@@ -568,7 +570,6 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
     <header class="hdr">
       <div class="wrap">
         <nav class="subnav" id="subnav" aria-label="Equipment sections">
-          <a class="tab" data-sec="home" data-icon="home" href="#/">Home</a>
           <a class="tab" data-sec="flyers" data-icon="flyer" href="#/flyers">Equipment Flyers</a>
           <a class="tab" data-sec="install" data-icon="install" href="#/install">Installation</a>
           <a class="tab" data-sec="troubleshoot" data-icon="trouble" href="#/troubleshoot">Troubleshooting</a>
@@ -1528,33 +1529,48 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 <script src="scan.js?v=20260925-6"></script>
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
-<script src="assets/js/data.js?v=da9358e-muhm2cth"></script>
-<script src="assets/js/app.js?v=da9358e-muhm2cth"></script>
+<script src="assets/js/data.js?v=da9358e-muhmq8rh"></script>
+<script src="assets/js/app.js?v=da9358e-muhmq8rh"></script>
 <script>
-// Equipment tab: WPI Assist keeps its own #/ routes (Home, Flyers, Installation, Troubleshooting, Compare, Pricing)
-// while the tab is open; they step aside, and come back, as the rep moves between the cost comparison's tabs
+// WPI Assist's #/ routes: the equipment sections belong to the Equipment tab, the quote tools and the Basil and Genius
+// quotes (#/, #/basil, #/genius) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
+// while the rep is on another tab and comes back when they return.
 (function () {
-  var tab = document.getElementById('tab-equipment');
-  var saved = '';
-  var isRoute = function (h) { return /^#\//.test(h || ''); };
-  function sync() {
-    var on = tab.classList.contains('active');
-    if (on && !isRoute(location.hash) && saved) history.replaceState(null, '', saved);
-    if (!on && isRoute(location.hash)) {
-      saved = location.hash;
+  var tabs = { equipment: document.getElementById('tab-equipment'), proposal: document.getElementById('tab-proposal') };
+  var saved = { equipment: '', proposal: '' };
+  function owner(h) {
+    var m = /^#\/([^\/]*)/.exec(h || '');
+    return !m ? null : /^(home|basil|genius)?$/.test(m[1]) ? 'proposal' : 'equipment';
+  }
+  function current() { return tabs.equipment.classList.contains('active') ? 'equipment' : tabs.proposal.classList.contains('active') ? 'proposal' : null; }
+  function sync(fromLink) {
+    var tab = current(), own = owner(location.hash);
+    if (fromLink && own && own !== tab) { switchTab(own); return; }   // the tab observer runs sync again
+    if (own && own !== tab) {
+      saved[own] = location.hash;
       history.replaceState(null, '', location.pathname + location.search);
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));   // close an open device sheet
+      own = null;
     }
-    document.body.classList.toggle('ra-tab', on);
-    document.body.classList.toggle('ra-on', on && !/^#\/pricing\b/.test(location.hash));
+    if (tab && !own) {
+      var back = saved[tab] || (tab === 'equipment' ? '#/flyers' : '');
+      if (back) {
+        history.replaceState(null, '', back);
+        // the Equipment tab's first visit: show its first section
+        if (tab === 'equipment' && !document.querySelector('#raMain #app').children.length) window.dispatchEvent(new HashChangeEvent('hashchange'));
+      }
+    }
+    if (tab && owner(location.hash) === tab) saved[tab] = location.hash;   // each tab remembers where the rep last was
+    document.body.classList.toggle('ra-tab', !!tab);
+    document.body.classList.toggle('ra-on', tab === 'equipment' && !/^#\/pricing\b/.test(location.hash));
   }
-  new MutationObserver(sync).observe(tab, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('hashchange', function () {
-    if (isRoute(location.hash) && !tab.classList.contains('active')) switchTab('equipment');
-    sync();
-  });
-  if (isRoute(location.hash)) switchTab('equipment');
-  sync();
+  var observe = function () { sync(false); };
+  new MutationObserver(observe).observe(tabs.equipment, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(observe).observe(tabs.proposal, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('hashchange', function () { sync(true); });
+  var own = owner(location.hash);
+  if (own && own !== 'proposal' || /^#\/(basil|genius)/.test(location.hash)) switchTab(own);
+  sync(false);
 })();
 </script>
 </body>

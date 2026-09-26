@@ -6,8 +6,9 @@
 //   public/assets/{img,flyers,guides,basil}/  the app's images, flyers, guides and forms, as they are
 //   public/assets/js/data.js                  as it is
 //   public/assets/js/app.js                   the app, with the integration changes listed in PATCHES
-//   public/assets/css/equipment.css           the app's stylesheet, scoped to the Equipment tab so its look
-//                                             is kept exactly and the cost comparison's styles can't reach it
+//   public/assets/css/equipment.css           the app's stylesheet, scoped to where the app shows (the Equipment tab,
+//                                             the Proposal tab's quote tools, pop-ups) so its look is kept exactly and
+//                                             the cost comparison's styles can't reach it
 // and points the ?v= of those three files in public/index.html at the repequipment commit.
 import fs from 'fs';
 import path from 'path';
@@ -39,7 +40,8 @@ const PATCHES = [
   ['helpers: the Equipment tab containers',
     `  const $ = (s, r=document) => r.querySelector(s);`,
     `  const $ = (s, r=document) => r.querySelector(s);
-  /* cost comp: the app lives in #raMain (the Equipment tab) and its pop-ups in #raLayer */
+  /* cost comp: the app's sections live in #raMain (the Equipment tab), its quote tools in #raProp (the Proposal tab),
+     and its pop-ups in #raLayer */
   const raLayer = () => document.getElementById("raLayer") || document.body;
   const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);`],
   ['theme: follow the cost comparison’s light/dark switch (body.dark) instead of the app’s own', null, null, src => {
@@ -73,15 +75,44 @@ const PATCHES = [
     if (!n) throw new Error('no document.body.appendChild');
     return src.split('document.body.appendChild(').join('raLayer().appendChild(');
   }],
-  ['router: "Pricing & Proposal" shows the cost comparison’s equipment pricing under the same tabs',
+  ['router: equipment sections in the Equipment tab (with #/pricing, the cost comparison\u2019s equipment pricing); Home\u2019s quote tools and the Basil and Genius quotes in the Proposal tab',
     `    const {sec,id,id2} = parseHash();
     setTabs(sec);`,
     `    const {sec,id,id2} = parseHash();
-    /* cost comp: #/pricing is the cost comparison's own equipment pricing, which feeds the proposal */
-    const pricing = document.getElementById("eqPricing");
+    /* cost comp: Home's quote tools sit at the top of the Proposal tab (#raHome) and the Basil and Genius quotes open
+       there (#raQuote); the equipment sections are the Equipment tab, where #/pricing is the cost comparison's own
+       equipment pricing, which feeds the proposal */
+    const hub = document.getElementById("raHome"), quotes = document.getElementById("raQuote"), pricing = document.getElementById("eqPricing");
+    if (hub && quotes && (sec === "home" || sec === "basil" || sec === "genius")){
+      hub.hidden = sec !== "home"; quotes.hidden = sec === "home";
+      const back = \`<div class="wrap"><section class="sec-head"><a class="back" href="#/">\${ic("arrowL")} Proposal</a></section></div>\`;
+      if (sec === "basil"){ quotes.innerHTML = back + basilView(); wireBasil(); }
+      else if (sec === "genius"){ quotes.innerHTML = back + geniusView(); wireGenius(); }
+      else quotes.innerHTML = "";
+      window.scrollTo(0,0); closeSheet(true); return;
+    }
     if (pricing){ pricing.hidden = sec !== "pricing"; app.hidden = sec === "pricing"; }
     if (sec === "pricing"){ setTabs(sec); closeSheet(true); return; }
     setTabs(sec);`],
+  ['Home: only its quote tools, in the Proposal tab; the equipment sections have the Equipment tab\u2019s tabs instead', null, null, src => {
+    const from = `  function init(){ fillStaticIcons(); render(); registerSW(); }`;
+    if (src.split(from).length !== 2) throw new Error('init not found');
+    return src.replace(from, () => `  function init(){ fillStaticIcons(); renderTools(); render(); registerSW(); }
+  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's tool row */
+  function renderTools(){
+    const hub = document.getElementById("raHome"); if (!hub) return;
+    const t = document.createElement("div"); t.innerHTML = homeView();
+    const row = t.querySelector(".home-quick"); if (!row) return;
+    row.style.setProperty("--i", "0");
+    const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\\/(basil|genius)$/.test(el.getAttribute("href") || ""));
+    quote.reverse().forEach(el => row.prepend(el));
+    const fl = document.createElement("a"); fl.className = "qlink"; fl.href = "#/flyers"; fl.innerHTML = ic("flyer") + " Equipment Flyers";
+    (quote[0] || row.firstChild).after(fl);
+    hub.innerHTML = '<div class="wrap"></div>'; hub.firstChild.appendChild(row);
+  }`);
+  }],
+  ['equipment sections: no "\u2190 Home" link (Home isn\u2019t in the Equipment tab)',
+    `        <a class="back" href="#/">\${ic("arrowL")} Home</a>\n`, ''],
 ];
 let app = read(path.join(REP, 'assets/js/app.js'));
 for (const [name, from, to, fn] of PATCHES) {
@@ -129,7 +160,7 @@ function blocks(css) {
 }
 const splitTop = (s, sep) => { const out = []; let d = 0, cur = '', q = null; for (const c of s) { if (q) { if (c === q) q = null; } else if (c === '"' || c === "'") q = c; else if (c === '(' || c === '[') d++; else if (c === ')' || c === ']') d--; else if (c === sep && !d) { out.push(cur); cur = ''; continue; } cur += c; } out.push(cur); return out.map(x => x.trim()).filter(Boolean); };
 
-const SCOPE = ':is(#raMain,#raLayer)';
+const SCOPE = ':is(#raMain,#raLayer,#raProp)';
 // the app's selectors, inside the Equipment tab; :root/html/body become the tab itself; dark = the cost comparison's body.dark
 function scopeSel(s, inDarkMedia) {
   if (inDarkMedia) {
@@ -173,7 +204,7 @@ const cancel = new Map();
       .filter((p, k, all) => p && !p.startsWith('--') && /^[a-z-]+$/.test(p) && all.indexOf(p) === k);
     const important = new Set(splitTop(b.body, ';').filter(d => /!\s*important\s*$/i.test(d)).map(d => d.split(':')[0].trim().toLowerCase()));
     for (let s of splitTop(b.prelude, ',')) {
-      if (/-webkit-scrollbar|#raMain|#raLayer/.test(s)) continue;
+      if (/-webkit-scrollbar|#raMain|#raLayer|#raProp/.test(s)) continue;
       s = s.replace(/^(?:html|body)(?:[.:#[][^\s>+~]*)?\s*(?:>\s*)?/, '').trim();   // an ancestor outside the app
       if (!s || /^(?::root|html|body)$/.test(s)) continue;                      // the page itself
       const pe = /((?:::?(?:before|after|placeholder|selection|marker|first-line|first-letter))+)$/i.exec(s);
@@ -208,10 +239,20 @@ const bgLight = bg(/:root\s*\{[^}]*?--bg:\s*([^;]+);/), bgDark = bg(/:root\[data
 const integration = `
 /* ─── The app inside the Equipment tab ─── */
 /* edge to edge under the cost comparison's tabs, like the app's own page (undoes .main's padding) */
-#raMain{margin:-1.5rem -1.5rem 0}
-@media(max-width:900px){#raMain{margin:-1rem -1rem 0}}
-@media(max-width:600px){#raMain{margin:-0.75rem -0.75rem 0}}
-@media(max-height:500px) and (orientation:landscape){#raMain{margin:-0.5rem -0.5rem 0}}
+#raMain,#raProp{margin:-1.5rem -1.5rem 0}
+@media(max-width:900px){#raMain,#raProp{margin:-1rem -1rem 0}}
+@media(max-width:600px){#raMain,#raProp{margin:-0.75rem -0.75rem 0}}
+@media(max-height:500px) and (orientation:landscape){#raMain,#raProp{margin:-0.5rem -0.5rem 0}}
+/* the Proposal tab's quote tools: a band of the app's background across the page, then the proposal */
+#raProp{margin-bottom:1.25rem;box-shadow:0 0 0 100vmax var(--bg);clip-path:inset(0 -100vmax)}
+/* the tools row lines up with the proposal's cards below it */
+#raHome .wrap{max-width:none;padding:0 1.5rem}
+@media(max-width:900px){#raHome .wrap{padding:0 1rem}}
+@media(max-width:600px){#raHome .wrap{padding:0 0.75rem}}
+@media(max-height:500px) and (orientation:landscape){#raHome .wrap{padding:0 0.5rem}}
+#raHome .home-quick{padding-bottom:18px}
+/* a Basil or Genius quote takes the Proposal tab while it's open */
+#tab-proposal:has(> #raProp #raQuote:not([hidden])) > :not(#raProp){display:none}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */
 #raLayer{position:relative;z-index:1000;height:0;margin:0;padding:0;background:transparent}
 body:not(.ra-tab) #raLayer{display:none}

@@ -51,7 +51,8 @@
   }
 
   const $ = (s, r=document) => r.querySelector(s);
-  /* cost comp: the app lives in #raMain (the Equipment tab) and its pop-ups in #raLayer */
+  /* cost comp: the app's sections live in #raMain (the Equipment tab), its quote tools in #raProp (the Proposal tab),
+     and its pop-ups in #raLayer */
   const raLayer = () => document.getElementById("raLayer") || document.body;
   const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);
   const app = $("#app");
@@ -151,14 +152,36 @@
   function go(path){ location.hash = path; }
 
   window.addEventListener("hashchange", render);
-  function init(){ fillStaticIcons(); render(); registerSW(); }
+  function init(){ fillStaticIcons(); renderTools(); render(); registerSW(); }
+  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's tool row */
+  function renderTools(){
+    const hub = document.getElementById("raHome"); if (!hub) return;
+    const t = document.createElement("div"); t.innerHTML = homeView();
+    const row = t.querySelector(".home-quick"); if (!row) return;
+    row.style.setProperty("--i", "0");
+    const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\/(basil|genius)$/.test(el.getAttribute("href") || ""));
+    quote.reverse().forEach(el => row.prepend(el));
+    const fl = document.createElement("a"); fl.className = "qlink"; fl.href = "#/flyers"; fl.innerHTML = ic("flyer") + " Equipment Flyers";
+    (quote[0] || row.firstChild).after(fl);
+    hub.innerHTML = '<div class="wrap"></div>'; hub.firstChild.appendChild(row);
+  }
   window.addEventListener("DOMContentLoaded", init);
   if (document.readyState !== "loading") init();
 
   function render(){
     const {sec,id,id2} = parseHash();
-    /* cost comp: #/pricing is the cost comparison's own equipment pricing, which feeds the proposal */
-    const pricing = document.getElementById("eqPricing");
+    /* cost comp: Home's quote tools sit at the top of the Proposal tab (#raHome) and the Basil and Genius quotes open
+       there (#raQuote); the equipment sections are the Equipment tab, where #/pricing is the cost comparison's own
+       equipment pricing, which feeds the proposal */
+    const hub = document.getElementById("raHome"), quotes = document.getElementById("raQuote"), pricing = document.getElementById("eqPricing");
+    if (hub && quotes && (sec === "home" || sec === "basil" || sec === "genius")){
+      hub.hidden = sec !== "home"; quotes.hidden = sec === "home";
+      const back = `<div class="wrap"><section class="sec-head"><a class="back" href="#/">${ic("arrowL")} Proposal</a></section></div>`;
+      if (sec === "basil"){ quotes.innerHTML = back + basilView(); wireBasil(); }
+      else if (sec === "genius"){ quotes.innerHTML = back + geniusView(); wireGenius(); }
+      else quotes.innerHTML = "";
+      window.scrollTo(0,0); closeSheet(true); return;
+    }
     if (pricing){ pricing.hidden = sec !== "pricing"; app.hidden = sec === "pricing"; }
     if (sec === "pricing"){ setTabs(sec); closeSheet(true); return; }
     setTabs(sec);
@@ -311,7 +334,6 @@
     const extra = sec==="flyers" ? pricingInfo() : "";
     return `<div class="wrap">
       <section class="sec-head">
-        <a class="back" href="#/">${ic("arrowL")} Home</a>
         <h2>${s.title}</h2>
         <div class="sec-accent"></div>
       </section>
