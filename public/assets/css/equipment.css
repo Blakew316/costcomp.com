@@ -1,5 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
-/* cost comparison styles: bc62bbee3e9e */
+/* cost comparison styles: bdf3d2782e09 */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn:hover){background:revert}
@@ -140,7 +140,9 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(#interchangeTable){min-width:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(select.ic-text-input){width:revert;cursor:revert;-webkit-appearance:revert;appearance:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(#equipSelect){font-size:revert;min-height:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(body)::before{content:revert;position:revert;top:revert;left:revert;right:revert;height:revert;background:revert;z-index:revert;pointer-events:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.status-cover){display:revert;position:revert;top:revert;left:revert;right:revert;height:revert;background:revert;z-index:revert;pointer-events:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.offline-bar){padding-top:revert;display:revert;background:revert;color:revert;text-align:revert;padding:revert;font-size:revert;font-weight:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.offline-bar.show + .header){padding-top:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.scan-overlay){padding-top:revert;position:revert;inset:revert;z-index:revert;background:revert;display:revert;align-items:revert;justify-content:revert;padding:revert;overflow-y:revert;animation:revert;-webkit-overflow-scrolling:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.scan-lightbox){padding-top:revert;position:revert;inset:revert;z-index:revert;background:revert;display:revert;flex-direction:revert;align-items:revert;overflow:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.scan-lightbox-bar){top:revert;position:revert;display:revert;justify-content:revert;align-items:revert;width:revert;max-width:revert;color:revert;font-size:revert;font-weight:revert;padding:revert}
@@ -158,7 +160,6 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.update-bar .later){background:revert;color:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.editable){min-height:revert;display:revert;align-items:revert;-webkit-tap-highlight-color:revert;cursor:revert;min-width:revert;position:revert;background:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(button){-webkit-tap-highlight-color:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.offline-bar){display:revert;background:revert;color:revert;text-align:revert;padding:revert;font-size:revert;font-weight:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.offline-bar.show){display:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.edit-measure){position:revert;visibility:revert;height:revert;overflow:revert;white-space:revert;pointer-events:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.edit-input:focus){background:revert;border-bottom-color:revert}
