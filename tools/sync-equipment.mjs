@@ -190,7 +190,7 @@ function blocks(css) {
 }
 const splitTop = (s, sep) => { const out = []; let d = 0, cur = '', q = null; for (const c of s) { if (q) { if (c === q) q = null; } else if (c === '"' || c === "'") q = c; else if (c === '(' || c === '[') d++; else if (c === ')' || c === ']') d--; else if (c === sep && !d) { out.push(cur); cur = ''; continue; } cur += c; } out.push(cur); return out.map(x => x.trim()).filter(Boolean); };
 
-const SCOPE = ':is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar)';
+const SCOPE = ':is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar)';
 // the app's selectors, inside the Equipment tab; :root/html/body become the tab itself; dark = the cost comparison's body.dark
 function scopeSel(s, inDarkMedia) {
   if (inDarkMedia) {
@@ -255,7 +255,7 @@ const cancel = new Map();
         if (!s.startsWith(SB_GUARD + '::-webkit-scrollbar')) throw new Error('The cost comparison\u2019s scrollbar rule "' + s + '" would reach inside the app: start it with ' + SB_GUARD);
         continue;
       }
-      if (/#raMain|#raLayer|#raHome|#raQuote|#raPropBar/.test(s)) continue;
+      if (/#raMain|#raLayer|#raHome|#raQuote|#raPropBar|#anMenu|#anBar/.test(s)) continue;
       s = s.replace(/^(?:html|body)(?:[.:#[][^\s>+~]*)?\s*(?:>\s*)?/, '').trim();   // an ancestor outside the app
       if (!s || /^(?::root|html|body)$/.test(s)) continue;                      // the page itself
       const pe = /((?:::?(?:before|after|placeholder|selection|marker|first-line|first-letter))+)$/i.exec(s);
@@ -290,55 +290,55 @@ const bgLight = bg(/:root\s*\{[^}]*?--bg:\s*([^;]+);/), bgDark = bg(/:root\[data
 const integration = `
 /* ─── The app inside the Equipment tab ─── */
 /* edge to edge under the cost comparison's tabs, like the app's own page (undoes .main's padding) */
-#raMain,#raPropBar{margin:-1.5rem -1.5rem 0}
-@media(max-width:900px){#raMain,#raPropBar{margin:-1rem -1rem 0}}
-@media(max-width:600px){#raMain,#raPropBar{margin:-0.75rem -0.75rem 0}}
-@media(max-height:500px) and (orientation:landscape){#raMain,#raPropBar{margin:-0.5rem -0.5rem 0}}
+#raMain,#raPropBar,#anBar{margin:-1.5rem -1.5rem 0}
+@media(max-width:900px){#raMain,#raPropBar,#anBar{margin:-1rem -1rem 0}}
+@media(max-width:600px){#raMain,#raPropBar,#anBar{margin:-0.75rem -0.75rem 0}}
+@media(max-height:500px) and (orientation:landscape){#raMain,#raPropBar,#anBar{margin:-0.5rem -0.5rem 0}}
 
-/* ─── Left-hand menus: the Equipment tab's sections and the Proposal tab's tools ─── */
+/* ─── Left-hand menus: the Analysis tab's tools, the Equipment tab's sections and the Proposal tab's tools ─── */
 .ra-shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
 .ra-shell.ra-collapsed{grid-template-columns:64px minmax(0,1fr)}
 #raMain .ra-shell{padding:24px 0 0 24px}
-:is(#raMain .ra-side,#raHome){position:sticky;top:16px;display:flex;flex-direction:column;gap:4px;margin:0;padding:10px;max-height:calc(100vh - 32px);overflow:auto;
+:is(#raMain .ra-side,#raHome,#anMenu){position:sticky;top:16px;display:flex;flex-direction:column;gap:4px;margin:0;padding:10px;max-height:calc(100vh - 32px);overflow:auto;
   background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
-:is(#raMain,#raHome) .ra-side-head,:is(#raMain,#raPropBar) .ra-burger{display:flex;align-items:center;gap:12px;font:inherit;font-weight:700;font-size:15px;letter-spacing:-0.01em;color:var(--text);cursor:pointer;text-align:left}
-:is(#raMain,#raHome) .ra-side-head{width:100%;padding:10px 12px;margin:0 0 6px;border:0;border-bottom:1px solid var(--border-2);border-radius:12px 12px 0 0;background:none}
-:is(#raMain,#raHome) .ra-side-head:hover{background:var(--bg-soft)}
-:is(#raMain,#raHome,#raPropBar) :is(.ra-side-head,.ra-burger) svg{width:22px;height:22px;flex:0 0 auto}
+:is(#raMain,#raHome,#anMenu) .ra-side-head,:is(#raMain,#raPropBar,#anBar) .ra-burger{display:flex;align-items:center;gap:12px;font:inherit;font-weight:700;font-size:15px;letter-spacing:-0.01em;color:var(--text);cursor:pointer;text-align:left}
+:is(#raMain,#raHome,#anMenu) .ra-side-head{width:100%;padding:10px 12px;margin:0 0 6px;border:0;border-bottom:1px solid var(--border-2);border-radius:12px 12px 0 0;background:none}
+:is(#raMain,#raHome,#anMenu) .ra-side-head:hover{background:var(--bg-soft)}
+:is(#raMain,#raHome,#raPropBar,#anMenu,#anBar) :is(.ra-side-head,.ra-burger) svg{width:22px;height:22px;flex:0 0 auto}
 /* the items: the app's own tab and quick-link styles, stacked */
 #raMain .ra-side .subnav{flex-direction:column;gap:4px;padding:0;overflow:visible}
 #raMain .ra-side .tab{width:100%;justify-content:flex-start;gap:12px;padding:12px 14px;border-radius:12px;font-size:15px;line-height:20px;white-space:nowrap}
-#raHome .home-quick{display:flex;flex-direction:column;gap:4px;padding:0;animation:none}
-#raHome .qlink{width:100%;justify-content:flex-start;gap:12px;padding:12px 14px;border-color:transparent;border-radius:12px;background:none;box-shadow:none;font-size:15px;line-height:20px;text-align:left;white-space:nowrap}
-#raHome .qlink:hover{background:var(--bg-soft);border-color:transparent}
-#raHome .qlink.active{background:var(--navy);border-color:var(--navy);color:#fff}
-#raHome .qlink.active svg{color:#fff}
-:is(#raMain .ra-side .tab,#raHome .qlink) svg{width:18px;height:18px;flex:0 0 auto}
+:is(#raHome,#anMenu) .home-quick{display:flex;flex-direction:column;gap:4px;padding:0;animation:none}
+:is(#raHome,#anMenu) .qlink{width:100%;justify-content:flex-start;gap:12px;padding:12px 14px;border-color:transparent;border-radius:12px;background:none;box-shadow:none;font-size:15px;line-height:20px;text-align:left;white-space:nowrap}
+:is(#raHome,#anMenu) .qlink:hover{background:var(--bg-soft);border-color:transparent}
+:is(#raHome,#anMenu) .qlink.active{background:var(--navy);border-color:var(--navy);color:#fff}
+:is(#raHome,#anMenu) .qlink.active svg{color:#fff}
+:is(#raMain .ra-side .tab,#raHome .qlink,#anMenu .qlink) svg{width:18px;height:18px;flex:0 0 auto}
 /* folded to icons */
-.ra-collapsed :is(#raMain .ra-side,#raHome) .ra-label{display:none}
-.ra-collapsed :is(#raMain .ra-side .tab,#raHome .qlink,#raMain .ra-side-head,#raHome .ra-side-head){justify-content:center;padding-left:0;padding-right:0}
+.ra-collapsed :is(#raMain .ra-side,#raHome,#anMenu) .ra-label{display:none}
+.ra-collapsed :is(#raMain .ra-side .tab,#raHome .qlink,#anMenu .qlink,#raMain .ra-side-head,#raHome .ra-side-head,#anMenu .ra-side-head){justify-content:center;padding-left:0;padding-right:0}
 /* the phone bar and drawer */
-:is(#raMain,#raPropBar) .ra-bar,#raPropBar{display:none}
+:is(#raMain,#raPropBar) .ra-bar,#raPropBar,#anBar{display:none}
 .ra-scrim{display:none}
 @media(max-width:900px){
   .ra-shell,.ra-shell.ra-collapsed{grid-template-columns:minmax(0,1fr);gap:0}
   #raMain .ra-shell{padding:0}
-  .ra-collapsed :is(#raMain .ra-side,#raHome) .ra-label{display:inline}
-  .ra-collapsed :is(#raMain .ra-side .tab,#raHome .qlink){justify-content:flex-start;padding:12px 14px}
-  :is(#raMain .ra-side,#raHome){position:fixed;top:0;left:0;bottom:0;z-index:1100;width:min(300px,84vw);max-height:none;border-radius:0 20px 20px 0;
+  .ra-collapsed :is(#raMain .ra-side,#raHome,#anMenu) .ra-label{display:inline}
+  .ra-collapsed :is(#raMain .ra-side .tab,#raHome .qlink,#anMenu .qlink){justify-content:flex-start;padding:12px 14px}
+  :is(#raMain .ra-side,#raHome,#anMenu){position:fixed;top:0;left:0;bottom:0;z-index:1100;width:min(300px,84vw);max-height:none;border-radius:0 20px 20px 0;
     padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));transform:translateX(-105%);visibility:hidden;transition:transform .22s cubic-bezier(.22,.61,.36,1),visibility 0s .22s;box-shadow:var(--shadow-lg)}
   /* closed, the drawer is out of the tab order and hidden from screen readers too */
-  :is(#raMain .ra-shell.ra-open .ra-side,.ra-shell.ra-open > #raHome){transform:none;visibility:visible;transition:transform .22s cubic-bezier(.22,.61,.36,1)}
+  :is(#raMain .ra-shell.ra-open .ra-side,.ra-shell.ra-open > #raHome,.ra-shell.ra-open > #anMenu){transform:none;visibility:visible;transition:transform .22s cubic-bezier(.22,.61,.36,1)}
   .ra-shell.ra-open + .ra-scrim{display:block;position:fixed;inset:0;z-index:1099;background:rgba(0,0,0,0.38)}
-  #raMain .ra-bar,#raPropBar{display:flex;position:sticky;top:0;z-index:50;align-items:center;padding:10px 16px;background:transparent;border-bottom:1px solid var(--border-2)}
+  #raMain .ra-bar,#raPropBar,#anBar{display:flex;position:sticky;top:0;z-index:50;align-items:center;padding:10px 16px;background:transparent;border-bottom:1px solid var(--border-2)}
   /* the blur sits behind the button, as on the app's own header, so taps reach it on iOS */
-  :is(#raMain .ra-bar,#raPropBar)::before{content:"";position:absolute;inset:0;z-index:0;background:var(--header-bg);
+  :is(#raMain .ra-bar,#raPropBar,#anBar)::before{content:"";position:absolute;inset:0;z-index:0;background:var(--header-bg);
     -webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px)}
-  #raPropBar{margin-bottom:14px}
-  :is(#raMain,#raPropBar) .ra-burger{position:relative;z-index:1;padding:9px 16px 9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-sm)}
+  #raPropBar,#anBar{margin-bottom:14px}
+  :is(#raMain,#raPropBar,#anBar) .ra-burger{position:relative;z-index:1;padding:9px 16px 9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-sm)}
   body.ra-drawer{overflow:hidden}
 }
-@media(prefers-reduced-motion:reduce){:is(#raMain .ra-side,#raHome){transition:none}}
+@media(prefers-reduced-motion:reduce){:is(#raMain .ra-side,#raHome,#anMenu){transition:none}}
 /* a quote or Compare opens in the Proposal tab's main column, in place of the proposal */
 #raQuote{position:relative;border:1px solid var(--border);border-radius:18px;padding-bottom:24px;margin-bottom:1.25rem}
 /* their headers: the title centered at the top, without the Wholesale Payments logo (the page already has it) */

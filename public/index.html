@@ -77,11 +77,11 @@ body.dark [style*="border-bottom-color:#000"]{border-bottom-color:#f5f5f7 !impor
 *{margin:0;padding:0;box-sizing:border-box}
 html{font-size:16px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--bg-light);color:var(--text-primary);line-height:1.6;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-/* the WPI Assist app (Equipment tab, Proposal tools, its pop-ups) keeps its own scrollbars */
-:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar{width:6px;height:6px}
-:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar-track{background:var(--bg-light)}
-:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
-:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar-thumb:hover{background:#999}
+/* the WPI Assist app (Equipment tab, Proposal and Analysis menus, its pop-ups) keeps its own scrollbars */
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) *)::-webkit-scrollbar{width:6px;height:6px}
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) *)::-webkit-scrollbar-track{background:var(--bg-light)}
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) *)::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) *)::-webkit-scrollbar-thumb:hover{background:#999}
 
 .header{background:var(--bg-white);border-bottom:1px solid var(--border-color);padding:0.85rem 1.5rem;position:relative;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
@@ -278,7 +278,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 /* ─── Home-screen app (html.pwa): there's no browser bar, so the app brings its own navigation ─── */
 html.pwa .header{padding-top:calc(0.6rem + env(safe-area-inset-top))}
 html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
-/* on phones, a tab bar at the bottom where a thumb reaches: the three tabs, Scan and Email PDF (56px tall with its top border) */
+/* on phones, a tab bar at the bottom where a thumb reaches: Analysis, Proposal, Equipment (56px tall with its top border) */
 .pwa-tabs{display:none}
 @media(max-width:900px),(max-height:500px){
   html.pwa .tabs-container{display:none}
@@ -446,7 +446,7 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=36d86955a640">
+<link rel="stylesheet" href="assets/css/equipment.css?v=3bda99e9ee7a">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -458,17 +458,6 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
     </div>
     <div class="header-bottom"><span class="logo-sub">Cost Comparison</span></div>
     <div class="header-btn" style="display:flex;align-items:center;gap:0.5rem;">
-      <button type="button" class="scan-btn" id="scanBtn" title="Scan or upload a merchant statement to fill in this comparison">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
-        <span class="scan-label-full">Scan Statement</span><span class="scan-label-short">Scan</span>
-      </button>
-      <button onclick="emailPDF()" style="display:flex;align-items:center;gap:0.4rem;background:var(--brand-blue);color:#fff;border:none;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;transition:var(--transition);letter-spacing:0.01em;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        Email as PDF
-      </button>
-      <button class="icon-btn" onclick="downloadPDF()" title="Download PDF" aria-label="Download PDF">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
-      </button>
       <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
         <svg id="themeIconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         <svg id="themeIconSun" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
@@ -479,7 +468,7 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <nav class="tabs-container">
   <div class="tabs">
-    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Analysis</button>
     <button class="tab-btn" data-tab="proposal" onclick="switchTab('proposal')">Proposal</button>
     <button class="tab-btn" data-tab="equipment" onclick="switchTab('equipment')">Equipment</button>
   </div>
@@ -489,6 +478,18 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- ──────── OVERVIEW TAB ──────── -->
 <section class="tab-panel active" id="tab-overview">
+  <!-- Left-hand menu: Scan Statement, Email as PDF, Download PDF (styled like the Proposal and Equipment menus) -->
+  <div id="anBar"><button type="button" class="ra-burger" aria-controls="anMenu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="ra-burger-label">Analysis tools</span></button></div>
+  <div class="ra-shell" data-menu="analysis">
+  <aside id="anMenu" class="ra-side" aria-label="Analysis tools">
+    <button type="button" class="ra-side-head" title="Fold or open the menu" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="ra-label">Analysis tools</span></button>
+    <div class="home-quick">
+      <button type="button" class="qlink" id="scanBtn" title="Scan or upload a merchant statement to fill in this comparison"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg><span class="ra-label">Scan Statement</span></button>
+      <button type="button" class="qlink" onclick="emailPDF()" title="Email as PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span class="ra-label">Email as PDF</span></button>
+      <button type="button" class="qlink" onclick="downloadPDF()" title="Download PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg><span class="ra-label">Download PDF</span></button>
+    </div>
+  </aside>
+  <div class="ra-content">
 
   <div class="merchant-info">
     <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable placeholder" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
@@ -538,6 +539,9 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
       <div class="residual-row"><span class="residual-type">CDP</span><span class="residual-val cdp editable" data-field="resDirCdp" data-type="dollar" onclick="editField(this)">$120.00</span></div>
     </div>
   </div>
+  </div>
+  </div>
+  <div class="ra-scrim"></div>
 </section>
 
 <!-- ──────── PROPOSAL TAB ──────── -->
@@ -638,11 +642,9 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- Home-screen app on phones: the tab bar (shown only in the installed app; see html.pwa) -->
 <nav class="pwa-tabs" id="pwaTabs" aria-label="WPI Cost Comp">
-  <button type="button" data-go="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Overview</span></button>
+  <button type="button" data-go="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Analysis</span></button>
   <button type="button" data-go="proposal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span>Proposal</span></button>
   <button type="button" data-go="equipment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 6h6v5H9z"/><path d="M9 15h.01M12 15h.01M15 15h.01M9 18h.01M12 18h.01M15 18h.01"/></svg><span>Equipment</span></button>
-  <button type="button" data-go="scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg><span>Scan</span></button>
-  <button type="button" data-go="email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>Email PDF</span></button>
 </nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1545,7 +1547,7 @@ window.addEventListener('online',()=>document.getElementById('offlineBar').class
 window.addEventListener('offline',()=>document.getElementById('offlineBar').classList.add('show'));
 </script>
 <script src="scan-core.js?v=20260925-6"></script>
-<script src="scan.js?v=20260925-6"></script>
+<script src="scan.js?v=20260926-1"></script>
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
 <script src="assets/js/data.js?v=b339badd4620"></script>
@@ -1605,7 +1607,7 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
   if (own && own !== 'proposal' || /^#\/(quote|basil|genius|compare)/.test(location.hash)) switchTab(own);
   sync(false);
 })();
-// The left-hand menus (the Equipment tab's sections, the Proposal tab's tools). On wide screens the ☰ at the top of
+// The left-hand menus (the Analysis tab's tools, the Equipment tab's sections, the Proposal tab's tools). On wide screens the ☰ at the top of
 // the menu folds it to icons (remembered); on phones the menu is a drawer that the ☰ button in the bar opens.
 (function () {
   var phone = window.matchMedia('(max-width: 900px)');
@@ -1661,12 +1663,12 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
   window.addEventListener('hashchange', closeAll);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menus.forEach(close); });
   phone.addEventListener('change', function () { menus.forEach(close); });
-  ['tab-equipment', 'tab-proposal'].forEach(function (id) {
+  ['tab-overview', 'tab-equipment', 'tab-proposal'].forEach(function (id) {
     new MutationObserver(closeAll).observe(document.getElementById(id), { attributes: true, attributeFilter: ['class'] });
   });
   mark();
 })();
-// The home-screen app's tab bar (phones): Overview, Proposal, Equipment, Scan, Email PDF. Each tab keeps its place on the
+// The home-screen app's tab bar (phones): Analysis, Proposal, Equipment. Each tab keeps its place on the
 // page; tapping the tab that's open scrolls it to the top, and a second tap on Proposal closes an open quote.
 (function () {
   var bar = document.getElementById('pwaTabs');
@@ -1683,8 +1685,6 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
   bar.addEventListener('click', function (e) {
     var b = e.target.closest('[data-go]'); if (!b) return;
     var go = b.getAttribute('data-go'), cur = active();
-    if (go === 'scan') { document.getElementById('scanBtn').click(); return; }
-    if (go === 'email') { emailPDF(); return; }
     if (go === cur) {
       var q = document.getElementById('raQuote');
       if (window.scrollY > 8) window.scrollTo({ top: 0, behavior: 'smooth' });
