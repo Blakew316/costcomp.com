@@ -296,8 +296,10 @@ const integration = `
 @media(max-height:500px) and (orientation:landscape){#raMain,#raPropBar,#anBar{margin:-0.5rem -0.5rem 0}}
 
 /* ─── Left-hand menus: the Analysis tab's tools, the Equipment tab's sections and the Proposal tab's tools ─── */
-.ra-shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
-.ra-shell.ra-collapsed{grid-template-columns:64px minmax(0,1fr)}
+.ra-shell{--ra-side:236px;display:grid;grid-template-columns:var(--ra-side) minmax(0,1fr);gap:24px;align-items:start}
+.ra-shell.ra-collapsed{--ra-side:64px}
+/* the menu sits out toward the window's left edge, in the space beside the centered page, so the page keeps its width */
+@media(min-width:901px){.ra-shell,#raMain .ra-shell{margin-left:calc(-1 * clamp(0px, (100vw - 1400px) / 2, var(--ra-side) + 24px))}}
 #raMain .ra-shell{padding:24px 0 0 24px}
 :is(#raMain .ra-side,#raHome,#anMenu){position:sticky;top:16px;display:flex;flex-direction:column;gap:4px;margin:0;padding:10px;max-height:calc(100vh - 32px);overflow:auto;
   background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}

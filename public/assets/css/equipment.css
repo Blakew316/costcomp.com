@@ -1,5 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
-/* cost comparison styles: 3ffda9bd27de */
+/* cost comparison styles: e7c8660d6a0d */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn:hover){background:revert}
@@ -44,7 +44,7 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.tab-panel.active){display:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.num){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-value){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;line-height:revert;color:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-sub){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;margin-top:revert;white-space:revert;overflow:revert;text-overflow:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-sub){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;margin-top:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-monthly){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;margin-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-yearly){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;font-weight:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-pct){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;margin-top:revert;padding:revert;border-radius:revert;display:revert}
@@ -82,7 +82,7 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-grid){display:revert;grid-template-columns:revert;gap:revert;margin-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi){background:revert;border:revert;border-radius:revert;padding:revert;transition:revert;box-shadow:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi:hover){box-shadow:revert;transform:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert;white-space:revert;overflow:revert;text-overflow:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.table-container){overflow-x:revert;-webkit-overflow-scrolling:revert;border-radius:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(table){width:revert;border-collapse:revert;font-size:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(tbody td){padding:revert;border-bottom:revert;color:revert;white-space:revert}
@@ -1380,8 +1380,10 @@ body.dark :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) .bz-b
 @media(max-height:500px) and (orientation:landscape){#raMain,#raPropBar,#anBar{margin:-0.5rem -0.5rem 0}}
 
 /* ─── Left-hand menus: the Analysis tab's tools, the Equipment tab's sections and the Proposal tab's tools ─── */
-.ra-shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
-.ra-shell.ra-collapsed{grid-template-columns:64px minmax(0,1fr)}
+.ra-shell{--ra-side:236px;display:grid;grid-template-columns:var(--ra-side) minmax(0,1fr);gap:24px;align-items:start}
+.ra-shell.ra-collapsed{--ra-side:64px}
+/* the menu sits out toward the window's left edge, in the space beside the centered page, so the page keeps its width */
+@media(min-width:901px){.ra-shell,#raMain .ra-shell{margin-left:calc(-1 * clamp(0px, (100vw - 1400px) / 2, var(--ra-side) + 24px))}}
 #raMain .ra-shell{padding:24px 0 0 24px}
 :is(#raMain .ra-side,#raHome,#anMenu){position:sticky;top:16px;display:flex;flex-direction:column;gap:4px;margin:0;padding:10px;max-height:calc(100vh - 32px);overflow:auto;
   background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
