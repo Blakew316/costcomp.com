@@ -63,10 +63,11 @@ body.dark [style*="border-bottom-color:#000"]{border-bottom-color:#f5f5f7 !impor
 *{margin:0;padding:0;box-sizing:border-box}
 html{font-size:16px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--bg-light);color:var(--text-primary);line-height:1.6;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:var(--bg-light)}
-::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:#999}
+/* the WPI Assist app (Equipment tab, Proposal tools, its pop-ups) keeps its own scrollbars */
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar{width:6px;height:6px}
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar-track{background:var(--bg-light)}
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+:not(:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar),:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) *)::-webkit-scrollbar-thumb:hover{background:#999}
 
 .header{background:var(--bg-white);border-bottom:1px solid var(--border-color);padding:0.85rem 1.5rem;position:relative;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
@@ -404,7 +405,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhommdl">
+<link rel="stylesheet" href="assets/css/equipment.css?v=882843e85f20">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -1488,8 +1489,8 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 <script src="scan.js?v=20260925-6"></script>
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
-<script src="assets/js/data.js?v=da9358e-muhommdl"></script>
-<script src="assets/js/app.js?v=da9358e-muhommdl"></script>
+<script src="assets/js/data.js?v=b339badd4620"></script>
+<script src="assets/js/app.js?v=d10272d3615c"></script>
 <script>
 // WPI Assist's #/ routes: the equipment sections (flyers, install, troubleshoot) belong to the Equipment tab; the tools,
 // the Basil and Genius quotes and Compare (#/, #/basil, #/genius, #/compare) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
@@ -1502,9 +1503,18 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
     return !m ? null : /^(home|basil|genius|compare)?$/.test(m[1]) ? 'proposal' : 'equipment';
   }
   function current() { return tabs.equipment.classList.contains('active') ? 'equipment' : tabs.proposal.classList.contains('active') ? 'proposal' : null; }
+  function shown() { var p = document.querySelector('.tab-panel.active'); return p ? p.id.replace(/^tab-/, '') : 'overview'; }
   function sync(fromLink) {
     var tab = current(), own = owner(location.hash);
     if (fromLink && own && own !== tab) { switchTab(own); return; }   // the tab observer runs sync again
+    if (fromLink && !own) {
+      // Back or Forward to an entry with no #/ route: go to the tab it was on (recorded below); on the Proposal tab
+      // that's the proposal itself, with no quote open. Nothing is restored over it, so the address matches the page.
+      var was = history.state && history.state.raTab;
+      if (was === 'proposal' || !was && tab === 'proposal') saved.proposal = '';
+      if (was && was !== shown()) { switchTab(was); return; }
+      if (tab === 'proposal' || was) { done(tab); return; }
+    }
     if (own && own !== tab) {
       saved[own] = location.hash;
       history.replaceState(null, '', location.pathname + location.search);
@@ -1520,6 +1530,11 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
       }
     }
     if (tab && owner(location.hash) === tab) saved[tab] = location.hash;   // each tab remembers where the rep last was
+    done(tab);
+  }
+  function done(tab) {
+    // an entry with no #/ route remembers which tab it was on, for Back and Forward
+    if (!owner(location.hash) && !(history.state && history.state.raTab === shown())) history.replaceState({ raTab: shown() }, '', location.href);
     document.body.classList.toggle('ra-tab', !!tab);
     document.body.classList.toggle('ra-on', tab === 'equipment');
   }

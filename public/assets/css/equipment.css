@@ -1,4 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
+/* cost comparison styles: df5c9c1f6035 */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.icon-btn:hover){background:revert}
@@ -1411,6 +1412,13 @@ body.dark :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) .bz-badge.crf{ color
 /* a quote or Compare opens in the Proposal tab's main column, in place of the proposal */
 #raQuote{border:1px solid var(--border);border-radius:18px;padding-bottom:24px;margin-bottom:1.25rem}
 #tab-proposal:has(#raQuote:not([hidden])) .ra-content > :not(#raQuote){display:none}
+/* native control parts (date pickers, dropdown lists, scrollbars) follow the system setting, as the app's own page says */
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar){color-scheme:light dark}
+/* a quote's total bar is fixed to the bottom of the screen: the app's page ends in blank space for it, so the cost
+   comparison's footer steps aside while one is open instead of sitting under the bar */
+body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
+/* reduced motion: the app jumps to the top of a page instead of scrolling there (its html rule, on the page while it shows) */
+@media(prefers-reduced-motion:reduce){html:has(body.ra-tab){scroll-behavior:auto}}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */
 #raLayer{position:relative;z-index:1000;height:0;margin:0;padding:0;background:transparent}
 body:not(.ra-tab) #raLayer{display:none}

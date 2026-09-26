@@ -156,7 +156,7 @@
 
   window.addEventListener("hashchange", render);
   function init(){ fillStaticIcons(); renderTools(); render(); registerSW(); }
-  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's left-hand tools menu */
+  /* cost comp: Home's quick links (quotes first) as the Proposal tab's left-hand tools menu; the equipment sections are the Equipment tab's */
   function renderTools(){
     const hub = document.getElementById("raHome"); if (!hub) return;
     const t = document.createElement("div"); t.innerHTML = homeView();
@@ -165,8 +165,6 @@
     row.style.setProperty("--i", "0");
     const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\/(basil|genius)$/.test(el.getAttribute("href") || ""));
     quote.reverse().forEach(el => row.prepend(el));
-    const fl = document.createElement("a"); fl.className = "qlink"; fl.href = "#/flyers"; fl.innerHTML = ic("flyer") + " Equipment Flyers";
-    (quote[0] || row.firstChild).after(fl);
     /* each label in its own span, so a folded menu can show just the icons */
     [...row.children].forEach(el => { [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const sp = document.createElement("span"); sp.className = "ra-label"; sp.textContent = n.textContent.trim(); n.replaceWith(sp); }); el.title = el.textContent.trim(); });
     const list = document.getElementById("raTools") || hub; list.innerHTML = ""; list.appendChild(row);
