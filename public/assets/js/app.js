@@ -161,6 +161,7 @@
     const hub = document.getElementById("raHome"); if (!hub) return;
     const t = document.createElement("div"); t.innerHTML = homeView();
     const row = t.querySelector(".home-quick"); if (!row) return;
+    row.querySelectorAll('a[href="#/install"]').forEach(el => el.remove());   /* install videos and guides are in the Equipment tab */
     row.style.setProperty("--i", "0");
     const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\/(basil|genius)$/.test(el.getAttribute("href") || ""));
     quote.reverse().forEach(el => row.prepend(el));

@@ -109,7 +109,7 @@ The markup analysis is on-screen only; the emailed/downloaded proposal PDF is un
 The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequipment](https://github.com/Blakew316/repequipment), copied into this site. It runs exactly as it does on its own, with its own colors, shading and icons, and follows the cost comparison's light/dark switch.
 
 - **Equipment tab:** a menu on the left lists Equipment Flyers (where it opens), Installation, and Troubleshooting, with device sheets and flyer PDFs.
-- **Proposal tab:** a menu on the left lists the app's tools: Equipment Quote, Basil POS Quote, Genius POS Quote, Equipment Flyers, the full pricing matrix, install videos, and Compare two devices.
+- **Proposal tab:** a menu on the left lists the app's tools: Equipment Quote, Basil POS Quote, Genius POS Quote, Equipment Flyers, the full pricing matrix, and Compare two devices. Install videos and guides are in the Equipment tab's Installation section.
   - The Equipment Quote builder opens over the page.
   - A Basil or Genius quote, or Compare, opens beside the menu in place of the proposal. **← Proposal** returns to it.
   - A device's Compare button in Equipment Flyers opens the comparison here, with that device picked.
