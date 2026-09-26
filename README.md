@@ -109,13 +109,33 @@ The markup analysis is on-screen only; the emailed/downloaded proposal PDF is un
 The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequipment](https://github.com/Blakew316/repequipment), copied into this site. It runs exactly as it does on its own, with its own colors, shading and icons, and follows the cost comparison's light/dark switch.
 
 - **Equipment tab:** a menu on the left lists Equipment Flyers (where it opens), Installation, and Troubleshooting, with device sheets and flyer PDFs.
-- **Proposal tab:** a menu on the left lists the app's tools: Equipment Quote, Basil POS Quote, Genius POS Quote, the full pricing matrix, and Compare two devices. Equipment Flyers and install videos and guides are in the Equipment tab.
+- **Proposal tab:** a menu on the left lists the app's tools: Equipment Quote, Basil POS Quote, Genius POS Quote, and Compare two devices. Equipment Flyers and install videos and guides are in the Equipment tab.
   - An Equipment, Basil or Genius quote, or Compare, opens beside the menu in place of the proposal, with its title at the top. **← Proposal** returns to it.
   - A device's Compare button in Equipment Flyers opens the comparison here, with that device picked.
 - **The menus:** on a computer, the ☰ at the top of a menu folds it down to icons, and the page remembers that. On a phone, each tab has a ☰ button at the top that opens its menu as a drawer and shows the page the rep is on. Picking an item, tapping outside the drawer, or pressing Escape closes it.
 - **Links:** `/#/flyers`, `/#/quote`, `/#/basil`, `/#/compare` and the like open straight to that page in its tab.
 - **Where it lives:** the app's images, flyers, guides and forms are in `public/assets/`. Its code is `public/assets/js/app.js` and `data.js`, and its styles are `public/assets/css/equipment.css`, scoped to where the app shows so that neither site's styles reach the other.
 - **Updating it:** make changes in the repequipment repo, then run `npm run sync-equipment -- <path to a repequipment checkout>`, test, and deploy. The tool copies the app over again, re-applies the few changes that let it live inside this page (listed at the top of `tools/sync-equipment.mjs`), and rebuilds the scoped styles.
+
+## The app on iPhone (home screen)
+
+In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp** and its icon is the Wholesale Payments logo. It opens full screen with no browser bar, so it brings its own navigation:
+
+- **Tab bar** at the bottom on phones: **Overview**, **Proposal**, **Equipment**, **Scan** (the statement chooser) and **Email PDF**.
+  - Each tab keeps its place on the page. Tapping the tab that's open scrolls it to the top.
+  - On Proposal, tapping it again at the top closes an open quote.
+  - On iPad and in Safari itself, the usual tabs at the top stay.
+- **The ☰ menus**, the **← Proposal** links on quote pages, and the ✕ on device sheets and pop-ups get the rep everywhere without a back button.
+- **PDFs:** Email PDF, Download PDF and the equipment app's PDFs go to the iPhone share sheet (Save to Files, Mail, AirDrop, Print), so a download never covers the app.
+- **Links:** links to flyers, guides and other sites open in a window over the app with a **Done** button. The app stays where it was.
+- **Updates:** when a new version is deployed, the app shows **"A new version of WPI Cost Comp is ready — Update"**, because it has no reload button.
+- **Layout and offline:**
+  - The layout keeps clear of the notch and the home indicator.
+  - Tapping a field doesn't zoom the page.
+  - The status bar follows light and dark.
+  - The app opens offline with the last data it had.
+
+The icons come from `public/wp-logo-clean.png` via `node tools/make-icons.mjs` (it needs Playwright). The name and icons are in `public/manifest.json` and the `apple-*` tags at the top of `public/index.html`.
 
 ## Deploying on Netlify
 

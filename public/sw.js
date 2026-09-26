@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wpi-cost-comp-v11';
+const CACHE_NAME = 'wpi-cost-comp-v12';
 const ASSETS = [
   '/',
   '/index.html',
@@ -6,6 +6,8 @@ const ASSETS = [
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
@@ -32,6 +34,8 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   // Never cache API calls (statement scanning) or non-GET requests
   if (event.request.method !== 'GET' || (url.origin === self.location.origin && url.pathname.startsWith('/api/'))) return;
+  // The page's check for a new version (?_check=) always asks the server, and isn't kept
+  if (url.origin === self.location.origin && url.searchParams.has('_check')) return;
 
   // Navigation requests — network first, fallback to cache
   if (event.request.mode === 'navigate') {
