@@ -405,7 +405,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=882843e85f20">
+<link rel="stylesheet" href="assets/css/equipment.css?v=7599dc1ea8a5">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -1490,17 +1490,17 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
 <script src="assets/js/data.js?v=b339badd4620"></script>
-<script src="assets/js/app.js?v=d10272d3615c"></script>
+<script src="assets/js/app.js?v=e1a4b4f3a6eb"></script>
 <script>
 // WPI Assist's #/ routes: the equipment sections (flyers, install, troubleshoot) belong to the Equipment tab; the tools,
-// the Basil and Genius quotes and Compare (#/, #/basil, #/genius, #/compare) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
+// the Equipment, Basil and Genius quotes and Compare (#/, #/quote, #/basil, #/genius, #/compare) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
 // while the rep is on another tab and comes back when they return.
 (function () {
   var tabs = { equipment: document.getElementById('tab-equipment'), proposal: document.getElementById('tab-proposal') };
   var saved = { equipment: '', proposal: '' };
   function owner(h) {
     var m = /^#\/([^\/]*)/.exec(h || '');
-    return !m ? null : /^(home|basil|genius|compare)?$/.test(m[1]) ? 'proposal' : 'equipment';
+    return !m ? null : /^(home|quote|basil|genius|compare)?$/.test(m[1]) ? 'proposal' : 'equipment';
   }
   function current() { return tabs.equipment.classList.contains('active') ? 'equipment' : tabs.proposal.classList.contains('active') ? 'proposal' : null; }
   function shown() { var p = document.querySelector('.tab-panel.active'); return p ? p.id.replace(/^tab-/, '') : 'overview'; }
@@ -1543,7 +1543,7 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
   new MutationObserver(observe).observe(tabs.proposal, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('hashchange', function () { sync(true); });
   var own = owner(location.hash);
-  if (own && own !== 'proposal' || /^#\/(basil|genius|compare)/.test(location.hash)) switchTab(own);
+  if (own && own !== 'proposal' || /^#\/(quote|basil|genius|compare)/.test(location.hash)) switchTab(own);
   sync(false);
 })();
 // The left-hand menus (the Equipment tab's sections, the Proposal tab's tools). On wide screens the ☰ at the top of
@@ -1590,7 +1590,7 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
     menus.forEach(function (m) {
       var here = null;
       [].forEach.call(m.side.querySelectorAll('.qlink'), function (q) {
-        var on = !!sec && /^(basil|genius|compare)$/.test(sec) && q.getAttribute('href') === '#/' + sec;
+        var on = !!sec && /^(quote|basil|genius|compare)$/.test(sec) && q.getAttribute('href') === '#/' + sec;
         q.classList.toggle('active', on);
         if (on) here = q;
       });

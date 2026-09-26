@@ -81,6 +81,22 @@ const PATCHES = [
   ['service worker: the cost comparison’s', null, null, src => src.replace(
     /  function registerSW\(\)\{\n    if \("serviceWorker" in navigator\)\{\n      window\.addEventListener\("load", \(\)=>\{ navigator\.serviceWorker\.register\("sw\.js"\)\.catch\(\(\)=>\{\}\); \}\);\n    \}\n  \}/,
     () => '  function registerSW(){}', 1)],
+  ['Equipment Quote: a page in the Proposal tab (host) instead of a pop-up', null, null, src => {
+    const edits = [
+      ['  function openQuote(){\n', '  function openQuote(host){   /* cost comp: host = the Proposal tab\u2019s page for it; no host = the pop-up */\n'],
+      ['    wrap.className = "modal open"; wrap.id = "quoteModal";', '    wrap.className = host ? "ra-eqq" : "modal open"; wrap.id = "quoteModal";'],
+      ['    document.body.appendChild(wrap);\n    const close = ()=>wrap.remove();', '    if (host) host.appendChild(wrap); else document.body.appendChild(wrap);\n    const close = host ? ()=>{ location.hash = "#/"; } : ()=>wrap.remove();'],
+      ['    $("#qCancel",wrap).addEventListener("click",close);\n    wrap.addEventListener("click",e=>{ if(e.target===wrap) close(); });', '    $("#qCancel",wrap).addEventListener("click",close);\n    wrap.addEventListener("click",e=>{ if(!host && e.target===wrap) close(); });'],
+      ['      close(); openQuotePdfBuilder();', '      if (!host) close(); openQuotePdfBuilder();'],
+      ['      const a = loadAgent();\n      close();\n      downloadQuote(', '      const a = loadAgent();\n      if (!host) close();\n      downloadQuote('],
+    ];
+    for (const [from, to] of edits) { if (src.split(from).length !== 2) throw new Error('openQuote: not found: ' + from.slice(0, 60)); src = src.replace(from, () => to); }
+    return src;
+  }],
+  ['router: the Equipment Quote opens in the Proposal tab',
+    `    if (sec==="basil"){`,
+    `    if (sec==="quote"){ const q = raQuotePage(); if (q){ q.innerHTML = raBack() + \`<div class="wrap ra-eqq-page"><section class="bz-hero"><div><h1>Equipment Quote</h1></div></section></div>\`; openQuote(q.querySelector(".ra-eqq-page")); } window.scrollTo(0,0); closeSheet(true); return; }
+    if (sec==="basil"){`],
   ['pop-ups: into #raLayer', null, null, src => {
     const n = src.split('document.body.appendChild(').length - 1;
     if (!n) throw new Error('no document.body.appendChild');
@@ -116,6 +132,9 @@ const PATCHES = [
     row.style.setProperty("--i", "0");
     const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\\/(basil|genius)$/.test(el.getAttribute("href") || ""));
     quote.reverse().forEach(el => row.prepend(el));
+    /* the Equipment Quote opens as a page here, like the other quotes, not as a pop-up */
+    const qb = row.querySelector("#quoteBtn");
+    if (qb){ const a = document.createElement("a"); a.className = "qlink"; a.href = "#/quote"; a.innerHTML = qb.innerHTML; qb.replaceWith(a); }
     /* each label in its own span, so a folded menu can show just the icons */
     [...row.children].forEach(el => { [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const sp = document.createElement("span"); sp.className = "ra-label"; sp.textContent = n.textContent.trim(); n.replaceWith(sp); }); el.title = el.textContent.trim(); });
     const list = document.getElementById("raTools") || hub; list.innerHTML = ""; list.appendChild(row);
@@ -320,7 +339,23 @@ const integration = `
 }
 @media(prefers-reduced-motion:reduce){:is(#raMain .ra-side,#raHome){transition:none}}
 /* a quote or Compare opens in the Proposal tab's main column, in place of the proposal */
-#raQuote{border:1px solid var(--border);border-radius:18px;padding-bottom:24px;margin-bottom:1.25rem}
+#raQuote{position:relative;border:1px solid var(--border);border-radius:18px;padding-bottom:24px;margin-bottom:1.25rem}
+/* their headers: the title centered at the top, without the Wholesale Payments logo (the page already has it) */
+#raQuote > .wrap:first-child .sec-head{padding:14px 0 0}
+#raQuote > .wrap:first-child .sec-head .back{margin-bottom:4px}
+#raQuote .bz-hero{justify-content:center;padding:6px 2px 4px}
+#raQuote .gn-hero2{padding:6px 0 4px}
+#raQuote .gn-logo{display:none}
+#raQuote .gnhero{margin-top:14px}
+@media(min-width:761px){
+  #raQuote > .wrap:first-child{position:absolute;top:0;left:0;z-index:2}
+  #raQuote > .wrap:first-child .sec-head{padding-top:22px}
+  #raQuote .bz-hero,#raQuote .gn-hero2{padding-top:14px}
+}
+/* the Equipment Quote as a page: the builder's card in the page instead of over it */
+#raQuote .ra-eqq .modal-card{position:static;transform:none;width:auto;max-width:620px;max-height:none;margin:14px auto 0;overflow:visible;box-shadow:var(--shadow-sm)}
+#raQuote .ra-eqq .modal-head,#raQuote .ra-eqq #qCancel{display:none}
+#raQuote .ra-eqq .modal-body{padding-top:18px}
 #tab-proposal:has(#raQuote:not([hidden])) .ra-content > :not(#raQuote){display:none}
 /* native control parts (date pickers, dropdown lists, scrollbars) follow the system setting, as the app's own page says */
 ${SCOPE}{color-scheme:light dark}
