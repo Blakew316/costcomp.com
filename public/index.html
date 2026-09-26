@@ -155,19 +155,11 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .info-item{display:flex;flex-direction:column}
 .info-label{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted)}
 .info-value{font-size:0.88rem;font-weight:600;color:var(--text-primary)}
-/* beside the Analysis menu, the six numbers: one even row when there's room, otherwise two even rows of three;
-   every label and note on one line */
-@media(min-width:901px){
-  #tab-overview .ra-content{container:an / inline-size}
-  .kpi-label,.kpi-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-}
-@container an (min-width:1060px){
-  .kpi-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:0.75rem}
-  .kpi{padding:1rem 0.85rem}
-  .kpi-label{font-size:0.6rem;letter-spacing:0.03em}
-  .kpi-sub{font-size:0.68rem}
-}
-@container an (min-width:608px) and (max-width:1059.98px){.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* the six numbers: one even row when the page is wide enough for every label and note on one line at full size,
+   otherwise two even rows of three */
+@media(min-width:901px){#tab-overview .ra-content{container:an / inline-size}}
+@container an (min-width:1212px){.kpi-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:0.75rem}}
+@container an (min-width:608px) and (max-width:1211.98px){.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @container an (max-width:607.98px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* beside the Analysis menu: Merchant, Address, Account Executive, Profit Margin and Sales Needed to Cover Bill in one even row */
 @media(min-width:901px){
@@ -467,7 +459,7 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=e62d10ebf9c6">
+<link rel="stylesheet" href="assets/css/equipment.css?v=1ed89c6094ce">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
