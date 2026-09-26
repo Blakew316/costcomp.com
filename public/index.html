@@ -404,7 +404,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhmq8rh">
+<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhn2esa">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -500,7 +500,7 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- ──────── PROPOSAL TAB ──────── -->
 <section class="tab-panel" id="tab-proposal">
-  <!-- WPI Assist quote tools (Equipment, Basil POS, Genius POS quotes...); a Basil or Genius quote opens here -->
+  <!-- WPI Assist tools (Equipment, Basil POS and Genius POS quotes, Compare...); a quote or Compare opens here -->
   <div id="raProp"><div id="raHome"></div><div id="raQuote" hidden></div></div>
   <div class="merchant-info" id="propInfo">
     <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
@@ -573,57 +573,10 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
           <a class="tab" data-sec="flyers" data-icon="flyer" href="#/flyers">Equipment Flyers</a>
           <a class="tab" data-sec="install" data-icon="install" href="#/install">Installation</a>
           <a class="tab" data-sec="troubleshoot" data-icon="trouble" href="#/troubleshoot">Troubleshooting</a>
-          <a class="tab" data-sec="compare" data-icon="filter" href="#/compare">Compare</a>
-          <a class="tab" data-sec="pricing" data-icon="tag" href="#/pricing">Pricing &amp; Proposal</a>
         </nav>
       </div>
     </header>
     <div id="app" class="ra-main"></div>
-  </div>
-  <!-- Pricing & Proposal: equipment pricing that feeds the Proposal tab and the PDF -->
-  <div id="eqPricing" hidden>
-  <div class="merchant-info">
-    <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
-    <div class="info-item"><span class="info-label">Address</span><span class="info-value editable" data-field="address" onclick="editField(this)">Enter address</span></div>
-    <div class="info-item"><span class="info-label">Date</span><span class="info-value editable" data-field="proposalDate" onclick="editField(this)">March 28, 2026</span></div>
-  </div>
-  <div class="card" style="margin-bottom:1.25rem;">
-    <div class="card-title">Select Equipment</div>
-    <select id="equipSelect" onchange="onEquipSelect()" style="width:100%;padding:0.6rem 0.75rem;font-size:0.92rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);background:var(--bg-white);color:var(--text-primary);cursor:pointer;margin-bottom:0.75rem;"></select>
-    <div id="equipNotes" style="font-size:0.78rem;color:var(--text-muted);font-style:italic;min-height:1.2rem;"></div>
-  </div>
-  <div class="card" style="margin-bottom:1.25rem;">
-    <div class="card-title">Equipment Pricing Details</div>
-    <div class="table-container"><table>
-      <thead><tr><th>Field</th><th style="text-align:right">Value</th></tr></thead>
-      <tbody>
-        <tr><td>Purchase Price</td><td class="num" id="eqMerchPurch">—</td></tr>
-        <tr><td>Min. Monthly Rental</td><td class="num" id="eqMinRental">—</td></tr>
-        <tr><td>Upfront Payout</td><td class="num" id="eqPayout">—</td></tr>
-        <tr id="eqPayoutReqRow" style="display:none;"><td>Payout Requirements</td><td style="white-space:normal;font-size:0.78rem;color:var(--text-secondary);max-width:300px;" id="eqPayoutReq">—</td></tr>
-        <tr><td>Can Be Placed for Free</td><td class="num" id="eqFreePlace">—</td></tr>
-        <tr><td>Dual Pricing Capable</td><td class="num" id="eqDualPricing">—</td></tr>
-      </tbody>
-    </table></div>
-  </div>
-  <div class="equip-cols">
-    <div class="equip-card"><h4>Rental</h4>
-      <div class="equip-row"><span class="equip-label">Monthly Rental Fee</span><span class="equip-value editable" data-field="rentalFee" data-type="dollar" onclick="editField(this)">$0.00</span></div>
-      <div class="equip-row"><span class="equip-label">Monthly Software Fee</span><span class="equip-value editable" data-field="rentalSoftware" data-type="dollar" onclick="editField(this)">$0.00</span></div>
-      <div class="equip-row"><span class="equip-label">Monthly Processing Fee</span><span class="equip-value editable" data-field="rentalProcessing" data-type="dollar" onclick="editField(this)">$0.00</span></div>
-      <div class="equip-row" style="border-top:2px solid var(--border-color);padding-top:0.75rem;margin-top:0.25rem;"><span class="equip-label" style="font-weight:700;">Rental Monthly Fees</span><span class="equip-value" style="font-size:1.05rem;" id="rentalTotal">$0.00</span></div>
-    </div>
-    <div class="equip-card"><h4>Purchase</h4>
-      <div class="equip-row"><span class="equip-label">Purchase Price</span><span class="equip-value editable" data-field="purchasePrice" data-type="dollar" onclick="editField(this)">$0.00</span></div>
-      <div class="equip-row"><span class="equip-label">Monthly Software Fee</span><span class="equip-value editable" data-field="purchaseSoftware" data-type="dollar" onclick="editField(this)">$0.00</span></div>
-      <div class="equip-row"><span class="equip-label">Monthly Processing Fee</span><span class="equip-value editable" data-field="purchaseProcessing" data-type="dollar" onclick="editField(this)">$0.00</span></div>
-      <div class="equip-row"><span class="equip-label">3 Month Pay Off</span><span class="equip-value" id="pay3mo">$0.00</span></div>
-      <div class="equip-row"><span class="equip-label">4 Month Pay Off</span><span class="equip-value" id="pay4mo">$0.00</span></div>
-      <div class="equip-row" style="border-top:2px solid var(--border-color);padding-top:0.75rem;margin-top:0.25rem;"><span class="equip-label" style="font-weight:700;">Monthly Once Paid Off</span><span class="equip-value" style="font-size:1.05rem;" id="purchaseAfter">$0.00</span></div>
-    </div>
-  </div>
-  <div class="card" style="margin-top:1.25rem;"><div class="card-title">Monthly Payment Options — Savings Comparison</div><div class="table-container"><table><thead><tr><th>Option</th><th style="text-align:right">Monthly Cost</th><th style="text-align:right">Monthly Savings</th></tr></thead><tbody id="equipTableBody"></tbody></table></div></div>
-  <div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.78rem;font-style:italic;">Prepared by: <span data-mirror="accountExec">Enter name</span> — This proposal is valid for 10 business days</div>
   </div>
 </section>
 
@@ -914,6 +867,7 @@ const EQUIP = [
 
 function buildEquipDropdown(){
   const sel=document.getElementById('equipSelect');
+  if(!sel)return;   // the equipment pricing view was replaced by WPI Assist
   sel.innerHTML='<option value="">— Choose Equipment —</option>';
   const brands=[...new Set(EQUIP.map(e=>e.brand))];
   brands.forEach(b=>{
@@ -1145,12 +1099,12 @@ function recalcAll() {
   setT('pay4mo', fmt$(pay4mo));
   setT('purchaseAfter', fmt$(purchaseRecurring));
   const eqTb = document.getElementById('equipTableBody');
-  eqTb.innerHTML = '';
+  if (eqTb) { eqTb.innerHTML = '';
   [['Current Monthly Fees',F,'—'],['3 Month Pay Off',pay3mo,F-pay3mo],['4 Month Pay Off',pay4mo,F-pay4mo],['Once Equipment Paid Off',purchaseRecurring,F-purchaseRecurring]].forEach(([n,cost,sav])=>{
     const tr=document.createElement('tr');
     tr.innerHTML='<td>'+ n+'</td><td class="num">'+fmt$(cost)+'</td><td class="num">'+(typeof sav==='number'?fmt$(sav):sav)+'</td>';
     eqTb.appendChild(tr);
-  });
+  }); }
 
   // Rebuild IC table cost cells
   document.querySelectorAll('#icBody .cost-cell').forEach((el,idx)=>{
@@ -1529,18 +1483,18 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 <script src="scan.js?v=20260925-6"></script>
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
-<script src="assets/js/data.js?v=da9358e-muhmq8rh"></script>
-<script src="assets/js/app.js?v=da9358e-muhmq8rh"></script>
+<script src="assets/js/data.js?v=da9358e-muhn2esa"></script>
+<script src="assets/js/app.js?v=da9358e-muhn2esa"></script>
 <script>
-// WPI Assist's #/ routes: the equipment sections belong to the Equipment tab, the quote tools and the Basil and Genius
-// quotes (#/, #/basil, #/genius) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
+// WPI Assist's #/ routes: the equipment sections (flyers, install, troubleshoot) belong to the Equipment tab; the tools,
+// the Basil and Genius quotes and Compare (#/, #/basil, #/genius, #/compare) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
 // while the rep is on another tab and comes back when they return.
 (function () {
   var tabs = { equipment: document.getElementById('tab-equipment'), proposal: document.getElementById('tab-proposal') };
   var saved = { equipment: '', proposal: '' };
   function owner(h) {
     var m = /^#\/([^\/]*)/.exec(h || '');
-    return !m ? null : /^(home|basil|genius)?$/.test(m[1]) ? 'proposal' : 'equipment';
+    return !m ? null : /^(home|basil|genius|compare)?$/.test(m[1]) ? 'proposal' : 'equipment';
   }
   function current() { return tabs.equipment.classList.contains('active') ? 'equipment' : tabs.proposal.classList.contains('active') ? 'proposal' : null; }
   function sync(fromLink) {
@@ -1562,14 +1516,14 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
     }
     if (tab && owner(location.hash) === tab) saved[tab] = location.hash;   // each tab remembers where the rep last was
     document.body.classList.toggle('ra-tab', !!tab);
-    document.body.classList.toggle('ra-on', tab === 'equipment' && !/^#\/pricing\b/.test(location.hash));
+    document.body.classList.toggle('ra-on', tab === 'equipment');
   }
   var observe = function () { sync(false); };
   new MutationObserver(observe).observe(tabs.equipment, { attributes: true, attributeFilter: ['class'] });
   new MutationObserver(observe).observe(tabs.proposal, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('hashchange', function () { sync(true); });
   var own = owner(location.hash);
-  if (own && own !== 'proposal' || /^#\/(basil|genius)/.test(location.hash)) switchTab(own);
+  if (own && own !== 'proposal' || /^#\/(basil|genius|compare)/.test(location.hash)) switchTab(own);
   sync(false);
 })();
 </script>
