@@ -56,7 +56,7 @@
   const raLayer = () => document.getElementById("raLayer") || document.body;
   const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);
   /* cost comp: the quote builders and Compare open in the Proposal tab in place of its tools, with a way back */
-  const raQuotePage = () => { const hub = document.getElementById("raHome"), q = document.getElementById("raQuote"); if (!hub || !q) return null; hub.hidden = true; q.hidden = false; return q; };
+  const raQuotePage = () => { const hub = document.getElementById("raHome"), q = document.getElementById("raQuote"); if (!hub || !q) return null; q.hidden = false; return q; };
   const raBack = () => `<div class="wrap"><section class="sec-head"><a class="back" href="#/">${ic("arrowL")} Proposal</a></section></div>`;
   const app = $("#app");
   const money = n => "$" + Number(n).toLocaleString("en-US");
@@ -156,7 +156,7 @@
 
   window.addEventListener("hashchange", render);
   function init(){ fillStaticIcons(); renderTools(); render(); registerSW(); }
-  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's tool row */
+  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's left-hand tools menu */
   function renderTools(){
     const hub = document.getElementById("raHome"); if (!hub) return;
     const t = document.createElement("div"); t.innerHTML = homeView();
@@ -166,7 +166,9 @@
     quote.reverse().forEach(el => row.prepend(el));
     const fl = document.createElement("a"); fl.className = "qlink"; fl.href = "#/flyers"; fl.innerHTML = ic("flyer") + " Equipment Flyers";
     (quote[0] || row.firstChild).after(fl);
-    hub.innerHTML = '<div class="wrap"></div>'; hub.firstChild.appendChild(row);
+    /* each label in its own span, so a folded menu can show just the icons */
+    [...row.children].forEach(el => { [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const sp = document.createElement("span"); sp.className = "ra-label"; sp.textContent = n.textContent.trim(); n.replaceWith(sp); }); el.title = el.textContent.trim(); });
+    const list = document.getElementById("raTools") || hub; list.innerHTML = ""; list.appendChild(row);
   }
   window.addEventListener("DOMContentLoaded", init);
   if (document.readyState !== "loading") init();
@@ -3796,7 +3798,7 @@ ${urls.map(u => `<img class="att" src="${u}" alt="">`).join("")}
      the bar sitting 58px under the header on every section. The height also
      steps with the breakpoint now, so measure it instead of duplicating it. */
   const syncHeaderHeight = () => {
-    const h = document.querySelector(".hdr");
+    const h = document.querySelector("#raMain .ra-bar");
     if (!h) return;
     raRoots().forEach(r => r.style.setProperty("--hdr-h", Math.round(h.getBoundingClientRect().height) + "px"));
   };
@@ -3804,7 +3806,7 @@ ${urls.map(u => `<img class="att" src="${u}" alt="">`).join("")}
   window.addEventListener("resize", syncHeaderHeight);
   window.addEventListener("orientationchange", syncHeaderHeight);
   if (window.ResizeObserver){
-    const h = document.querySelector(".hdr");
+    const h = document.querySelector("#raMain .ra-bar");
     if (h) new ResizeObserver(syncHeaderHeight).observe(h);
   }
 

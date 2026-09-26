@@ -108,11 +108,12 @@ The markup analysis is on-screen only; the emailed/downloaded proposal PDF is un
 
 The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequipment](https://github.com/Blakew316/repequipment), copied into this site. It runs exactly as it does on its own, with its own colors, shading and icons, and follows the cost comparison's light/dark switch.
 
-- **Equipment tab:** Equipment Flyers (where it opens), Installation, and Troubleshooting, with device sheets and flyer PDFs.
-- **Proposal tab:** the app's tools sit at the top: Equipment Quote, Basil POS Quote, Genius POS Quote, Equipment Flyers, the full pricing matrix, install videos, and Compare two devices.
+- **Equipment tab:** a menu on the left lists Equipment Flyers (where it opens), Installation, and Troubleshooting, with device sheets and flyer PDFs.
+- **Proposal tab:** a menu on the left lists the app's tools: Equipment Quote, Basil POS Quote, Genius POS Quote, Equipment Flyers, the full pricing matrix, install videos, and Compare two devices.
   - The Equipment Quote builder opens over the page.
-  - A Basil or Genius quote, or Compare, opens in the Proposal tab in place of the proposal. **← Proposal** returns to it.
+  - A Basil or Genius quote, or Compare, opens beside the menu in place of the proposal. **← Proposal** returns to it.
   - A device's Compare button in Equipment Flyers opens the comparison here, with that device picked.
+- **The menus:** on a computer, the ☰ at the top of a menu folds it down to icons, and the page remembers that. On a phone, each tab has a ☰ button at the top that opens its menu as a drawer and shows the page the rep is on. Picking an item, tapping outside the drawer, or pressing Escape closes it.
 - **Links:** `/#/flyers`, `/#/basil`, `/#/compare` and the like open straight to that page in its tab.
 - **Where it lives:** the app's images, flyers, guides and forms are in `public/assets/`. Its code is `public/assets/js/app.js` and `data.js`, and its styles are `public/assets/css/equipment.css`, scoped to where the app shows so that neither site's styles reach the other.
 - **Updating it:** make changes in the repequipment repo, then run `npm run sync-equipment -- <path to a repequipment checkout>`, test, and deploy. The tool copies the app over again, re-applies the few changes that let it live inside this page (listed at the top of `tools/sync-equipment.mjs`), and rebuilds the scoped styles.
