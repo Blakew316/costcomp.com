@@ -138,7 +138,7 @@ In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Com
 - **Layout and offline:**
   - The layout keeps clear of the notch and the home indicator.
   - Tapping a field doesn't zoom the page.
-  - The status bar follows light and dark. It sits on a solid strip in the header's colour, because iOS 26 and later otherwise frost the status bar and the header just below it; the menu bars stick just under that strip.
+  - The status bar follows light and dark. On iPhone and iPad a solid strip in the header's colour is pinned to the top of the page (at least 12px tall), because iOS 26 and later otherwise fade a frosted blur over the header; iOS paints the status bar that colour instead. It checks when the page loads, so a change shows after the app reloads (Update, or close and reopen it).
   - The app opens offline with the last data it had.
 
 The icons come from `public/wp-logo-clean.png` via `node tools/make-icons.mjs` (it needs Playwright). The name and icons are in `public/manifest.json` and the `apple-*` tags at the top of `public/index.html`.
