@@ -165,6 +165,9 @@
     row.style.setProperty("--i", "0");
     const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\/(basil|genius)$/.test(el.getAttribute("href") || ""));
     quote.reverse().forEach(el => row.prepend(el));
+    /* the Equipment Quote opens as a page here, like the other quotes, not as a pop-up */
+    const qb = row.querySelector("#quoteBtn");
+    if (qb){ const a = document.createElement("a"); a.className = "qlink"; a.href = "#/quote"; a.innerHTML = qb.innerHTML; qb.replaceWith(a); }
     /* each label in its own span, so a folded menu can show just the icons */
     [...row.children].forEach(el => { [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const sp = document.createElement("span"); sp.className = "ra-label"; sp.textContent = n.textContent.trim(); n.replaceWith(sp); }); el.title = el.textContent.trim(); });
     const list = document.getElementById("raTools") || hub; list.innerHTML = ""; list.appendChild(row);
@@ -181,6 +184,7 @@
       if (hub && q){ hub.hidden = false; q.hidden = true; q.innerHTML = ""; } else app.innerHTML = homeView();
       window.scrollTo(0,0); closeSheet(true); return;
     }
+    if (sec==="quote"){ const q = raQuotePage(); if (q){ q.innerHTML = raBack() + `<div class="wrap ra-eqq-page"><section class="bz-hero"><div><h1>Equipment Quote</h1></div></section></div>`; openQuote(q.querySelector(".ra-eqq-page")); } window.scrollTo(0,0); closeSheet(true); return; }
     if (sec==="basil"){ { const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + basilView(); } wireBasil(); window.scrollTo(0,0); closeSheet(true); return; }
     if (sec==="genius"){ { const q = raQuotePage(); (q || app).innerHTML = (q ? raBack() : "") + geniusView(); } wireGenius(); window.scrollTo(0,0); closeSheet(true); return; }
     if (sec==="compare"){
@@ -1195,9 +1199,9 @@
     .map(d => `<option value="${d.id}">${esc(d.name)} — ${mode === "rental" ? money2(qUnit(d, mode)) + "/mo" : money(qUnit(d, mode))}</option>`)
     .join("");
 
-  function openQuote(){
+  function openQuote(host){   /* cost comp: host = the Proposal tab’s page for it; no host = the pop-up */
     const wrap = document.createElement("div");
-    wrap.className = "modal open"; wrap.id = "quoteModal";
+    wrap.className = host ? "ra-eqq" : "modal open"; wrap.id = "quoteModal";
     wrap.innerHTML = `
       <div class="modal-card quote-card" role="dialog" aria-modal="true">
         <div class="modal-head">
@@ -1247,11 +1251,11 @@
           </span>
         </div>
       </div>`;
-    raLayer().appendChild(wrap);
-    const close = ()=>wrap.remove();
+    if (host) host.appendChild(wrap); else raLayer().appendChild(wrap);
+    const close = host ? ()=>{ location.hash = "#/"; } : ()=>wrap.remove();
     $("#qClose",wrap).addEventListener("click",close);
     $("#qCancel",wrap).addEventListener("click",close);
-    wrap.addEventListener("click",e=>{ if(e.target===wrap) close(); });
+    wrap.addEventListener("click",e=>{ if(!host && e.target===wrap) close(); });
 
     function paint(){
       const list = $("#qList",wrap), tot = $("#qTotal",wrap);
@@ -1404,14 +1408,14 @@
     }
     $("#qPdf",wrap).addEventListener("click",()=>{
       if (!quote.items.length){ toast("Add equipment first"); return; }
-      close(); openQuotePdfBuilder();
+      if (!host) close(); openQuotePdfBuilder();
     });
     /* One-tap download: saved agent details, merchant line left blank —
        the Create quote PDF path is where the details get filled in. */
     $("#qDl",wrap).addEventListener("click",()=>{
       if (!quote.items.length){ toast("Add equipment first"); return; }
       const a = loadAgent();
-      close();
+      if (!host) close();
       downloadQuote({ merchant:"", name:a.name||"", phone:a.phone||"", email:a.email||"" });
     });
     paint();
