@@ -1,5 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
-/* cost comparison styles: 6952b2bc9210 */
+/* cost comparison styles: 3ffda9bd27de */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn:hover){background:revert}
@@ -44,7 +44,7 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.tab-panel.active){display:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.num){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-value){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;line-height:revert;color:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-sub){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;margin-top:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-sub){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;margin-top:revert;white-space:revert;overflow:revert;text-overflow:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-monthly){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;margin-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-yearly){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;color:revert;font-weight:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-pct){font-variant-numeric:revert;font-feature-settings:revert;letter-spacing:revert;font-family:revert;font-size:revert;font-weight:revert;margin-top:revert;padding:revert;border-radius:revert;display:revert}
@@ -82,7 +82,7 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-grid){display:revert;grid-template-columns:revert;gap:revert;margin-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi){background:revert;border:revert;border-radius:revert;padding:revert;transition:revert;box-shadow:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi:hover){box-shadow:revert;transform:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.kpi-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert;margin-bottom:revert;white-space:revert;overflow:revert;text-overflow:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.table-container){overflow-x:revert;-webkit-overflow-scrolling:revert;border-radius:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(table){width:revert;border-collapse:revert;font-size:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(tbody td){padding:revert;border-bottom:revert;color:revert;white-space:revert}
@@ -109,6 +109,7 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info){display:revert;grid-template-columns:revert;gap:revert;background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert;row-gap:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.info-item){display:revert;flex-direction:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.info-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(#tab-overview .ra-content){container:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info .info-item){display:revert;grid-row:revert;grid-template-rows:revert;align-items:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info .info-value){overflow-wrap:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.proposal-section){background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert}
