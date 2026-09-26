@@ -45,7 +45,7 @@ const PATCHES = [
   const raLayer = () => document.getElementById("raLayer") || document.body;
   const raRoots = () => ["raMain", "raLayer"].map(id => document.getElementById(id)).filter(Boolean);
   /* cost comp: the quote builders and Compare open in the Proposal tab in place of its tools, with a way back */
-  const raQuotePage = () => { const hub = document.getElementById("raHome"), q = document.getElementById("raQuote"); if (!hub || !q) return null; hub.hidden = true; q.hidden = false; return q; };
+  const raQuotePage = () => { const hub = document.getElementById("raHome"), q = document.getElementById("raQuote"); if (!hub || !q) return null; q.hidden = false; return q; };
   const raBack = () => \`<div class="wrap"><section class="sec-head"><a class="back" href="#/">\${ic("arrowL")} Proposal</a></section></div>\`;`],
   ['theme: follow the cost comparison’s light/dark switch (body.dark) instead of the app’s own', null, null, src => {
     const a = src.indexOf('  /* ------------------------------ theme ------------------------------ */');
@@ -59,9 +59,14 @@ const PATCHES = [
   }],
   ['header actions: the theme button is the cost comparison’s',
     `    const tb = e.target.closest("#themeBtn"); if (tb){ toggleTheme(); }\n`, ''],
-  ['header height: set on the Equipment tab, where the app’s variables live',
+  ['header height: set on the Equipment tab, where the app\u2019s variables live',
     `    document.documentElement.style.setProperty("--hdr-h", Math.round(h.getBoundingClientRect().height) + "px");`,
     `    raRoots().forEach(r => r.style.setProperty("--hdr-h", Math.round(h.getBoundingClientRect().height) + "px"));`],
+  ['header height: the Equipment tab\u2019s menu bar (phones) is the header the filter bar parks under', null, null, src => {
+    const from = 'document.querySelector(".hdr")';
+    if (src.split(from).length !== 3) throw new Error('header lookups not found');
+    return src.split(from).join('document.querySelector("#raMain .ra-bar")');
+  }],
   ['install prompt: the cost comparison has its own', null, null, src => {
     const a = src.indexOf('  /* ------------------------------ PWA ------------------------------ */');
     const b = src.indexOf('  function registerSW(){');
@@ -99,7 +104,7 @@ const PATCHES = [
     const from = `  function init(){ fillStaticIcons(); render(); registerSW(); }`;
     if (src.split(from).length !== 2) throw new Error('init not found');
     return src.replace(from, () => `  function init(){ fillStaticIcons(); renderTools(); render(); registerSW(); }
-  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's tool row */
+  /* cost comp: Home's quick links (quotes first, plus Equipment Flyers) as the Proposal tab's left-hand tools menu */
   function renderTools(){
     const hub = document.getElementById("raHome"); if (!hub) return;
     const t = document.createElement("div"); t.innerHTML = homeView();
@@ -109,7 +114,9 @@ const PATCHES = [
     quote.reverse().forEach(el => row.prepend(el));
     const fl = document.createElement("a"); fl.className = "qlink"; fl.href = "#/flyers"; fl.innerHTML = ic("flyer") + " Equipment Flyers";
     (quote[0] || row.firstChild).after(fl);
-    hub.innerHTML = '<div class="wrap"></div>'; hub.firstChild.appendChild(row);
+    /* each label in its own span, so a folded menu can show just the icons */
+    [...row.children].forEach(el => { [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const sp = document.createElement("span"); sp.className = "ra-label"; sp.textContent = n.textContent.trim(); n.replaceWith(sp); }); el.title = el.textContent.trim(); });
+    const list = document.getElementById("raTools") || hub; list.innerHTML = ""; list.appendChild(row);
   }`);
   }],
   ['equipment sections: no "\u2190 Home" link (Home isn\u2019t in the Equipment tab)',
@@ -161,7 +168,7 @@ function blocks(css) {
 }
 const splitTop = (s, sep) => { const out = []; let d = 0, cur = '', q = null; for (const c of s) { if (q) { if (c === q) q = null; } else if (c === '"' || c === "'") q = c; else if (c === '(' || c === '[') d++; else if (c === ')' || c === ']') d--; else if (c === sep && !d) { out.push(cur); cur = ''; continue; } cur += c; } out.push(cur); return out.map(x => x.trim()).filter(Boolean); };
 
-const SCOPE = ':is(#raMain,#raLayer,#raProp)';
+const SCOPE = ':is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar)';
 // the app's selectors, inside the Equipment tab; :root/html/body become the tab itself; dark = the cost comparison's body.dark
 function scopeSel(s, inDarkMedia) {
   if (inDarkMedia) {
@@ -205,7 +212,7 @@ const cancel = new Map();
       .filter((p, k, all) => p && !p.startsWith('--') && /^[a-z-]+$/.test(p) && all.indexOf(p) === k);
     const important = new Set(splitTop(b.body, ';').filter(d => /!\s*important\s*$/i.test(d)).map(d => d.split(':')[0].trim().toLowerCase()));
     for (let s of splitTop(b.prelude, ',')) {
-      if (/-webkit-scrollbar|#raMain|#raLayer|#raProp/.test(s)) continue;
+      if (/-webkit-scrollbar|#raMain|#raLayer|#raHome|#raQuote|#raPropBar/.test(s)) continue;
       s = s.replace(/^(?:html|body)(?:[.:#[][^\s>+~]*)?\s*(?:>\s*)?/, '').trim();   // an ancestor outside the app
       if (!s || /^(?::root|html|body)$/.test(s)) continue;                      // the page itself
       const pe = /((?:::?(?:before|after|placeholder|selection|marker|first-line|first-letter))+)$/i.exec(s);
@@ -240,20 +247,58 @@ const bgLight = bg(/:root\s*\{[^}]*?--bg:\s*([^;]+);/), bgDark = bg(/:root\[data
 const integration = `
 /* ─── The app inside the Equipment tab ─── */
 /* edge to edge under the cost comparison's tabs, like the app's own page (undoes .main's padding) */
-#raMain,#raProp{margin:-1.5rem -1.5rem 0}
-@media(max-width:900px){#raMain,#raProp{margin:-1rem -1rem 0}}
-@media(max-width:600px){#raMain,#raProp{margin:-0.75rem -0.75rem 0}}
-@media(max-height:500px) and (orientation:landscape){#raMain,#raProp{margin:-0.5rem -0.5rem 0}}
-/* the Proposal tab's quote tools: a band of the app's background across the page, then the proposal */
-#raProp{margin-bottom:1.25rem;box-shadow:0 0 0 100vmax var(--bg);clip-path:inset(0 -100vmax)}
-/* the tools row lines up with the proposal's cards below it */
-#raHome .wrap{max-width:none;padding:0 1.5rem}
-@media(max-width:900px){#raHome .wrap{padding:0 1rem}}
-@media(max-width:600px){#raHome .wrap{padding:0 0.75rem}}
-@media(max-height:500px) and (orientation:landscape){#raHome .wrap{padding:0 0.5rem}}
-#raHome .home-quick{padding-bottom:18px}
-/* a Basil or Genius quote takes the Proposal tab while it's open */
-#tab-proposal:has(> #raProp #raQuote:not([hidden])) > :not(#raProp){display:none}
+#raMain,#raPropBar{margin:-1.5rem -1.5rem 0}
+@media(max-width:900px){#raMain,#raPropBar{margin:-1rem -1rem 0}}
+@media(max-width:600px){#raMain,#raPropBar{margin:-0.75rem -0.75rem 0}}
+@media(max-height:500px) and (orientation:landscape){#raMain,#raPropBar{margin:-0.5rem -0.5rem 0}}
+
+/* ─── Left-hand menus: the Equipment tab's sections and the Proposal tab's tools ─── */
+.ra-shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
+.ra-shell.ra-collapsed{grid-template-columns:64px minmax(0,1fr)}
+#raMain .ra-shell{padding:24px 0 0 24px}
+:is(#raMain .ra-side,#raHome){position:sticky;top:16px;display:flex;flex-direction:column;gap:4px;margin:0;padding:10px;max-height:calc(100vh - 32px);overflow:auto;
+  background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
+:is(#raMain,#raHome) .ra-side-head,:is(#raMain,#raPropBar) .ra-burger{display:flex;align-items:center;gap:12px;font:inherit;font-weight:700;font-size:15px;letter-spacing:-0.01em;color:var(--text);cursor:pointer;text-align:left}
+:is(#raMain,#raHome) .ra-side-head{width:100%;padding:10px 12px;margin:0 0 6px;border:0;border-bottom:1px solid var(--border-2);border-radius:12px 12px 0 0;background:none}
+:is(#raMain,#raHome) .ra-side-head:hover{background:var(--bg-soft)}
+:is(#raMain,#raHome,#raPropBar) :is(.ra-side-head,.ra-burger) svg{width:22px;height:22px;flex:0 0 auto}
+/* the items: the app's own tab and quick-link styles, stacked */
+#raMain .ra-side .subnav{flex-direction:column;gap:4px;padding:0;overflow:visible}
+#raMain .ra-side .tab{width:100%;justify-content:flex-start;gap:12px;padding:12px 14px;border-radius:12px;font-size:15px;line-height:20px;white-space:nowrap}
+#raHome .home-quick{display:flex;flex-direction:column;gap:4px;padding:0;animation:none}
+#raHome .qlink{width:100%;justify-content:flex-start;gap:12px;padding:12px 14px;border-color:transparent;border-radius:12px;background:none;box-shadow:none;font-size:15px;line-height:20px;text-align:left;white-space:nowrap}
+#raHome .qlink:hover{background:var(--bg-soft);border-color:transparent}
+#raHome .qlink.active{background:var(--navy);border-color:var(--navy);color:#fff}
+#raHome .qlink.active svg{color:#fff}
+:is(#raMain .ra-side .tab,#raHome .qlink) svg{width:18px;height:18px;flex:0 0 auto}
+/* folded to icons */
+.ra-collapsed :is(#raMain .ra-side,#raHome) .ra-label{display:none}
+.ra-collapsed :is(#raMain .ra-side .tab,#raHome .qlink,#raMain .ra-side-head,#raHome .ra-side-head){justify-content:center;padding-left:0;padding-right:0}
+/* the phone bar and drawer */
+:is(#raMain,#raPropBar) .ra-bar,#raPropBar{display:none}
+.ra-scrim{display:none}
+@media(max-width:900px){
+  .ra-shell,.ra-shell.ra-collapsed{grid-template-columns:minmax(0,1fr);gap:0}
+  #raMain .ra-shell{padding:0}
+  .ra-collapsed :is(#raMain .ra-side,#raHome) .ra-label{display:inline}
+  .ra-collapsed :is(#raMain .ra-side .tab,#raHome .qlink){justify-content:flex-start;padding:12px 14px}
+  :is(#raMain .ra-side,#raHome){position:fixed;top:0;left:0;bottom:0;z-index:1100;width:min(300px,84vw);max-height:none;border-radius:0 20px 20px 0;
+    padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));transform:translateX(-105%);visibility:hidden;transition:transform .22s cubic-bezier(.22,.61,.36,1),visibility 0s .22s;box-shadow:var(--shadow-lg)}
+  /* closed, the drawer is out of the tab order and hidden from screen readers too */
+  :is(#raMain .ra-shell.ra-open .ra-side,.ra-shell.ra-open > #raHome){transform:none;visibility:visible;transition:transform .22s cubic-bezier(.22,.61,.36,1)}
+  .ra-shell.ra-open + .ra-scrim{display:block;position:fixed;inset:0;z-index:1099;background:rgba(0,0,0,0.38)}
+  #raMain .ra-bar,#raPropBar{display:flex;position:sticky;top:0;z-index:50;align-items:center;padding:10px 16px;background:transparent;border-bottom:1px solid var(--border-2)}
+  /* the blur sits behind the button, as on the app's own header, so taps reach it on iOS */
+  :is(#raMain .ra-bar,#raPropBar)::before{content:"";position:absolute;inset:0;z-index:0;background:var(--header-bg);
+    -webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px)}
+  #raPropBar{margin-bottom:14px}
+  :is(#raMain,#raPropBar) .ra-burger{position:relative;z-index:1;padding:9px 16px 9px 12px;border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-sm)}
+  body.ra-drawer{overflow:hidden}
+}
+@media(prefers-reduced-motion:reduce){:is(#raMain .ra-side,#raHome){transition:none}}
+/* a quote or Compare opens in the Proposal tab's main column, in place of the proposal */
+#raQuote{border:1px solid var(--border);border-radius:18px;padding-bottom:24px;margin-bottom:1.25rem}
+#tab-proposal:has(#raQuote:not([hidden])) .ra-content > :not(#raQuote){display:none}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */
 #raLayer{position:relative;z-index:1000;height:0;margin:0;padding:0;background:transparent}
 body:not(.ra-tab) #raLayer{display:none}

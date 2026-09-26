@@ -404,7 +404,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhn2esa">
+<link rel="stylesheet" href="assets/css/equipment.css?v=da9358e-muhob7vi">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -500,15 +500,15 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
 
 <!-- ──────── PROPOSAL TAB ──────── -->
 <section class="tab-panel" id="tab-proposal">
-  <!-- WPI Assist tools (Equipment, Basil POS and Genius POS quotes, Compare...); a quote or Compare opens here -->
-  <div id="raProp"><div id="raHome"></div><div id="raQuote" hidden></div></div>
-  <div class="merchant-info" id="propInfo">
-    <div class="info-item"><span class="info-label">Merchant</span><span class="info-value editable" data-field="merchantName" onclick="editField(this)">Enter merchant name</span></div>
-    <div class="info-item"><span class="info-label">Address</span><span class="info-value editable" data-field="address" onclick="editField(this)">Enter address</span></div>
-    <div class="info-item"><span class="info-label">Date</span><span class="info-value editable" data-field="proposalDate" onclick="editField(this)">March 28, 2026</span></div>
-    <div class="info-item"><span class="info-label">Prepared By</span><span class="info-value editable" data-field="accountExec" onclick="editField(this)">Enter name</span></div>
-  </div>
-  <div class="proposal-section"><p>Thank you for the opportunity to earn your business. At Wholesale Payments Inc., we strive to offer white glove customer support by focusing on every local market that we serve. We accomplish this by providing a worry-free, cost-effective pricing & transaction solution for each merchant based on their unique needs. Our commitment to you is to create a relationship built on trust and transparency with pricing and service.</p></div>
+  <!-- Left-hand menu: WPI Assist's tools (Equipment, Basil POS and Genius POS quotes, Compare...); a quote or Compare opens in the main column -->
+  <div id="raPropBar"><button type="button" class="ra-burger" aria-controls="raHome" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="ra-burger-label">Proposal tools</span></button></div>
+  <div class="ra-shell" data-menu="proposal">
+  <aside id="raHome" class="ra-side" aria-label="Proposal tools">
+    <button type="button" class="ra-side-head" title="Fold or open the menu" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="ra-label">Proposal tools</span></button>
+    <div id="raTools"></div>
+  </aside>
+  <div class="ra-content">
+  <div id="raQuote" hidden></div>
   <div class="proposal-section">
     <h3>Compliant Dual Pricing</h3>
     <p>We can offer your business an alternative to traditional pricing. Our program lets you offset the cost of card transactions in a compliant way. Our terminals are set up to pass the cash discount fee directly to the customer.</p>
@@ -559,24 +559,29 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
       <div style="font-size:0.82rem;font-weight:700;" id="tradSavingsPctLarge">28.10% reduction</div>
     </div>
   </div>
-  <div class="card"><div class="card-title">Estimated Savings Matrix</div><div class="table-container"><table><thead><tr><th>Program</th><th style="text-align:right">Monthly</th><th style="text-align:right">Annual</th><th style="text-align:right">Three Years</th></tr></thead><tbody id="matrixBody"></tbody></table></div></div>
   <div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.78rem;font-style:italic;">This proposal is valid for 10 business days</div>
+  </div>
+  </div>
+  <div class="ra-scrim"></div>
 </section>
 
 <!-- ──────── EQUIPMENT TAB ──────── -->
 <section class="tab-panel" id="tab-equipment">
   <!-- WPI Assist (github.com/Blakew316/repequipment), copied in by tools/sync-equipment.mjs; its styles are in assets/css/equipment.css -->
   <div id="raMain">
-    <header class="hdr">
-      <div class="wrap">
-        <nav class="subnav" id="subnav" aria-label="Equipment sections">
-          <a class="tab" data-sec="flyers" data-icon="flyer" href="#/flyers">Equipment Flyers</a>
-          <a class="tab" data-sec="install" data-icon="install" href="#/install">Installation</a>
-          <a class="tab" data-sec="troubleshoot" data-icon="trouble" href="#/troubleshoot">Troubleshooting</a>
+    <div class="ra-bar"><button type="button" class="ra-burger" aria-controls="eqMenu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="ra-burger-label">Equipment</span></button></div>
+    <div class="ra-shell" data-menu="equipment">
+      <aside class="ra-side" id="eqMenu" aria-label="Equipment sections">
+        <button type="button" class="ra-side-head" title="Fold or open the menu" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="ra-label">Equipment</span></button>
+        <nav class="subnav" id="subnav">
+          <a class="tab" data-sec="flyers" data-icon="flyer" href="#/flyers" title="Equipment Flyers"><span class="ra-label">Equipment Flyers</span></a>
+          <a class="tab" data-sec="install" data-icon="install" href="#/install" title="Installation"><span class="ra-label">Installation</span></a>
+          <a class="tab" data-sec="troubleshoot" data-icon="trouble" href="#/troubleshoot" title="Troubleshooting"><span class="ra-label">Troubleshooting</span></a>
         </nav>
-      </div>
-    </header>
-    <div id="app" class="ra-main"></div>
+      </aside>
+      <div id="app" class="ra-main"></div>
+    </div>
+    <div class="ra-scrim"></div>
   </div>
 </section>
 
@@ -1086,12 +1091,12 @@ function recalcAll() {
 
   // Savings matrix
   const mb = document.getElementById('matrixBody');
-  mb.innerHTML = '';
+  if (mb) { mb.innerHTML = '';
   [[`Traditional Pricing`,tradSavings],[`Compliant Dual Pricing`,cdpSavings]].forEach(([n,m])=>{
     const tr=document.createElement('tr');
     tr.innerHTML='<td>'+n+'</td><td class="num">'+fmt$(m)+'</td><td class="num">'+fmt$(m*12)+'</td><td class="num">'+fmt$(m*36)+'</td>';
     mb.appendChild(tr);
-  });
+  }); }
 
   // Equipment
   setT('rentalTotal', fmt$(rentalTotal));
@@ -1483,8 +1488,8 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 <script src="scan.js?v=20260925-6"></script>
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
-<script src="assets/js/data.js?v=da9358e-muhn2esa"></script>
-<script src="assets/js/app.js?v=da9358e-muhn2esa"></script>
+<script src="assets/js/data.js?v=da9358e-muhob7vi"></script>
+<script src="assets/js/app.js?v=da9358e-muhob7vi"></script>
 <script>
 // WPI Assist's #/ routes: the equipment sections (flyers, install, troubleshoot) belong to the Equipment tab; the tools,
 // the Basil and Genius quotes and Compare (#/, #/basil, #/genius, #/compare) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
@@ -1525,6 +1530,67 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
   var own = owner(location.hash);
   if (own && own !== 'proposal' || /^#\/(basil|genius|compare)/.test(location.hash)) switchTab(own);
   sync(false);
+})();
+// The left-hand menus (the Equipment tab's sections, the Proposal tab's tools). On wide screens the ☰ at the top of
+// the menu folds it to icons (remembered); on phones the menu is a drawer that the ☰ button in the bar opens.
+(function () {
+  var phone = window.matchMedia('(max-width: 900px)');
+  var menus = [].map.call(document.querySelectorAll('.ra-shell[data-menu]'), function (shell) {
+    var side = shell.querySelector('.ra-side'), head = side.querySelector('.ra-side-head');
+    var m = { shell: shell, side: side, head: head, key: 'wpiMenu:' + shell.getAttribute('data-menu'),
+      burger: document.querySelector('.ra-burger[aria-controls="' + side.id + '"]') };
+    m.name = m.burger.querySelector('.ra-burger-label').textContent;
+    try { if (localStorage.getItem(m.key) === 'folded') fold(m, true); } catch (e) {}
+    m.burger.addEventListener('click', function () { shell.classList.contains('ra-open') ? close(m) : open(m); });
+    head.addEventListener('click', function () {
+      if (phone.matches) { close(m); return; }
+      var f = !shell.classList.contains('ra-collapsed');
+      fold(m, f);
+      try { localStorage.setItem(m.key, f ? 'folded' : 'open'); } catch (e) {}
+    });
+    shell.nextElementSibling.addEventListener('click', function () { close(m); });   // the scrim
+    side.addEventListener('click', function (e) { if (e.target.closest('a, .qlink')) close(m); });
+    return m;
+  });
+  function fold(m, f) {
+    m.shell.classList.toggle('ra-collapsed', f);
+    m.head.setAttribute('aria-expanded', String(!f));
+  }
+  function open(m) {
+    m.shell.classList.add('ra-open');
+    m.burger.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('ra-drawer');
+    var first = m.side.querySelector('.tab.active, .qlink.active') || m.side.querySelector('.tab, .qlink');
+    if (first) first.focus({ preventScroll: true });
+  }
+  function close(m) {
+    if (!m.shell.classList.contains('ra-open')) return;
+    m.shell.classList.remove('ra-open');
+    m.burger.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('ra-drawer');
+  }
+  // the bar shows where the rep is; the Proposal tools mark the quote or Compare that's open
+  function mark() {
+    var sec = (/^#\/([^\/]*)/.exec(location.hash) || [])[1];
+    menus.forEach(function (m) {
+      var here = null;
+      [].forEach.call(m.side.querySelectorAll('.qlink'), function (q) {
+        var on = !!sec && /^(basil|genius|compare)$/.test(sec) && q.getAttribute('href') === '#/' + sec;
+        q.classList.toggle('active', on);
+        if (on) here = q;
+      });
+      if (!here && sec) here = m.side.querySelector('.tab[data-sec="' + sec + '"]');
+      m.burger.querySelector('.ra-burger-label').textContent = here ? here.textContent.trim() : m.name;
+    });
+  }
+  function closeAll() { menus.forEach(close); mark(); }
+  window.addEventListener('hashchange', closeAll);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menus.forEach(close); });
+  phone.addEventListener('change', function () { menus.forEach(close); });
+  ['tab-equipment', 'tab-proposal'].forEach(function (id) {
+    new MutationObserver(closeAll).observe(document.getElementById(id), { attributes: true, attributeFilter: ['class'] });
+  });
+  mark();
 })();
 </script>
 </body>
