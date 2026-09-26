@@ -2,15 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
 <meta name="description" content="Wholesale Payments Cost Comparison - Editable Payment Processing Analysis">
 <meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="WP Cost Comp">
+<meta name="apple-mobile-web-app-title" content="WPI Cost Comp">
+<meta name="application-name" content="WPI Cost Comp">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script>
+// Opened from the home screen (iOS sets navigator.standalone): html.pwa turns on the app's own navigation, the tab bar.
+// On iPhone and iPad, tapping a small text field zooms the page in; maximum-scale=1 stops that (people can still pinch-zoom).
+(function(){
+  var d=document.documentElement;
+  if(window.navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches))d.classList.add('pwa');
+  if(/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
+    var v=document.querySelector('meta[name=viewport]');
+    if(v)v.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
+  }
+})();
+</script>
 <link rel="stylesheet" href="scan.css?v=20260925-6">
 <title>Wholesale Payments | Cost Comparison</title>
 <style>
@@ -258,12 +272,39 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
   .editable.placeholder{font-size:0.65rem}
 }
 
-/* ─── PWA standalone mode adjustments ─── */
-@media(display-mode:standalone){
-  body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-  .header{padding-top:calc(0.6rem + env(safe-area-inset-top))}
-  .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
+/* ─── Notch and home-indicator room (viewport-fit=cover) ─── */
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+
+/* ─── Home-screen app (html.pwa): there's no browser bar, so the app brings its own navigation ─── */
+html.pwa .header{padding-top:calc(0.6rem + env(safe-area-inset-top))}
+html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
+/* on phones, a tab bar at the bottom where a thumb reaches: the three tabs, Scan and Email PDF (56px tall with its top border) */
+.pwa-tabs{display:none}
+@media(max-width:900px),(max-height:500px){
+  html.pwa .tabs-container{display:none}
+  html.pwa body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
+  html.pwa .footer{padding-bottom:1.25rem}
+  html.pwa .pwa-tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:900;
+    padding:0 max(6px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(6px,env(safe-area-inset-left));
+    background:rgba(255,255,255,0.92);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border-color)}
+  html.pwa body.dark .pwa-tabs{background:rgba(28,28,30,0.92)}
+  html.pwa .scan-toast{bottom:calc(56px + env(safe-area-inset-bottom) + 12px)}
+  html.pwa .update-bar{bottom:calc(56px + env(safe-area-inset-bottom) + 12px)}
+  /* the drawer menus' dimmed background covers the tab bar too */
+  html.pwa body.ra-drawer .pwa-tabs{visibility:hidden}
 }
+.pwa-tabs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:55px;padding:0;border:0;background:none;
+  color:#8e8e93;font:inherit;font-size:10.5px;font-weight:600;letter-spacing:0.01em;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pwa-tabs button svg{width:24px;height:24px;flex:none}
+.pwa-tabs button.on{color:var(--brand-blue)}
+.pwa-tabs button:active{opacity:0.55}
+
+/* ─── A new version is out (the app has no reload button) ─── */
+.update-bar{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1003;display:flex;align-items:center;gap:0.75rem;
+  width:max-content;max-width:calc(100% - 24px);padding:0.6rem 0.6rem 0.6rem 1rem;border-radius:14px;background:#1c1c1e;color:#f5f5f7;font-size:0.85rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,0.28)}
+.update-bar button{border:0;border-radius:10px;padding:0.5rem 0.9rem;font:inherit;font-weight:700;cursor:pointer}
+.update-bar .go{background:var(--brand-blue);color:#fff}
+.update-bar .later{background:transparent;color:#aeaeb2;padding:0.5rem}
 
 /* ─── Touch-friendly tap targets ─── */
 @media(pointer:coarse){
@@ -405,7 +446,7 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=7599dc1ea8a5">
+<link rel="stylesheet" href="assets/css/equipment.css?v=36d86955a640">
 </head>
 <body>
 <div class="offline-bar" id="offlineBar">You are currently offline. Data shown is cached.</div>
@@ -594,6 +635,15 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
   <p>Wholesale Payments Inc. &mdash; Cost Comparison</p>
   <p style="margin-top:0.3rem;">Prepared for <span data-mirror="merchantName">Enter merchant name</span> &bull; <span data-mirror="accountExec">Enter name</span>, Account Executive</p>
 </footer>
+
+<!-- Home-screen app on phones: the tab bar (shown only in the installed app; see html.pwa) -->
+<nav class="pwa-tabs" id="pwaTabs" aria-label="WPI Cost Comp">
+  <button type="button" data-go="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Overview</span></button>
+  <button type="button" data-go="proposal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span>Proposal</span></button>
+  <button type="button" data-go="equipment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 6h6v5H9z"/><path d="M9 15h.01M12 15h.01M15 15h.01M9 18h.01M12 18h.01M15 18h.01"/></svg><span>Equipment</span></button>
+  <button type="button" data-go="scan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg><span>Scan</span></button>
+  <button type="button" data-go="email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>Email PDF</span></button>
+</nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -1415,6 +1465,15 @@ function emailPDF(mode){
 
   // Direct download mode — seamless one-click save
   if(mode==='download'){
+    // Inside the installed app on an iPhone or iPad a download can open a preview with no way back to the app, so the
+    // PDF goes to the share sheet instead (Save to Files, Mail, AirDrop, Print).
+    try {
+      const file=new File([blob],fn,{type:'application/pdf'});
+      if(navigator.standalone===true&&navigator.canShare&&navigator.canShare({files:[file]})){
+        navigator.share({title:fn,files:[file]}).catch(e=>{ if(!e||e.name!=='AbortError') doc.save(fn); });
+        return;
+      }
+    } catch(e){}
     doc.save(fn);
     return;
   }
@@ -1490,7 +1549,7 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
 <!-- WPI Assist pop-ups (device sheets, PDF builders, toasts) -->
 <div id="raLayer"><div class="overlay" id="overlay" aria-hidden="true"></div></div>
 <script src="assets/js/data.js?v=b339badd4620"></script>
-<script src="assets/js/app.js?v=e1a4b4f3a6eb"></script>
+<script src="assets/js/app.js?v=7336cb090b91"></script>
 <script>
 // WPI Assist's #/ routes: the equipment sections (flyers, install, troubleshoot) belong to the Equipment tab; the tools,
 // the Equipment, Basil and Genius quotes and Compare (#/, #/quote, #/basil, #/genius, #/compare) to the Proposal tab. A link to either opens its tab; each tab's route steps aside
@@ -1606,6 +1665,87 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
     new MutationObserver(closeAll).observe(document.getElementById(id), { attributes: true, attributeFilter: ['class'] });
   });
   mark();
+})();
+// The home-screen app's tab bar (phones): Overview, Proposal, Equipment, Scan, Email PDF. Each tab keeps its place on the
+// page; tapping the tab that's open scrolls it to the top, and a second tap on Proposal closes an open quote.
+(function () {
+  var bar = document.getElementById('pwaTabs');
+  var pos = {};
+  function active() { var p = document.querySelector('.tab-panel.active'); return p ? p.id.replace(/^tab-/, '') : 'overview'; }
+  function mark() {
+    var a = active();
+    [].forEach.call(bar.querySelectorAll('[data-go]'), function (b) {
+      var on = b.getAttribute('data-go') === a;
+      b.classList.toggle('on', on);
+      if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+  }
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-go]'); if (!b) return;
+    var go = b.getAttribute('data-go'), cur = active();
+    if (go === 'scan') { document.getElementById('scanBtn').click(); return; }
+    if (go === 'email') { emailPDF(); return; }
+    if (go === cur) {
+      var q = document.getElementById('raQuote');
+      if (window.scrollY > 8) window.scrollTo({ top: 0, behavior: 'smooth' });
+      else if (go === 'proposal' && q && !q.hidden) location.hash = '#/';
+      return;
+    }
+    pos[cur] = window.scrollY;
+    switchTab(go);
+    var y = pos[go] || 0;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { window.scrollTo({ top: y, behavior: 'instant' }); }); });
+  });
+  ['tab-overview', 'tab-proposal', 'tab-equipment'].forEach(function (id) {
+    new MutationObserver(mark).observe(document.getElementById(id), { attributes: true, attributeFilter: ['class'] });
+  });
+  mark();
+})();
+// Inside the installed app a link that loads another page would replace the app, with no back button to return: links
+// to files and other sites open in a window over the app instead (it has a Done button).
+document.addEventListener('click', function (e) {
+  if (e.defaultPrevented || !document.documentElement.classList.contains('pwa')) return;
+  var a = e.target.closest && e.target.closest('a[href]');
+  if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+  var href = a.getAttribute('href');
+  if (!href || href.charAt(0) === '#' || /^(mailto|tel|sms|javascript):/i.test(href)) return;
+  var u = new URL(href, location.href);
+  if (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search) return;   // this page
+  e.preventDefault();
+  window.open(u.href, '_blank', 'noopener');
+});
+// The phone's status bar matches the header, light or dark
+(function () {
+  var m = document.querySelector('meta[name="theme-color"]'), h = document.querySelector('.header');
+  function set() { var c = getComputedStyle(h).backgroundColor; if (m.getAttribute('content') !== c) m.setAttribute('content', c); }
+  new MutationObserver(set).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  set();
+})();
+// A new version is out: the installed app has no reload button, so it says so and offers to update (whatever's on screen
+// stays until the rep taps Update). Checked a few seconds after opening and whenever the app comes back to the front.
+(function () {
+  if (!window.fetch) return;
+  var base = null, last = 0, shown = false;
+  function hash(t) { var h = 0; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return h; }
+  function check() {
+    last = Date.now();
+    fetch('index.html?_check=' + last, { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : null; }).then(function (t) {
+      if (!t) return;
+      var h = hash(t);
+      if (base === null) base = h; else if (h !== base) show();
+    }).catch(function () {});
+  }
+  function show() {
+    if (shown) return; shown = true;
+    var b = document.createElement('div');
+    b.className = 'update-bar'; b.id = 'updateBar'; b.setAttribute('role', 'status');
+    b.innerHTML = '<span>A new version of WPI Cost Comp is ready.</span><button type="button" class="go">Update</button><button type="button" class="later" aria-label="Not now">\u2715</button>';
+    b.querySelector('.go').addEventListener('click', function () { location.reload(); });
+    b.querySelector('.later').addEventListener('click', function () { b.remove(); });
+    document.body.appendChild(b);
+  }
+  window.addEventListener('load', function () { setTimeout(check, 3000); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && Date.now() - last > 60000) check(); });
 })();
 </script>
 </body>

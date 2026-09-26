@@ -129,6 +129,7 @@ const PATCHES = [
     const t = document.createElement("div"); t.innerHTML = homeView();
     const row = t.querySelector(".home-quick"); if (!row) return;
     row.querySelectorAll('a[href="#/install"]').forEach(el => el.remove());   /* install videos and guides are in the Equipment tab */
+    row.querySelectorAll('a[href$="equipment-pricing-matrix.pdf"]').forEach(el => el.remove());   /* not needed in the Proposal tab */
     row.style.setProperty("--i", "0");
     const quote = [...row.children].filter(el => el.id === "quoteBtn" || /#\\/(basil|genius)$/.test(el.getAttribute("href") || ""));
     quote.reverse().forEach(el => row.prepend(el));
@@ -362,6 +363,12 @@ ${SCOPE}{color-scheme:light dark}
 /* a quote's total bar is fixed to the bottom of the screen: the app's page ends in blank space for it, so the cost
    comparison's footer steps aside while one is open instead of sitting under the bar */
 body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
+/* the home-screen app on phones has a tab bar at the bottom (index.html, .pwa-tabs): the quote's total bar and the app's
+   messages sit on top of it */
+@media(max-width:900px),(max-height:500px){
+  html.pwa #raQuote .bz-bar{bottom:calc(56px + env(safe-area-inset-bottom));padding-bottom:11px}
+  html.pwa #raLayer .toast{bottom:calc(56px + env(safe-area-inset-bottom) + 16px)}
+}
 /* reduced motion: the app jumps to the top of a page instead of scrolling there (its html rule, on the page while it shows) */
 @media(prefers-reduced-motion:reduce){html:has(body.ra-tab){scroll-behavior:auto}}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */

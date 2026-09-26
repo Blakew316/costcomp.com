@@ -1,5 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
-/* cost comparison styles: df5c9c1f6035 */
+/* cost comparison styles: baf63721f778 */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.icon-btn:hover){background:revert}
@@ -36,7 +36,7 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.logo img){height:revert;width:revert;display:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.header-bottom){flex:revert;text-align:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.header-btn){flex-shrink:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.tabs-container){background:revert;border-bottom:revert;padding:revert;overflow-x:revert;-webkit-overflow-scrolling:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.tabs-container){background:revert;border-bottom:revert;padding:revert;overflow-x:revert;-webkit-overflow-scrolling:revert;display:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.tabs){max-width:revert;margin:revert;display:revert;gap:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.tab-btn){background:revert;border:revert;color:revert;padding:revert;font-size:revert;font-weight:revert;cursor:revert;white-space:revert;border-bottom:revert;transition:revert;min-height:revert;-webkit-tap-highlight-color:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.main){max-width:revert;margin:revert;padding:revert}
@@ -137,6 +137,18 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(#interchangeTable){min-width:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(select.ic-text-input){width:revert;cursor:revert;-webkit-appearance:revert;appearance:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(#equipSelect){font-size:revert;min-height:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.pwa-tabs){display:revert;position:revert;left:revert;right:revert;bottom:revert;z-index:revert;padding:revert;background:revert;-webkit-backdrop-filter:revert;backdrop-filter:revert;border-top:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(body.dark .pwa-tabs){background:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-toast){bottom:revert;position:revert;left:revert;transform:revert;z-index:revert;background:revert;color:revert;padding:revert;border-radius:revert;font-size:revert;font-weight:revert;box-shadow:revert;max-width:revert;animation:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.update-bar){bottom:revert;position:revert;left:revert;transform:revert;z-index:revert;display:revert;align-items:revert;gap:revert;width:revert;max-width:revert;padding:revert;border-radius:revert;background:revert;color:revert;font-size:revert;font-weight:revert;box-shadow:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(body.ra-drawer .pwa-tabs){visibility:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.pwa-tabs button){flex:revert;min-width:revert;display:revert;flex-direction:revert;align-items:revert;justify-content:revert;gap:revert;height:revert;padding:revert;border:revert;background:revert;color:revert;font:revert;font-size:revert;font-weight:revert;letter-spacing:revert;cursor:revert;-webkit-tap-highlight-color:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.pwa-tabs button svg){width:revert;height:revert;flex:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.pwa-tabs button.on){color:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.pwa-tabs button:active){opacity:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.update-bar button){border:revert;border-radius:revert;padding:revert;font:revert;font-weight:revert;cursor:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.update-bar .go){background:revert;color:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.update-bar .later){background:revert;color:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.editable){min-height:revert;display:revert;align-items:revert;-webkit-tap-highlight-color:revert;cursor:revert;min-width:revert;position:revert;background:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(button){-webkit-tap-highlight-color:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.offline-bar){display:revert;background:revert;color:revert;text-align:revert;padding:revert;font-size:revert;font-weight:revert}
@@ -192,7 +204,6 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-error){background:revert;border:revert;border-radius:revert;padding:revert;font-size:revert;line-height:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-drop){position:revert;inset:revert;z-index:revert;background:revert;border:revert;display:revert;align-items:revert;justify-content:revert;font-size:revert;font-weight:revert;color:revert;pointer-events:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-drop.show){display:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-toast){position:revert;left:revert;bottom:revert;transform:revert;z-index:revert;background:revert;color:revert;padding:revert;border-radius:revert;font-size:revert;font-weight:revert;box-shadow:revert;max-width:revert;animation:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-flash){animation:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-options){display:revert;gap:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) :where(.scan-option){display:revert;align-items:revert;gap:revert;text-align:revert;width:revert;padding:revert;border:revert;border-radius:revert;background:revert;color:revert;cursor:revert;font:revert;transition:revert}
@@ -1433,6 +1444,12 @@ body.dark :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar) .bz-badge.crf{ color
 /* a quote's total bar is fixed to the bottom of the screen: the app's page ends in blank space for it, so the cost
    comparison's footer steps aside while one is open instead of sitting under the bar */
 body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
+/* the home-screen app on phones has a tab bar at the bottom (index.html, .pwa-tabs): the quote's total bar and the app's
+   messages sit on top of it */
+@media(max-width:900px),(max-height:500px){
+  html.pwa #raQuote .bz-bar{bottom:calc(56px + env(safe-area-inset-bottom));padding-bottom:11px}
+  html.pwa #raLayer .toast{bottom:calc(56px + env(safe-area-inset-bottom) + 16px)}
+}
 /* reduced motion: the app jumps to the top of a page instead of scrolling there (its html rule, on the page while it shows) */
 @media(prefers-reduced-motion:reduce){html:has(body.ra-tab){scroll-behavior:auto}}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */
