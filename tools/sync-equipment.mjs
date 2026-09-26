@@ -371,10 +371,10 @@ body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
   html.pwa #raQuote .bz-bar{bottom:calc(56px + env(safe-area-inset-bottom));padding-bottom:11px}
   html.pwa #raLayer .toast{bottom:calc(56px + env(safe-area-inset-bottom) + 16px)}
 }
-/* at the top, the home-screen app has a solid strip under the status bar (index.html): the menu bars and the filter bar
-   stick just below it, not under the clock */
-html.pwa :is(#raMain .ra-bar,#raPropBar,#anBar){top:env(safe-area-inset-top)}
-html.pwa #raMain .filters{top:calc(var(--hdr-h) + env(safe-area-inset-top))}
+/* at the top, the home-screen app has a solid strip (index.html, .status-cover, --sb tall): the menu bars and the filter
+   bar stick just below it */
+html.pwa :is(#raMain .ra-bar,#raPropBar,#anBar){top:var(--sb)}
+html.pwa #raMain .filters{top:calc(var(--hdr-h) + var(--sb))}
 /* reduced motion: the app jumps to the top of a page instead of scrolling there (its html rule, on the page while it shows) */
 @media(prefers-reduced-motion:reduce){html:has(body.ra-tab){scroll-behavior:auto}}
 /* pop-ups sit above the cost comparison's header; the layer itself takes no space */
