@@ -1,5 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
-/* cost comparison styles: 1a2b494bbfa4 */
+/* cost comparison styles: 6952b2bc9210 */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn:hover){background:revert}
@@ -106,9 +106,11 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-card.stl .savings-pct){background:revert;color:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-card.trad .savings-monthly){color:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.savings-card.trad .savings-pct){background:revert;color:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info){display:revert;grid-template-columns:revert;gap:revert;background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info){display:revert;grid-template-columns:revert;gap:revert;background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert;row-gap:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.info-item){display:revert;flex-direction:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.info-label){font-size:revert;font-weight:revert;text-transform:revert;letter-spacing:revert;color:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info .info-item){display:revert;grid-row:revert;grid-template-rows:revert;align-items:revert}
+:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.merchant-info .info-value){overflow-wrap:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.proposal-section){background:revert;border:revert;border-radius:revert;padding:revert;margin-bottom:revert;box-shadow:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.proposal-section p){color:revert;font-size:revert;line-height:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.comparison-grid){display:revert;grid-template-columns:revert;gap:revert;margin-top:revert}
