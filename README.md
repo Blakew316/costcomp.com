@@ -125,7 +125,7 @@ The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequip
 
 ## The app on iPhone (home screen)
 
-In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp**. Its icon is the Wholesale Payments bars over **WPI Cost Comp**, set like the logo's wordmark. It opens full screen with no browser bar, so it brings its own navigation:
+In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp**. Its icon is the Wholesale Payments bars over **WPI** (bold, in the logo's navy) and **Cost Comp** (in its gray), in the logo's typeface. It opens full screen with no browser bar, so it brings its own navigation:
 
 - **Tab bar** at the bottom on phones: **Analysis**, **Proposal** and **Equipment**.
   - Each tab keeps its place on the page. Tapping the tab that's open scrolls it to the top.
