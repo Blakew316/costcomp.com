@@ -76,12 +76,15 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;'
 const PHONE_ICO = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2.5 h2.6 l1.2 3 -1.7 1.3 a9.5 9.5 0 0 0 4.1 4.1 l1.3 -1.7 3 1.2 v2.6 a1.4 1.4 0 0 1 -1.5 1.4 A12.6 12.6 0 0 1 1.6 4 1.4 1.4 0 0 1 3 2.5 z"/></svg>';
 const SHARE_ICO = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.8 V10"/><path d="M5.2 4.4 L8 1.6 L10.8 4.4"/><path d="M3.5 7.5 H3 a1.5 1.5 0 0 0 -1.5 1.5 v4 A1.5 1.5 0 0 0 3 14.5 h10 a1.5 1.5 0 0 0 1.5 -1.5 v-4 A1.5 1.5 0 0 0 13 7.5 h-.5"/></svg>';
 
+const cardCache = new Map();
 function render(){
   const items = filtered();
   $('count').innerHTML = 'Showing <b>'+items.length+'</b> of '+DATA.length+' brands';
   const frag = document.createDocumentFragment();
   items.forEach(d=>{
-    const el = document.createElement('button');
+    let el = cardCache.get(d);
+    if(el){ frag.appendChild(el); return; }
+    el = document.createElement('button');
     el.className='item'; el.type='button';
     const cls = d.rank>=8?'hi':(d.rank<=4?'lo':'');
     const sol = SOL_CLASS[d.solution_type]||'internal';
@@ -97,6 +100,7 @@ function render(){
     const sb = el.querySelector('[data-share]');
     sb.addEventListener('click',(ev)=>{ ev.stopPropagation(); shareFlyer(d); });
     sb.addEventListener('keydown',(ev)=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); ev.stopPropagation(); shareFlyer(d); } });
+    cardCache.set(d, el);
     frag.appendChild(el);
   });
   grid.replaceChildren(frag);

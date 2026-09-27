@@ -101,6 +101,12 @@ const PATCHES = [
     "if(e.key==='/' && atlasShown() && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||'') && document.activeElement !== $('q')){"],
   ['the flyer’s merchant and account executive start from the analysis when the rep hasn’t typed them here',
     'function openSheet(d){\n  lastFocus = document.activeElement;', 'function openSheet(d){\n  lastFocus = document.activeElement;\n  fromAnalysis();'],
+  ['speed: each brand’s card is built once and kept, so a search or filter only reorders cards that already exist instead of rebuilding up to 624 of them on every keystroke (a card shows only its brand’s fixed data)',
+    '  items.forEach(d=>{\n    const el = document.createElement(\'button\');',
+    '  items.forEach(d=>{\n    let el = cardCache.get(d);\n    if(el){ frag.appendChild(el); return; }\n    el = document.createElement(\'button\');'],
+  ['(the same: keep the card)', '    frag.appendChild(el);\n  });\n  grid.replaceChildren(frag);',
+    '    cardCache.set(d, el);\n    frag.appendChild(el);\n  });\n  grid.replaceChildren(frag);'],
+  ['(the same: where the cards are kept)', 'function render(){', 'const cardCache = new Map();\nfunction render(){'],
   ['no service worker of its own: the cost comparison’s covers the whole site', null, null, s => {
     const a = s.indexOf('/* ---------- PWA service worker ---------- */');
     if (a < 0) throw new Error('service worker block not found');
@@ -204,7 +210,10 @@ html.pwa #atlas .sheet-head{padding-top:calc(30px + var(--sb))}
 html.pwa #atlas .sheet-close{top:calc(20px + var(--sb))}
 html.pwa #atlas .sheet-cta{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
 @media(max-width:900px),(max-height:500px){html.pwa #at-toast{bottom:calc(var(--tabbar-h, 56px) + env(safe-area-inset-bottom) + 12px)!important}}
-/* waiting for the directory the first time the tab opens */
+/* speed: a card off the screen isn't laid out or painted until it scrolls near (624 of them made the tab take a second
+   and a half to show on a phone, and each search keystroke nearly as long); 190px holds its place until then */
+#atlas .item{content-visibility:auto;contain-intrinsic-size:auto 190px}
+/* waiting for the directory, if the tab is opened before it has loaded in the background */
 #atlas .atlas-wait{padding:18vh 20px;text-align:center;color:var(--slate);font-size:15px}
 `;
 

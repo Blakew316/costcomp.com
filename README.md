@@ -141,7 +141,9 @@ How it fits into the site:
 - It follows the site's light/dark switch.
 - On a phone the brand sheet fills the screen. It closes with ✕, Escape, or a swipe to the right.
 - Its styles are scoped to the tab and its script runs on its own, so it and the rest of the site can't affect each other.
-- The directory (about half a megabyte) loads the first time the tab opens, then works offline.
+- **Speed:** the directory (about 600 KB) loads and builds in the background as soon as the rest of the site has loaded, so the tab is ready when it's tapped. After the first time, it comes from the phone, not the network, and it works offline.
+  - Only the cards on screen are laid out.
+  - Each brand's card is built once and reused, so search and filters just reorder existing cards as the rep types.
 
 - **Where it lives:** `public/assets/integrations/atlas.js` (its page, script and directory) and `atlas.css` (its styles, scoped to the tab).
 - **Updating it:** make changes in the Integrations repo, then run `npm run sync-integrations -- <path to an Integrations checkout>`, test, and deploy. The tool copies the Atlas over again and re-applies the few changes that fit it into this page (listed in `tools/sync-integrations.mjs`). It leaves out the Atlas's own install-as-an-app files, because the cost comparison is the app.

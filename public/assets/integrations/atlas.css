@@ -265,5 +265,8 @@ html.pwa #atlas .sheet-head{padding-top:calc(30px + var(--sb))}
 html.pwa #atlas .sheet-close{top:calc(20px + var(--sb))}
 html.pwa #atlas .sheet-cta{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
 @media(max-width:900px),(max-height:500px){html.pwa #at-toast{bottom:calc(var(--tabbar-h, 56px) + env(safe-area-inset-bottom) + 12px)!important}}
-/* waiting for the directory the first time the tab opens */
+/* speed: a card off the screen isn't laid out or painted until it scrolls near (624 of them made the tab take a second
+   and a half to show on a phone, and each search keystroke nearly as long); 190px holds its place until then */
+#atlas .item{content-visibility:auto;contain-intrinsic-size:auto 190px}
+/* waiting for the directory, if the tab is opened before it has loaded in the background */
 #atlas .atlas-wait{padding:18vh 20px;text-align:center;color:var(--slate);font-size:15px}

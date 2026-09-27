@@ -567,7 +567,7 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
 <link rel="stylesheet" href="assets/css/equipment.css?v=5ba60a7b850e">
-<link rel="stylesheet" href="assets/integrations/atlas.css?v=2d8cd44a8a42">
+<link rel="stylesheet" href="assets/integrations/atlas.css?v=91f4b3f39c28">
 </head>
 <body>
 <div class="status-cover" aria-hidden="true"></div>
@@ -1893,24 +1893,27 @@ document.addEventListener('click', function (e) {
   new MutationObserver(set).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   set();
 })();
-// The Integrations tab: the Integration Atlas's page and directory (half a megabyte) load the first time the tab opens;
-// the service worker keeps them for offline use after that
+// The Integrations tab: the Integration Atlas's page and directory (about 600 KB) load and build in the background as soon
+// as the rest of the site has loaded, so the tab is ready the moment it's tapped. If it's tapped sooner, it loads then.
+// The service worker keeps the file, so after the first time it comes from the phone, not the network.
 (function () {
   var tab = document.getElementById('tab-integrations'), started = false;
   function load() {
-    if (started || !tab.classList.contains('active')) return;
+    if (started) return;
     started = true;
     var s = document.createElement('script');
-    s.src = 'assets/integrations/atlas.js?v=b0f471cb7b5a';
+    s.src = 'assets/integrations/atlas.js?v=541fbc1ab492';
     s.onerror = function () {
       started = false; s.remove();
       var w = document.querySelector('#atlas .atlas-wait');
-      if (w) w.textContent = 'The integrations directory needs a connection the first time it opens. Check the connection and open the tab again.';
+      if (w && tab.classList.contains('active')) w.textContent = 'The integrations directory needs a connection the first time it opens. Check the connection and open the tab again.';
     };
     document.body.appendChild(s);
   }
-  new MutationObserver(load).observe(tab, { attributes: true, attributeFilter: ['class'] });
-  load();
+  function soon() { (window.requestIdleCallback || function (f) { setTimeout(f, 150); })(load, { timeout: 1500 }); }
+  if (document.readyState === 'complete') soon(); else window.addEventListener('load', soon);
+  new MutationObserver(function () { if (tab.classList.contains('active')) load(); }).observe(tab, { attributes: true, attributeFilter: ['class'] });
+  if (tab.classList.contains('active')) load();
 })();
 // A new version is out: the installed app has no reload button, so it says so and offers to update (whatever's on screen
 // stays until the rep taps Update). Checked a few seconds after opening and whenever the app comes back to the front.
