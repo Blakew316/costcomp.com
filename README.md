@@ -125,7 +125,7 @@ The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequip
 
 ## The app on iPhone (home screen)
 
-In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp** and its icon is the Wholesale Payments logo. It opens full screen with no browser bar, so it brings its own navigation:
+In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp**. Its icon is the Wholesale Payments bars over **WPI Cost Comp**, set like the logo's wordmark. It opens full screen with no browser bar, so it brings its own navigation:
 
 - **Tab bar** at the bottom on phones: **Analysis**, **Proposal** and **Equipment**.
   - Each tab keeps its place on the page. Tapping the tab that's open scrolls it to the top.
@@ -154,7 +154,7 @@ In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Com
   - The status bar follows light and dark. On iPhone and iPad a solid strip in the header's colour is pinned to the top of the page (at least 12px tall), because iOS 26 and later otherwise fade a frosted blur over the header; iOS paints the status bar that colour instead. It checks when the page loads, so a change shows after the app reloads (Update, or close and reopen it).
   - The app opens offline with the last data it had.
 
-The icons come from `public/wp-logo-clean.png` via `node tools/make-icons.mjs` (it needs Playwright). The name and icons are in `public/manifest.json` and the `apple-*` tags at the top of `public/index.html`.
+The icons come from `public/wp-logo-clean.png` and the logo's typeface, Montserrat, via `node tools/make-icons.mjs` (it needs Playwright and `@fontsource/montserrat`). iOS keeps a home-screen icon from when the app was added, so a new icon shows after the app is removed and added again. The name and icons are in `public/manifest.json` and the `apple-*` tags at the top of `public/index.html`.
 
 ## Deploying on Netlify
 
