@@ -688,9 +688,6 @@
     recalcAll();
     switchTab('overview');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.querySelectorAll('#tab-overview .merchant-info, #tab-overview .kpi-grid .kpi, #tab-overview .savings-card').forEach(el => {
-      el.classList.remove('scan-flash'); void el.offsetWidth; el.classList.add('scan-flash');
-    });
     toast('Cost analysis generated' + (D.merchantName ? ' for ' + D.merchantName : '') + ' — review the Analysis and Proposal tabs.');
   }
 

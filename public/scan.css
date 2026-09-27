@@ -44,8 +44,6 @@
 .scan-drop.show{display:flex}
 
 .scan-toast{position:fixed;left:50%;bottom:1.25rem;transform:translateX(-50%);z-index:1001;background:#1c1c1e;color:#f5f5f7;padding:0.65rem 1rem;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,0.25);max-width:calc(100% - 2rem);animation:fadeIn 0.25s ease}
-@keyframes scanFlash{0%{box-shadow:0 0 0 0 rgba(27,117,187,0.55)}100%{box-shadow:0 0 0 10px rgba(27,117,187,0)}}
-.scan-flash{animation:scanFlash 1.2s ease-out 2}
 
 /* Chooser: PDF statement / statement photos / take photos */
 .scan-options{display:grid;gap:0.6rem}
