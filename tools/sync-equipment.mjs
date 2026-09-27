@@ -368,8 +368,44 @@ body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
 /* the home-screen app on phones has a tab bar at the bottom (index.html, .pwa-tabs): the quote's total bar and the app's
    messages sit on top of it */
 @media(max-width:900px),(max-height:500px){
-  html.pwa #raQuote .bz-bar{bottom:calc(56px + env(safe-area-inset-bottom));padding-bottom:11px}
-  html.pwa #raLayer .toast{bottom:calc(56px + env(safe-area-inset-bottom) + 16px)}
+  html.pwa #raQuote .bz-bar{bottom:calc(var(--tabbar-h, 56px) + env(safe-area-inset-bottom));padding-bottom:11px}
+  html.pwa #raLayer .toast{bottom:calc(var(--tabbar-h, 56px) + env(safe-area-inset-bottom) + 16px)}
+}
+/* ─── Phones ─── */
+/* the drawer menus: a close mark where the fold button is on a wide screen (the header row closes the drawer), no text
+   selection or link preview on a long press, and scrolling inside a drawer stays in it */
+@media(max-width:900px){
+  :is(#raMain,#raHome,#anMenu) .ra-side-head{min-height:48px}
+  :is(#raMain,#raHome,#anMenu) .ra-side-head svg{display:none}
+  :is(#raMain,#raHome,#anMenu) .ra-side-head::after{content:"";flex:none;width:30px;height:30px;margin-left:auto;border-radius:50%;
+    background:var(--bg-soft) center / 12px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1.5 1.5l9 9M10.5 1.5l-9 9' stroke='%238e8e93' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E")}
+  :is(#raMain .ra-side,#raHome,#anMenu){overscroll-behavior:contain}
+  /* the items read as the choices they are, in full-strength text (the one that's open stays highlighted) */
+  :is(#raMain .ra-side .tab:not(.active),#raHome .qlink:not(.active),#anMenu .qlink:not(.active)){color:var(--text)}
+}
+:is(#raMain .ra-side,#raHome,#anMenu,#raMain .ra-bar,#raPropBar,#anBar){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+@media(max-width:600px){
+  /* a quote is a page of its own, edge to edge on the app's background like the Equipment tab, not a card in the page */
+  #raQuote{margin:0 -0.75rem;border:0;border-radius:0;padding-bottom:8px}
+  #tab-proposal:has(#raQuote:not([hidden])) #raPropBar{margin-bottom:0}
+  body:has(#tab-proposal.active #raQuote:not([hidden])){background:${bgLight}}
+  body.dark:has(#tab-proposal.active #raQuote:not([hidden])){background:${bgDark}}
+  /* the way back to the proposal, as on iOS: the tint colour and a full-size place to tap */
+  #raQuote > .wrap:first-child .sec-head{padding-top:0}
+  #raQuote > .wrap:first-child .sec-head .back{min-height:44px;margin:0 0 0 -4px;padding:0 12px 0 2px;font-size:16px;color:var(--blue)}
+  #raQuote .sec-head .back svg{width:20px;height:20px}
+  /* a device's page (a full-screen sheet on a phone): the photo full width, clear of the status bar and the home bar */
+  :is(#raLayer,#raMain) .dv-img{max-width:none}
+}
+@media(max-width:560px){
+  html.pwa #raLayer .sheet-head{padding-top:calc(14px + env(safe-area-inset-top))}
+  html.pwa #raLayer .sheet-body{padding-bottom:calc(26px + env(safe-area-inset-bottom))}
+}
+/* landscape on a phone: the menu bar is compact (index.html does the header and the tab bar) */
+@media(max-height:500px) and (orientation:landscape) and (max-width:900px){
+  #raMain .ra-bar,#raPropBar,#anBar{padding:4px 12px}
+  :is(#raMain,#raPropBar,#anBar) .ra-burger{padding:5px 14px 5px 10px}
+  #raPropBar,#anBar{margin-bottom:8px}
 }
 /* at the top, the home-screen app has a solid strip (index.html, .status-cover, --sb tall): the menu bars and the filter
    bar stick just below it */

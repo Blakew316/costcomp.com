@@ -118,6 +118,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text'
 
 .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem;box-shadow:var(--shadow-card);transition:var(--transition)}
 .card:hover{box-shadow:var(--shadow-hover)}
+.swipe-hint{display:none}
 .card-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:1rem}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.25rem}
@@ -286,6 +287,80 @@ tbody td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums 
   .editable.placeholder{font-size:0.65rem}
 }
 
+/* ─── Phones: iOS text sizes (nothing under 11pt), the merchant details as a short list, the six numbers two to a row,
+   and a whole row or card as the place to tap to edit it (the click handler after editField) ─── */
+@media(max-width:600px){
+  .header-inner{flex-wrap:nowrap}
+  .logo img{height:30px}
+  .logo-sub{font-size:17px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap}
+  .icon-btn{width:40px;height:40px}
+  .icon-btn svg{width:19px;height:19px}
+  /* merchant details: rows with hairlines between them; Profit Margin and Sales Needed side by side */
+  .merchant-info{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 0.9rem;padding:0.1rem 0.95rem}
+  .merchant-info .info-item{justify-content:space-between;gap:2px;min-width:0;padding:0.6rem 0;border-bottom:1px solid var(--border-light)}
+  .merchant-info .info-item:nth-child(-n+3){grid-column:1 / -1}
+  .merchant-info .info-item:nth-child(n+4){border-bottom:0}
+  .info-label{font-size:11px;letter-spacing:0.05em;line-height:1.35}
+  .info-value,.merchant-info .editable,.merchant-info .editable.placeholder{display:block;min-height:0;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+  /* the six numbers */
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0.6rem;margin-bottom:1rem}
+  .kpi{display:flex;flex-direction:column;padding:0.75rem 0.85rem 0.8rem}
+  .kpi-label{font-size:11px;letter-spacing:0.04em;line-height:1.3;margin-bottom:0}
+  .kpi-value,.kpi .editable{display:block;min-height:0;margin-top:auto;padding-top:0.4rem;font-size:clamp(18px,5.4vw,22px);white-space:nowrap}
+  .kpi-sub{font-size:12px;line-height:1.3}
+  /* savings, tables and the proposal */
+  .an-section-label{font-size:12px!important}
+  .savings-grid{gap:0.75rem}
+  .savings-card{padding:1rem 1rem 0.9rem}
+  .savings-label{font-size:12px}
+  .savings-monthly{font-size:28px}
+  .savings-yearly{font-size:14px}
+  .savings-pct{font-size:13px}
+  .savings-card > div:last-child{font-size:13px!important}
+  .card-title,.residual-card h4,.comparison-col h4{font-size:12px}
+  table{font-size:13px}
+  thead th{font-size:11px}
+  .tier-badge{font-size:11px}
+  .comp-row,.equip-row,.residual-row{font-size:15px;padding:0.45rem 0}
+  .proposal-section h3{font-size:18px}
+  .proposal-section p{font-size:15px;line-height:1.6}
+  [style*="font-size:0.78rem"],[style*="font-size:0.75rem"]{font-size:12px!important}
+  [style*="font-size:0.82rem"]{font-size:13px!important}
+  [style*="font-size:1.1rem"]{font-size:17px!important}
+  .footer{font-size:12px}
+  /* the interchange table scrolls sideways on a phone: it says so, and its two totals stay in view at the right */
+  .swipe-hint{display:block;margin:-0.35rem 0 0.6rem;font-size:12px;color:var(--text-muted)}
+  #interchangeTable tfoot td{position:sticky;left:0;z-index:1;background:var(--bg-section)}
+  #interchangeTable tfoot td:last-child{left:auto;right:0}
+  /* editing a value: the box is the width of its row or card, never a sliver */
+  .edit-input{min-width:4.5em}
+  .merchant-info .edit-input,.kpi .edit-input{width:100%!important;min-width:0;min-height:0;padding:0 0 1px;margin:0}
+  .merchant-info .edit-input{height:calc(1.35em + 3px)}
+  .kpi .edit-input{font-size:20px!important;height:calc(1.3em + 3px)}
+  .scan-sub{font-size:12px}
+  /* Scan Statement: full-size buttons and boxes, and its buttons stay in reach at the bottom of a long review */
+  .scan-overlay{padding-left:0.6rem;padding-right:0.6rem;padding-bottom:calc(2vh + env(safe-area-inset-bottom))}
+  .scan-modal{padding:1.1rem 1rem 0}
+  .scan-actions{position:sticky;bottom:0;z-index:2;margin:1rem -1rem 0;padding:0.75rem 1rem;background:var(--bg-card);border-top:1px solid var(--border-color);border-radius:0 0 var(--radius) var(--radius)}
+  .scan-actions button{flex:1 1 auto;min-height:44px;font-size:16px;padding:0.55rem 0.8rem}
+  .scan-actions .spacer{display:none}
+  .scan-modal input[type=checkbox]{width:22px;height:22px}
+}
+/* landscape on a phone: the merchant details and the six numbers three to a row, without tall empty tap boxes (the
+   whole cell is the place to tap) */
+@media(max-height:500px) and (orientation:landscape) and (min-width:601px) and (max-width:900px){
+  .merchant-info{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:0.5rem}
+  .merchant-info .editable,.merchant-info .editable.placeholder,.kpi .editable{display:block;min-height:0}
+  .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+/* a row or card that edits on a tap shows it's tappable */
+.merchant-info .info-item:has(.editable),.kpi:has(.editable),.comp-row:has(.editable),.residual-row:has(.editable){cursor:pointer}
+@media(pointer:coarse){
+  .merchant-info .info-item:has(.editable):active,.kpi:has(.editable):active{background:var(--bg-section)}
+}
+/* the logo's wordmark is navy: in dark mode it's drawn light, keeping its colours */
+body.dark .logo img{filter:invert(1) hue-rotate(180deg) saturate(1.3)}
+
 /* ─── Notch and home-indicator room (viewport-fit=cover) ─── */
 body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 
@@ -310,18 +385,34 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 /* on phones, a tab bar at the bottom where a thumb reaches: Analysis, Proposal, Equipment (56px tall with its top border) */
 .pwa-tabs{display:none}
 @media(max-width:900px),(max-height:500px){
+  html.pwa{--tabbar-h:56px}
   html.pwa .tabs-container{display:none}
-  html.pwa body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
+  html.pwa body{padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom))}
   html.pwa .footer{padding-bottom:1.25rem}
   html.pwa .pwa-tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:900;
     padding:0 max(6px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(6px,env(safe-area-inset-left));
     background:rgba(255,255,255,0.92);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--border-color)}
   html.pwa body.dark .pwa-tabs{background:rgba(28,28,30,0.92)}
-  html.pwa .scan-toast{bottom:calc(56px + env(safe-area-inset-bottom) + 12px)}
-  html.pwa .update-bar{bottom:calc(56px + env(safe-area-inset-bottom) + 12px)}
+  html.pwa .scan-toast{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px)}
+  html.pwa .update-bar{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px)}
   /* the drawer menus' dimmed background covers the tab bar too */
   html.pwa body.ra-drawer .pwa-tabs{visibility:hidden}
+  /* while typing, the keyboard is the bottom of the screen: the tab bar steps aside rather than ride above it */
+  html.pwa body:has(:is(input:not([type=checkbox],[type=radio],[type=range],[type=button],[type=submit],[type=file]),textarea,[contenteditable=true]):focus) .pwa-tabs{visibility:hidden}
 }
+/* landscape on a phone: the screen is short, so the header, the menu bar and the tab bar are compact, and the tab bar
+   puts each label beside its icon, as iOS does */
+@media(max-height:500px) and (orientation:landscape){
+  html.pwa{--tabbar-h:44px}
+  html.pwa .header{padding-top:calc(0.3rem + var(--sb));padding-bottom:0.3rem}
+  .logo-sub{font-size:16px}
+  .icon-btn{width:36px;height:36px}
+  .pwa-tabs button{flex-direction:row;gap:7px;height:43px;font-size:13px}
+  .pwa-tabs button svg{width:22px;height:22px}
+}
+/* the app's own controls: no text selection or link preview on a long press */
+.header,.pwa-tabs,.update-bar{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pwa-tabs button{touch-action:manipulation}
 .pwa-tabs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:55px;padding:0;border:0;background:none;
   color:#8e8e93;font:inherit;font-size:10.5px;font-weight:600;letter-spacing:0.01em;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pwa-tabs button svg{width:24px;height:24px;flex:none}
@@ -475,7 +566,7 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 .ic-text-input:focus { background: transparent; border-bottom-color: rgba(0,122,255,0.5); }
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
-<link rel="stylesheet" href="assets/css/equipment.css?v=713417277977">
+<link rel="stylesheet" href="assets/css/equipment.css?v=5ba60a7b850e">
 </head>
 <body>
 <div class="status-cover" aria-hidden="true"></div>
@@ -538,14 +629,14 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
     <div class="kpi"><div class="kpi-label">New Effective Rate</div><div class="kpi-value brand-green editable" data-field="newRate" data-type="pct" onclick="editField(this)">0%</div><div class="kpi-sub">WPI proposed rate</div></div>
   </div>
 
-  <div style="margin-bottom:0.75rem;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Monthly Savings by Program</div>
+  <div class="an-section-label" style="margin-bottom:0.75rem;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Monthly Savings by Program</div>
   <div class="savings-grid">
     <div class="savings-card cdp"><div class="savings-label">Cash Discount (CDP)</div><div class="savings-monthly" id="cdpMonthly">$1,300.00</div><div class="savings-yearly" id="cdpYearly">$15,600.00 / year</div><div class="savings-pct" id="cdpPct">96.65% savings</div><div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(0,0,0,0.08);font-size:0.78rem;color:var(--text-muted);font-weight:600;">Effective Rate: <span id="cdpEffRateDisplay" style="font-size:1rem;font-weight:700;color:#000;">0.08%</span></div></div>
     <div class="savings-card stl"><div class="savings-label">Share the Load @ <span class="editable" data-field="stlRate" data-type="pct" onclick="editField(this)">2%</span></div><div class="savings-monthly" id="stlMonthly">$145.00</div><div class="savings-yearly" id="stlYearly">$1,740.00 / year</div><div class="savings-pct" id="stlPct">10.78% savings</div><div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(0,0,0,0.08);font-size:0.78rem;color:var(--text-muted);font-weight:600;">Effective Rate: <span id="stlEffRateDisplay" style="font-size:1rem;font-weight:700;color:#000;">2.00%</span></div></div>
     <div class="savings-card trad"><div class="savings-label">WPI Traditional Program</div><div class="savings-monthly" id="tradMonthly">$378.00</div><div class="savings-yearly" id="tradYearly">$4,536.00 / year</div><div class="savings-pct" id="tradPct">28.10% savings</div><div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(0,0,0,0.08);font-size:0.78rem;color:var(--text-muted);font-weight:600;">Effective Rate: <span id="tradEffRateDisplay" style="font-size:1rem;font-weight:700;color:#000;">1.61%</span></div></div>
   </div>
 
-  <div class="card"><div class="card-title">Interchange & Assessment Detail</div><div class="table-container"><table id="interchangeTable"><thead><tr><th>Tier</th><th>Category</th><th style="text-align:right">Discount %</th><th style="text-align:right">Trans Fee</th><th style="text-align:right">Volume %</th><th style="text-align:right">Trans %</th><th style="text-align:right">Cost</th></tr></thead><tbody id="icBody"></tbody><tfoot><tr style="border-top:2px solid var(--border-color);background:var(--bg-section);"><td colspan="6" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.82rem;">Interchange Total</td><td class="num" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.95rem;"><input class="ic-input cost-cell" id="icFooterTotalInput" value="0.00" style="font-weight:700;font-size:0.95rem;width:100px;text-align:right;"></td></tr><tr style="background:var(--bg-section);"><td colspan="6" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.82rem;">Interchange Effective Rate</td><td class="num" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.95rem;"><input class="ic-input cost-cell" id="icFooterEffRateInput" value="0%" style="font-weight:700;font-size:0.95rem;width:100px;text-align:right;"></td></tr></tfoot></table></div></div>
+  <div class="card"><div class="card-title">Interchange & Assessment Detail</div><div class="swipe-hint">Swipe the table sideways to see every column</div><div class="table-container"><table id="interchangeTable"><thead><tr><th>Tier</th><th>Category</th><th style="text-align:right">Discount %</th><th style="text-align:right">Trans Fee</th><th style="text-align:right">Volume %</th><th style="text-align:right">Trans %</th><th style="text-align:right">Cost</th></tr></thead><tbody id="icBody"></tbody><tfoot><tr style="border-top:2px solid var(--border-color);background:var(--bg-section);"><td colspan="6" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.82rem;">Interchange Total</td><td class="num" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.95rem;"><input class="ic-input cost-cell" id="icFooterTotalInput" value="0.00" style="font-weight:700;font-size:0.95rem;width:100px;text-align:right;"></td></tr><tr style="background:var(--bg-section);"><td colspan="6" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.82rem;">Interchange Effective Rate</td><td class="num" style="padding:0.65rem 0.8rem;font-weight:700;font-size:0.95rem;"><input class="ic-input cost-cell" id="icFooterEffRateInput" value="0%" style="font-weight:700;font-size:0.95rem;width:100px;text-align:right;"></td></tr></tfoot></table></div></div>
 
   <div class="comparison-grid" style="margin-top:1.25rem;margin-bottom:1.25rem;">
     <div class="comparison-col" style="background:var(--bg-card);box-shadow:var(--shadow-card);"><h4 style="color:#000;border-bottom-color:#000;">Wholesale Fee</h4>
@@ -757,6 +848,13 @@ function editField(el) {
   const input = document.createElement('input');
   input.className = 'edit-input';
   input.type = 'text';
+  // on a phone: the number pad for amounts, rates and counts, and a Done key; names start with capitals
+  input.setAttribute('inputmode', type === 'num' ? 'numeric' : type === 'text' ? 'text' : 'decimal');
+  input.setAttribute('enterkeyhint', 'done');
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('autocapitalize', type === 'text' ? 'words' : 'off');
+  input.spellcheck = false;
   if (type==='dollar') input.value = (typeof raw==='number'&&raw===0)?'':typeof raw==='number'?raw.toFixed(2):String(raw);
   else if (type==='pct') input.value = (typeof raw==='number'&&raw===0)?'':typeof raw==='number'?raw.toString():String(raw).replace('%','');
   else if (type==='num') input.value = (typeof raw==='number'&&raw===0)?'':String(raw);
@@ -822,6 +920,14 @@ function editField(el) {
     if(e.key==='Escape'){committed=true;if(measure.parentNode)measure.parentNode.removeChild(measure);el.innerHTML=origHTML;}
   });
 }
+
+// A tap anywhere on a field's row or card edits it, not only on the value itself (a big target on a phone)
+document.addEventListener('click', function (e) {
+  if (e.defaultPrevented || e.target.closest('.editable, input, select, textarea, button, a, label')) return;
+  var box = e.target.closest('.merchant-info .info-item, .kpi, .comp-row, .residual-row');
+  var ed = box && box.querySelector('.editable[data-field]');
+  if (ed) editField(ed);
+});
 
 // ═══════════════════════════════════════
 // EQUIPMENT CATALOG (from WPI Equipment Pricing Guide V.7.2024)
@@ -1655,6 +1761,32 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
       try { localStorage.setItem(m.key, f ? 'folded' : 'open'); } catch (e) {}
     });
     shell.nextElementSibling.addEventListener('click', function () { close(m); });   // the scrim
+    // on a phone the open drawer follows a finger swiping it back to the left, and closes past 60px
+    var sx = 0, sy = 0, dx = 0, drag = false;
+    side.addEventListener('touchstart', function (e) {
+      drag = phone.matches && shell.classList.contains('ra-open') ? null : false;
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0;
+    }, { passive: true });
+    side.addEventListener('touchmove', function (e) {
+      if (drag === false) return;
+      var x = e.touches[0].clientX - sx, y = e.touches[0].clientY - sy;
+      if (drag === null) {
+        if (Math.abs(x) < 8 && Math.abs(y) < 8) return;
+        drag = x < 0 && Math.abs(x) > Math.abs(y);
+        if (!drag) return;
+        side.style.transition = 'none';
+      }
+      dx = Math.min(0, x);
+      side.style.transform = 'translateX(' + dx + 'px)';
+    }, { passive: true });
+    function release() {
+      if (!drag) { drag = false; return; }
+      drag = false;
+      side.style.transition = ''; side.style.transform = '';
+      if (dx < -60) close(m);
+    }
+    side.addEventListener('touchend', release);
+    side.addEventListener('touchcancel', release);
     side.addEventListener('click', function (e) { if (e.target.closest('a, .qlink')) close(m); });
     return m;
   });
