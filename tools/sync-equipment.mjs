@@ -362,9 +362,6 @@ const integration = `
 #tab-proposal:has(#raQuote:not([hidden])) .ra-content > :not(#raQuote){display:none}
 /* native control parts (date pickers, dropdown lists, scrollbars) follow the system setting, as the app's own page says */
 ${SCOPE}{color-scheme:light dark}
-/* a quote's total bar is fixed to the bottom of the screen: the app's page ends in blank space for it, so the cost
-   comparison's footer steps aside while one is open instead of sitting under the bar */
-body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
 /* the home-screen app on phones has a tab bar at the bottom (index.html, .pwa-tabs): the quote's total bar and the app's
    messages sit on top of it */
 @media(max-width:900px),(max-height:500px){
