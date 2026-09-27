@@ -132,6 +132,19 @@ In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Com
   - On Proposal, tapping it again at the top closes an open quote.
   - On iPad and in Safari itself, the usual tabs at the top stay.
 - **The ☰ menus**, the **← Proposal** links on quote pages, and the ✕ on device sheets and pop-ups get the rep everywhere without a back button.
+  - A menu closes with its ✕, a tap beside it, or a swipe to the left.
+  - The tab bar steps aside while the keyboard is up.
+- **Editing on a phone:** tap anywhere on a field's row or card, not only on the number.
+  - Amounts, rates and counts bring up the number pad, and names start with capitals.
+  - The edit box is the width of its row.
+- **Phone layout** (also in Safari on a phone):
+  - Text is never under 11pt.
+  - The merchant details are a short list, and the six numbers sit two to a row (three in landscape), so the summary fits one screen.
+  - The interchange table says it scrolls sideways, and its totals stay in view.
+  - Quote pages run edge to edge.
+  - The Scan Statement buttons stay pinned at the bottom of a long review.
+  - In landscape the header, the menu bar and the tab bar are compact.
+  - In dark mode the logo is drawn light.
 - **PDFs:** Email PDF, Download PDF and the equipment app's PDFs go to the iPhone share sheet (Save to Files, Mail, AirDrop, Print), so a download never covers the app.
 - **Links:** links to flyers, guides and other sites open in a window over the app with a **Done** button. The app stays where it was.
 - **Updates:** when a new version is deployed, the app shows **"A new version of WPI Cost Comp is ready — Update"**, because it has no reload button.
