@@ -11,5 +11,5 @@ export function costCompCss(pub) {
 }
 export const fingerprint = s => crypto.createHash('sha256').update(s).digest('hex').slice(0, 12);
 // the files index.html loads with a ?v= stamp: the hash of each file's own content, so it changes exactly when the file does
-export const STAMPED = ['assets/js/data.js', 'assets/js/app.js', 'assets/css/equipment.css'];
+export const STAMPED = ['assets/js/data.js', 'assets/js/app.js', 'assets/css/equipment.css', 'assets/integrations/atlas.js', 'assets/integrations/atlas.css'];
 export const stamp = (pub, f) => fingerprint(fs.readFileSync(path.join(pub, f)));

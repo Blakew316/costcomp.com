@@ -5,7 +5,7 @@ The cost comparison tool deployed at wpicostcomp.com. Site files live in `public
 ## The page
 
 - **Header:** the logo and the light/dark switch.
-- **Tabs:** **Analysis**, **Proposal** and **Equipment**. Each has a ☰ menu on the left: on a computer it folds down to icons, on a phone it opens as a drawer.
+- **Tabs:** **Analysis**, **Proposal**, **Equipment** and **Integrations**. The first three have a ☰ menu on the left: on a computer it folds down to icons, on a phone it opens as a drawer.
 - **Analysis menu:** **Scan Statement**, **Email as PDF** and **Download PDF**.
 
 ## Scan Statement
@@ -123,11 +123,34 @@ The Equipment tab is the rep equipment field kit, **WPI Assist**, from [repequip
 - **Where it lives:** the app's images, flyers, guides and forms are in `public/assets/`. Its code is `public/assets/js/app.js` and `data.js`, and its styles are `public/assets/css/equipment.css`, scoped to where the app shows so that neither site's styles reach the other.
 - **Updating it:** make changes in the repequipment repo, then run `npm run sync-equipment -- <path to a repequipment checkout>`, test, and deploy. The tool copies the app over again, re-applies the few changes that let it live inside this page (listed at the top of `tools/sync-equipment.mjs`), and rebuilds the scoped styles.
 
+## Integrations tab
+
+The Integrations tab is the **Integration Atlas** from [Integrations](https://github.com/Blakew316/Integrations), copied into this site. It's a directory of the 624 processing-compatible brands in 33 categories from the POS Conversions workbook, with everything the Atlas has:
+
+- **Finding a brand:** search by brand, category, niche, company or contact (on a computer **/** jumps to the search box). Filter by solution type (Point of Sale, Virtual, Gateway, API) and by category, and sort by rank, name or category. **How to read this directory** explains the badges.
+- **A brand's sheet:** tap a card to open it.
+  - **Ranking:** rank out of 10.
+  - **Who to call:** company, contact, tap-to-dial phone, email and website.
+  - **Conversion & compatibility:** EMV terminals, gift cards, cash discount, hardware, conversion cost and the field notes.
+  - **SaaS fees**, **why merchants pick it** and **directory details**.
+- **Flyer:** **Text or email this flyer** (or the share button on a card) builds the brand's PDF flyer.
+  - On a phone it opens the share sheet; on a computer it downloads.
+  - The flyer's merchant and account executive start from the Analysis tab's, and the AE's phone and email are remembered.
+
+How it fits into the site:
+- It follows the site's light/dark switch.
+- On a phone the brand sheet fills the screen. It closes with ✕, Escape, or a swipe to the right.
+- Its styles are scoped to the tab and its script runs on its own, so it and the rest of the site can't affect each other.
+- The directory (about half a megabyte) loads the first time the tab opens, then works offline.
+
+- **Where it lives:** `public/assets/integrations/atlas.js` (its page, script and directory) and `atlas.css` (its styles, scoped to the tab).
+- **Updating it:** make changes in the Integrations repo, then run `npm run sync-integrations -- <path to an Integrations checkout>`, test, and deploy. The tool copies the Atlas over again and re-applies the few changes that fit it into this page (listed in `tools/sync-integrations.mjs`). It leaves out the Atlas's own install-as-an-app files, because the cost comparison is the app.
+
 ## The app on iPhone (home screen)
 
 In Safari, tap **Share → Add to Home Screen**. The app is named **WPI Cost Comp**. Its icon is the Wholesale Payments bars over **WPI** (bold, in the logo's navy) and **Cost Comp** (in its gray), in the logo's typeface. It opens full screen with no browser bar, so it brings its own navigation:
 
-- **Tab bar** at the bottom on phones: **Analysis**, **Proposal** and **Equipment**.
+- **Tab bar** at the bottom on phones: **Analysis**, **Proposal**, **Equipment** and **Integrations**.
   - Each tab keeps its place on the page. Tapping the tab that's open scrolls it to the top.
   - On Proposal, tapping it again at the top closes an open quote.
   - On iPad and in Safari itself, the usual tabs at the top stay.
