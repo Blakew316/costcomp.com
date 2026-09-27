@@ -213,9 +213,6 @@ body.dark #atlas .visit.alt{color:#000}
 #atlas .visit:focus-visible{outline:2.5px solid var(--ink); outline-offset:2px}
 #atlas .visit svg{width:13px; height:13px}
 body.dark #atlas .visit{color:#000}
-#atlas footer{border-top:1px solid var(--hairline); padding:30px 0 52px;
-    font-size:12px; line-height:1.7; color:var(--slate); text-align:center;}
-#atlas footer p{max-width:78ch; margin:0 auto; letter-spacing:.002em}
 @media (max-width:720px){
 #atlas .wrap{padding:0 16px}
 #atlas .hero{padding:44px 0 24px}

@@ -69,6 +69,8 @@ function scope(block) {   // a list of rules and at-rules
       out += prelude + '{\n' + scope(body) + '}\n';
     } else if (prelude.startsWith('@')) {
       throw new Error('an at-rule the scoper doesn’t handle: ' + prelude);
+    } else if (/^footer\b/.test(prelude)) {
+      continue;   // its footer (the source note) stays off the tab, below
     } else {
       out += splitTop(prelude, ',').map(scopeSel).join(',') + '{' + body.trim() + '}\n';
     }
@@ -78,6 +80,10 @@ function scope(block) {   // a list of rules and at-rules
 const scoped = scope(css.replace(/\/\*[\s\S]*?\*\//g, ''));
 
 // ─── the page ───
+// without its footer: the source note under the directory isn't needed in the site
+const footers = markup.match(/\s*<footer>[\s\S]*?<\/footer>/g) || [];
+if (footers.length !== 1) throw new Error('expected one <footer> in the Atlas page, found ' + footers.length);
+markup = markup.replace(footers[0], '');
 const ids = [...markup.matchAll(/\bid="([\w-]+)"/g)].map(m => m[1]);
 markup = markup
   .replace(/\bid="([\w-]+)"/g, 'id="at-$1"')

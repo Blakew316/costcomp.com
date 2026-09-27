@@ -1,5 +1,5 @@
 /* WPI Assist styles from github.com/Blakew316/repequipment @ da9358e, scoped to the Equipment tab by tools/sync-equipment.mjs. Do not edit; re-run the tool. */
-/* cost comparison styles: c20c829efbc6 */
+/* cost comparison styles: b7c0ec6e25f7 */
 /* 1. the cost comparison’s rules cancelled inside the app */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn){display:revert;align-items:revert;justify-content:revert;width:revert;height:revert;border-radius:revert;border:revert;background:revert;color:revert;cursor:revert;transition:revert;-webkit-tap-highlight-color:revert;flex-shrink:revert;padding:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.icon-btn:hover){background:revert}
@@ -133,7 +133,6 @@
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.residual-row){display:revert;justify-content:revert;padding:revert;border-bottom:revert;font-size:revert;min-height:revert;align-items:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.residual-row:last-child){border-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.residual-type){color:revert}
-:is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.footer){text-align:revert;padding:revert;color:revert;font-size:revert;border-top:revert;margin-top:revert;background:revert;padding-bottom:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.chart-grid){grid-template-columns:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.tier-grid){grid-template-columns:revert}
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) :where(.header button[onclick="emailPDF()"]){padding:revert;font-size:revert}
@@ -1465,9 +1464,6 @@ body.dark :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar) .bz-b
 #tab-proposal:has(#raQuote:not([hidden])) .ra-content > :not(#raQuote){display:none}
 /* native control parts (date pickers, dropdown lists, scrollbars) follow the system setting, as the app's own page says */
 :is(#raMain,#raLayer,#raHome,#raQuote,#raPropBar,#anMenu,#anBar){color-scheme:light dark}
-/* a quote's total bar is fixed to the bottom of the screen: the app's page ends in blank space for it, so the cost
-   comparison's footer steps aside while one is open instead of sitting under the bar */
-body:has(#raQuote:not([hidden]) .bz-bar) .footer{display:none}
 /* the home-screen app on phones has a tab bar at the bottom (index.html, .pwa-tabs): the quote's total bar and the app's
    messages sit on top of it */
 @media(max-width:900px),(max-height:500px){
