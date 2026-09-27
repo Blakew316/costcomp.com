@@ -567,6 +567,7 @@ html.pwa .footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))}
 select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulist; appearance: menulist; }
 </style>
 <link rel="stylesheet" href="assets/css/equipment.css?v=5ba60a7b850e">
+<link rel="stylesheet" href="assets/integrations/atlas.css?v=2d8cd44a8a42">
 </head>
 <body>
 <div class="status-cover" aria-hidden="true"></div>
@@ -592,6 +593,7 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
     <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Analysis</button>
     <button class="tab-btn" data-tab="proposal" onclick="switchTab('proposal')">Proposal</button>
     <button class="tab-btn" data-tab="equipment" onclick="switchTab('equipment')">Equipment</button>
+    <button class="tab-btn" data-tab="integrations" onclick="switchTab('integrations')">Integrations</button>
   </div>
 </nav>
 
@@ -752,6 +754,13 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
   </div>
 </section>
 
+<!-- ──────── INTEGRATIONS TAB ──────── -->
+<section class="tab-panel" id="tab-integrations">
+  <!-- The Integration Atlas (github.com/Blakew316/Integrations), copied in by tools/sync-integrations.mjs: its page and
+       its directory of brands are in assets/integrations/atlas.js, which loads the first time this tab opens -->
+  <div id="atlas"><p class="atlas-wait">Loading the integrations directory…</p></div>
+</section>
+
 <!-- ──────── VOLUME TIERS TAB ──────── -->
 
 </main>
@@ -766,6 +775,7 @@ select.ic-text-input { width: 60px; cursor: pointer; -webkit-appearance: menulis
   <button type="button" data-go="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Analysis</span></button>
   <button type="button" data-go="proposal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span>Proposal</span></button>
   <button type="button" data-go="equipment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 6h6v5H9z"/><path d="M9 15h.01M12 15h.01M15 15h.01M9 18h.01M12 18h.01M15 18h.01"/></svg><span>Equipment</span></button>
+  <button type="button" data-go="integrations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg><span>Integrations</span></button>
 </nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1858,7 +1868,7 @@ window.addEventListener('offline',()=>document.getElementById('offlineBar').clas
     var y = pos[go] || 0;
     requestAnimationFrame(function () { requestAnimationFrame(function () { window.scrollTo({ top: y, behavior: 'instant' }); }); });
   });
-  ['tab-overview', 'tab-proposal', 'tab-equipment'].forEach(function (id) {
+  ['tab-overview', 'tab-proposal', 'tab-equipment', 'tab-integrations'].forEach(function (id) {
     new MutationObserver(mark).observe(document.getElementById(id), { attributes: true, attributeFilter: ['class'] });
   });
   mark();
@@ -1882,6 +1892,25 @@ document.addEventListener('click', function (e) {
   function set() { var c = getComputedStyle(h).backgroundColor; if (m.getAttribute('content') !== c) m.setAttribute('content', c); }
   new MutationObserver(set).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   set();
+})();
+// The Integrations tab: the Integration Atlas's page and directory (half a megabyte) load the first time the tab opens;
+// the service worker keeps them for offline use after that
+(function () {
+  var tab = document.getElementById('tab-integrations'), started = false;
+  function load() {
+    if (started || !tab.classList.contains('active')) return;
+    started = true;
+    var s = document.createElement('script');
+    s.src = 'assets/integrations/atlas.js?v=b0f471cb7b5a';
+    s.onerror = function () {
+      started = false; s.remove();
+      var w = document.querySelector('#atlas .atlas-wait');
+      if (w) w.textContent = 'The integrations directory needs a connection the first time it opens. Check the connection and open the tab again.';
+    };
+    document.body.appendChild(s);
+  }
+  new MutationObserver(load).observe(tab, { attributes: true, attributeFilter: ['class'] });
+  load();
 })();
 // A new version is out: the installed app has no reload button, so it says so and offers to update (whatever's on screen
 // stays until the rep taps Update). Checked a few seconds after opening and whenever the app comes back to the front.
