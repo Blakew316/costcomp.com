@@ -348,7 +348,7 @@
 
   function extractFees(doc, fam) {
     const c = [];
-    const add = (score, h, label) => { if (h && h.value != null) c.push({ score, value: Math.abs(h.value), line: h.line || 0, src: h.src, label }); };
+    const add = (score, h, label) => { if (h && h.value != null) c.push({ score, value: Math.abs(h.value), line: h.line || 0, src: h.src, label, customerPaid: h.customerPaid || null }); };
     const lab = (re, score, opts) => valueAfterLabel(doc, re, opts || {}).forEach(h => add(score, h, re.source));
 
     if (fam === 'tsys') {
@@ -411,7 +411,12 @@
       const detRow = d >= 0 ? doc.all.slice(d + 1, d + 20).find(l => /^ADDITIONAL SER.*TOTAL|^TOTAL\b/i.test(l.text)) : null;
       const detTotal = detRow ? tokens(detRow.text).filter(t => t.k === 'money').pop() : null;
       if (b && detTotal && Math.abs(detTotal.v - b.value) > 0.005) { b.value = Math.abs(detTotal.v); b.src += ' → ' + detRow.text; }
-      if (a) add(100, { value: a.value + (b ? b.value : 0), line: a.line, src: a.src + (b ? ' + ' + b.src : '') }, 'Processing + additional services fees');
+      // a dual pricing program (Shift4's Advantage Program): the processing fees are withheld from each deposit and the
+      // billing summary credits them back as "(FEES PAID)", so the fees applied are only what is left; the fees withheld count too
+      const paid = valueAfterLabel(doc, /\(FEES PAID\)/i, { keepSign: true, nextLine: false }).find(h => h.value < 0);
+      const withheld = paid ? -paid.value : 0;
+      if (a) add(100, { value: a.value + withheld + (b ? b.value : 0), line: a.line, src: (paid ? paid.src + ' + ' : '') + a.src + (b ? ' + ' + b.src : ''),
+        customerPaid: paid ? { withheld: r2(withheld), rest: r2(a.value + (b ? b.value : 0)) } : null }, 'Processing + additional services fees');
     }
     [
       [/Total Monthly Fees\b/i, 85], [/Total Fees For Billing Period/i, 85], [/Total Card Fees\b/i, 84], [/Total Charges and Fees\b/i, 84], [/\bTotal Fees( Charged| Paid| Assessed)?\b(?! Due)/i, 80],
@@ -1553,6 +1558,10 @@
     if (!vol) { vol = volC[0] || null; fee = pickBest(feeC, vol && vol.value); }
     if (vol) { result.volume = r2(vol.value); result.evidence.volume = vol.src; }
     if (fee) { result.total_fees = r2(fee.value); result.evidence.total_fees = fee.src; }
+    if (fee && fee.customerPaid) {
+      const usd = v => '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      result.warnings.push('Dual pricing statement: ' + usd(fee.customerPaid.withheld) + ' of these fees were withheld from deposits and covered by the service fee charged to card customers; the merchant’s other fees were ' + usd(fee.customerPaid.rest) + '.');
+    }
     const tx = extractTransactions(doc, vol);
     if (tx) { result.transactions = tx.value; result.evidence.transactions = tx.src; }
 
