@@ -188,6 +188,25 @@ test('Shift4 is recognised by its fee summary when the logo is unreadable, and a
   assert.equal(r.total_fees, 1125);
 });
 
+test('Shift4 dual pricing (Advantage Program): the fees withheld from deposits count, with a note that customers paid them', () => {
+  const r = Core.parseStatement([page([
+    [[40, 'MERCHANT STATEMENT FOR 07/2026']], [[300, 'www.shift4.com/support']], [[300, 'DBA NAME: SAMPLE BAKERY']],
+    [[40, 'SAMPLE BAKERY']], [[40, '12 ELM ST']], [[40, 'SPRINGFIELD, AZ 85000-1234']],
+    [[40, 'ADVANTAGE PROGRAM DISCOUNT (FEES PAID)'], [500, '($800.00)']],
+    [[40, 'PROCESSING - ADVANTAGE PROGRAM'], [500, '$800.00']],
+    [[40, 'OTHER'], [500, '$30.00']],
+    [[40, 'TOTAL PROCESSING SERVICE FEES APPLIED FOR THE REPORTING PERIOD'], [500, '$30.00']],
+    [[40, 'ADDITIONAL SERVICES FEE TOTAL2'], [500, '$50.00']],
+    [[40, '0099000000 VISA'], [200, '$20,800.00'], [280, '400'], [340, '$0.00'], [380, '0'], [420, '$20,800.00'], [500, '400']],
+    [[40, 'ACTIVITY TOTAL (0099000000)'], [200, '$20,800.00'], [280, '400'], [340, '$0.00'], [380, '0'], [420, '$20,800.00'], [500, '400']],
+  ])], {});
+  assert.equal(r.family, 'shift4');
+  assert.equal(r.volume, 20800);
+  assert.equal(r.transactions, 400);
+  assert.equal(r.total_fees, 880);
+  assert.ok(r.warnings.some(w => /Dual pricing statement: \$800\.00 .*other fees were \$80\.00/.test(w)), r.warnings.join(' | '));
+});
+
 test('Square sales summary: card payments and fees', () => {
   const r = Core.parseStatement([page([
     [[40, 'Mar 1, 2025-Mar 31 2025']], [[40, 'Sales Summary']],
